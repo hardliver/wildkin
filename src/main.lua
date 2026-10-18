@@ -1,40 +1,43 @@
 -- main.lua：遊戲的進入點
 --
--- 目前是開發起點：還沒有圖片和文字（引擎的 M1、M2 完成後才有），
--- 先用方塊代表主角，確認建置流程和操作都正常。
+-- M1：主角在草地上走動。地圖、碰撞在 M3 才做，這裡先用隨機散布的花草當背景。
 
-local LEFT, RIGHT, UP, DOWN = 0, 1, 2, 3
-local A, B, START, SELECT = 4, 5, 6, 7
+-- Kenney Tiny Town 的格子編號
+local GRASS, TUFT, FLOWER = 0, 1, 2
+local TREE_A, TREE_B = 16, 28
 
-local TILE = 16
-local player = {}
+local COLS, ROWS = SCREEN_W // TILE, SCREEN_H // TILE   -- 20 × 15 格
+local ground = {}   -- 每一格要畫哪個圖
 
 function _init()
-  -- 位置用「放大 16 倍的整數」存，搖桿推一點就能慢慢走
-  player.x16 = (SCREEN_W // 2 - TILE // 2) * 16
-  player.y16 = (SCREEN_H // 2 - TILE // 2) * 16
+  -- 用 rnd 隨機鋪草地：每次開始都一樣（rnd 的種子固定），重新開始也一樣
+  for i = 0, COLS * ROWS - 1 do
+    local r = rnd(100)
+    if r < 6 then ground[i] = FLOWER
+    elseif r < 18 then ground[i] = TUFT
+    else ground[i] = GRASS end
+  end
+  player_init(SCREEN_W // 2 - 8, SCREEN_H // 2 - 8)
 end
 
 function _update()
-  local lx, ly = stick(0, 0)
-  if lx == 0 and ly == 0 then
-    if btn(0, LEFT)  then lx = -127 end
-    if btn(0, RIGHT) then lx =  127 end
-    if btn(0, UP)    then ly = -127 end
-    if btn(0, DOWN)  then ly =  127 end
-  end
-  player.x16 = player.x16 + lx * 24 // 127   -- 最快每幀 1.5 像素
-  player.y16 = player.y16 + ly * 24 // 127
-  player.x16 = math.max(0, math.min(player.x16, (SCREEN_W - TILE) * 16))
-  player.y16 = math.max(0, math.min(player.y16, (SCREEN_H - TILE) * 16))
+  player_update()
 end
 
 function _draw()
-  cls(3)   -- 深綠色草地
+  -- 草地
+  for row = 0, ROWS - 1 do
+    for col = 0, COLS - 1 do
+      spr(IMG.town, ground[row * COLS + col], col * TILE, row * TILE)
+    end
+  end
 
-  -- 格線：之後會換成 Kenney Tiny Town 的地圖
-  for x = 0, SCREEN_W, TILE do rect(x, 0, 1, SCREEN_H, 11) end
-  for y = 0, SCREEN_H, TILE do rect(0, y, SCREEN_W, 1, 11) end
+  -- 上方一排樹當邊框
+  for col = 0, COLS - 1 do
+    local t = col % 2 == 0 and TREE_A or TREE_B
+    spr(IMG.town, GRASS, col * TILE, 0)
+    spr(IMG.town, t, col * TILE, 0)
+  end
 
-  rect(player.x16 // 16, player.y16 // 16, TILE, TILE, 7)
+  player_draw()
 end

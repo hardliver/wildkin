@@ -2,7 +2,13 @@
   "name": "Wildkin 野伴",
   "id": "hardliver/wildkin",
   "sources": [
+    "src/util.lua",
+    "src/player.lua",
     "src/main.lua"
   ],
+  "images": {
+    "town": "assets/kenney/tiny-town/tilemap.png",
+    "dungeon": "assets/kenney/tiny-dungeon/tilemap.png"
+  },
   "output": "build/wildkin.lua"
 }
