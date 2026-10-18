@@ -21,7 +21,7 @@ serve: build/wildkin.lua
 	cp build/wildkin.lua build/web/game.lua
 	@echo "電腦：http://localhost:$(PORT)"
 	@for i in en0 en1 en2; do ip=$$(ipconfig getifaddr $$i 2>/dev/null) && echo "手機：http://$$ip:$(PORT)"; done; true
-	python3 -m http.server $(PORT) --bind 0.0.0.0 --directory build/web
+	python3 $(ENGINE)/tools/serve.py $(PORT) build/web
 
 clean:
 	rm -rf build
