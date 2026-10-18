@@ -7,19 +7,33 @@
 -- 畫在世界座標 (x, y) 的東西會出現在畫面的 (x - cam_x, y - cam_y)。
 
 world = {
+  name = nil,     -- 目前地圖的名字（"camp" 等，comet.json 的 maps）
   map = nil,      -- 目前的地圖（MAP.camp 等）
+  objects = {},   -- 這張地圖的物件（MAPOBJ.camp 等：門、NPC、告示牌……）
   w = 0, h = 0,   -- 地圖的大小（像素）
   cam_x = 0,      -- 相機位置（世界座標）
   cam_y = 0,
   blockers = {},  -- 會擋路的人（NPC）：每個都有 x、y（圖的左上角，世界座標）
 }
 
--- 進入一張地圖（擋路的人清空，由這張地圖的程式重新加）
-function world_enter(m)
+-- 進入一張地圖（用名字，例如 "camp"）。擋路的人清空，由這張地圖的程式重新加
+function world_enter(name)
+  local m = MAP[name]
+  if not m then error("沒有叫 " .. tostring(name) .. " 的地圖（comet.json 的 maps）") end
+  world.name = name
   world.map = m
+  world.objects = MAPOBJ[name] or {}
   world.w = mapw(m) * TILE
   world.h = maph(m) * TILE
   world.blockers = {}
+end
+
+-- 第 (cx, cy) 格上的門（沒有回傳 nil）
+function world_door_at(cx, cy)
+  for _, o in ipairs(world.objects) do
+    if o.type == "door" and o.x == cx and o.y == cy then return o end
+  end
+  return nil
 end
 
 -- ============================================================

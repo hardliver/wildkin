@@ -6,6 +6,7 @@
     "src/dialog.lua",
     "src/menu.lua",
     "src/world.lua",
+    "src/transition.lua",
     "src/player.lua",
     "src/main.lua"
   ],
@@ -15,6 +16,7 @@
   },
   "output": "build/wildkin.lua",
   "maps": {
-    "camp": "maps/camp.json"
+    "camp": "maps/camp.json",
+    "route1": "maps/route1.json"
   }
 }

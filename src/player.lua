@@ -64,6 +64,17 @@ local function corner_help(axis, dir)
   end
 end
 
+-- 把主角放到第 (cx, cy) 格（換地圖時用）
+function player_place(cx, cy)
+  player.x16 = cx * TILE * 16
+  player.y16 = cy * TILE * 16
+end
+
+-- 主角的腳的中心踩在第幾格（踩門、之後踩草叢都用這個）
+function player_cell()
+  return (player.x16 // 16 + 8) // TILE, (player.y16 // 16 + 12) // TILE
+end
+
 function player_update()
   local mx, my = move_input()
 
