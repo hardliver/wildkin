@@ -8,8 +8,9 @@
 ENGINE ?= ../comet
 PORT ?= 8421
 
-build/wildkin.lua: tools/build.py $(wildcard src/*.lua)
-	python3 tools/build.py
+# 合併 comet.json 列出的原始碼（用引擎附的工具，和 Comet Studio 的合併結果相同）
+build/wildkin.lua: comet.json $(wildcard src/*.lua)
+	node $(ENGINE)/tools/cart.mjs .
 
 # 1. 用引擎自己的 Makefile 編譯網頁版（引擎有改過才會重新編譯）
 # 2. 把引擎的網頁檔案複製過來，遊戲檔放成 game.lua（遊玩頁預設載入的檔名）

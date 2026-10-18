@@ -1,0 +1,8 @@
+{
+  "name": "Wildkin 野伴",
+  "id": "hardliver/wildkin",
+  "sources": [
+    "src/main.lua"
+  ],
+  "output": "build/wildkin.lua"
+}
