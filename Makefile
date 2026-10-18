@@ -1,0 +1,28 @@
+# 用法（在 wildkin 資料夾裡）：
+#   make         產生遊戲檔 build/wildkin.lua
+#   make serve   編譯引擎 + 遊戲，瀏覽器開 http://localhost:8421
+#   make clean   清除編譯結果
+#
+# 引擎預設在旁邊的 ../comet；在別的地方的話：make serve ENGINE=/path/to/comet
+
+ENGINE ?= ../comet
+PORT ?= 8421
+
+build/wildkin.lua: tools/build.py $(wildcard src/*.lua)
+	python3 tools/build.py
+
+# 1. 用引擎自己的 Makefile 編譯網頁版（引擎有改過才會重新編譯）
+# 2. 把引擎的網頁檔案複製過來，遊戲檔放成 game.lua（遊玩頁預設載入的檔名）
+serve: build/wildkin.lua
+	$(MAKE) -C $(ENGINE) web
+	mkdir -p build/web
+	cp -R $(ENGINE)/build/web/. build/web/
+	cp build/wildkin.lua build/web/game.lua
+	@echo "電腦：http://localhost:$(PORT)"
+	@for i in en0 en1 en2; do ip=$$(ipconfig getifaddr $$i 2>/dev/null) && echo "手機：http://$$ip:$(PORT)"; done; true
+	python3 -m http.server $(PORT) --bind 0.0.0.0 --directory build/web
+
+clean:
+	rm -rf build
+
+.PHONY: serve clean
