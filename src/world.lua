@@ -11,13 +11,57 @@ world = {
   w = 0, h = 0,   -- 地圖的大小（像素）
   cam_x = 0,      -- 相機位置（世界座標）
   cam_y = 0,
+  blockers = {},  -- 會擋路的人（NPC）：每個都有 x、y（圖的左上角，世界座標）
 }
 
--- 進入一張地圖
+-- 進入一張地圖（擋路的人清空，由這張地圖的程式重新加）
 function world_enter(m)
   world.map = m
   world.w = mapw(m) * TILE
   world.h = maph(m) * TILE
+  world.blockers = {}
+end
+
+-- ============================================================
+-- 碰撞
+-- ============================================================
+-- 角色的圖是 16 × 16，但碰撞只算「腳」：下半部寬 10、高 6 的方框。
+-- 這樣主角可以站在樹的下緣、頭稍微蓋到樹上，看起來比較自然；
+-- 整張圖都算的話，主角和牆之間會有一段奇怪的空隙。
+local FEET_X, FEET_Y, FEET_W, FEET_H = 3, 9, 10, 6
+
+-- 加一個會擋路的人。who 要有 x、y（圖的左上角）
+function world_add_blocker(who)
+  world.blockers[#world.blockers + 1] = who
+end
+
+-- 地圖上這個像素是不是牆（solid 圖層不是 0；地圖外面也算牆）
+local function solid_px(px, py)
+  if px < 0 or py < 0 or px >= world.w or py >= world.h then return true end
+  return mget(world.map, "solid", px // TILE, py // TILE) ~= 0
+end
+
+-- 兩個方框有沒有重疊（左上角 + 寬高）
+local function overlap(ax, ay, aw, ah, bx, by, bw, bh)
+  return ax < bx + bw and bx < ax + aw and ay < by + bh and by < ay + ah
+end
+
+-- 圖的左上角在 (x, y) 的角色，站在這裡會不會撞到東西。
+-- self：自己（檢查擋路的人時跳過自己）
+function world_blocked(x, y, self)
+  local fx, fy = x + FEET_X, y + FEET_Y
+  -- 地圖：腳的四個角各看一次。腳比一格小，所以四個角就夠了
+  if solid_px(fx, fy) or solid_px(fx + FEET_W - 1, fy)
+     or solid_px(fx, fy + FEET_H - 1) or solid_px(fx + FEET_W - 1, fy + FEET_H - 1) then
+    return true
+  end
+  -- 人：腳的方框互相重疊就算撞到
+  for _, b in ipairs(world.blockers) do
+    if b ~= self and overlap(fx, fy, FEET_W, FEET_H, b.x + FEET_X, b.y + FEET_Y, FEET_W, FEET_H) then
+      return true
+    end
+  end
+  return false
 end
 
 -- 一個方向的相機位置：讓目標在畫面正中央，但不要拍到地圖外面

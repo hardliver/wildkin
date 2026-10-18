@@ -30,6 +30,7 @@ end
 
 function _init()
   world_enter(MAP.camp)
+  world_add_blocker(ELDER)            -- 老苔會擋路，不能穿過去
   player_init(19 * TILE, 15 * TILE)   -- 營地空地的中間
 end
 
@@ -51,9 +52,16 @@ function _draw()
   cls(0)
   world_draw()   -- 設定相機，畫地面和裝飾
 
-  -- 老苔（會面向主角）和主角：都用世界座標
-  spr(IMG.dungeon, ELDER.tile, ELDER.x, ELDER.y, player.x16 // 16 < ELDER.x)
-  player_draw()
+  -- 老苔（會面向主角）和主角：都用世界座標。
+  -- 比較下面（y 比較大）的後畫，才會蓋住上面的：主角站在老苔下方時蓋住老苔
+  local function draw_elder() spr(IMG.dungeon, ELDER.tile, ELDER.x, ELDER.y, player.x16 // 16 < ELDER.x) end
+  if player.y16 // 16 >= ELDER.y then
+    draw_elder()
+    player_draw()
+  else
+    player_draw()
+    draw_elder()
+  end
 
   camera()        -- 介面固定在畫面上
   dialog_draw()   -- 最後畫，蓋在所有東西上面
