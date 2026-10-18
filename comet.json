@@ -3,6 +3,8 @@
   "id": "hardliver/wildkin",
   "sources": [
     "src/util.lua",
+    "src/dialog.lua",
+    "src/menu.lua",
     "src/player.lua",
     "src/main.lua"
   ],
