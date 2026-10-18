@@ -21,8 +21,9 @@ function player_update()
 
   player.x16 = player.x16 + mx * MAX_SPEED // 127
   player.y16 = player.y16 + my * MAX_SPEED // 127
-  player.x16 = clamp(player.x16, 0, (SCREEN_W - TILE) * 16)
-  player.y16 = clamp(player.y16, TILE * 16, (SCREEN_H - TILE) * 16)   -- 最上面一排是樹
+  -- 不能走出地圖（撞樹等碰撞在 W14 再做）
+  player.x16 = clamp(player.x16, 0, (world.w - TILE) * 16)
+  player.y16 = clamp(player.y16, 0, (world.h - TILE) * 16)
 
   if mx < 0 then player.facing_left = true end
   if mx > 0 then player.facing_left = false end

@@ -1,17 +1,10 @@
 -- main.lua：遊戲的進入點
 --
--- M1：主角在草地上走動。地圖、碰撞在 M3 才做，這裡先用隨機散布的花草當背景。
--- M2：老苔站在畫面中間，走過去按 A 會開始對話，最後問「是／否」。
-
--- Kenney Tiny Town 的格子編號
-local GRASS, TUFT, FLOWER = 0, 1, 2
-local TREE_A, TREE_B = 16, 28
-
-local COLS, ROWS = SCREEN_W // TILE, SCREEN_H // TILE   -- 20 × 15 格
-local ground = {}   -- 每一格要畫哪個圖
+-- M2：老苔站在營地中間，走過去按 A 會開始對話，最後問「是／否」。
+-- M3：營地是一張 40 × 30 格的地圖（maps/camp.json），相機跟著主角捲動。
 
 -- 老苔：營地的管理員（Kenney Tiny Dungeon 第 84 格，紫袍白鬍子的老人）
-local ELDER = { tile = 84, x = 152, y = 72 }
+local ELDER = { tile = 84, x = 19 * TILE, y = 11 * TILE }   -- 世界座標：營地空地的北邊
 local TALK_RANGE = 24   -- 主角和老苔的距離在 24 像素內才能說話
 
 local function near_elder()
@@ -36,14 +29,8 @@ local function talk_to_elder()
 end
 
 function _init()
-  -- 用 rnd 隨機鋪草地：每次開始都一樣（rnd 的種子固定），重新開始也一樣
-  for i = 0, COLS * ROWS - 1 do
-    local r = rnd(100)
-    if r < 6 then ground[i] = FLOWER
-    elseif r < 18 then ground[i] = TUFT
-    else ground[i] = GRASS end
-  end
-  player_init(SCREEN_W // 2 - 8, SCREEN_H // 2 - 8)
+  world_enter(MAP.camp)
+  player_init(19 * TILE, 15 * TILE)   -- 營地空地的中間
 end
 
 function _update()
@@ -57,26 +44,17 @@ function _update()
 
   player_update()
   if pressed(A) and near_elder() then talk_to_elder() end
+  world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)   -- 跟著主角的中心點
 end
 
 function _draw()
-  -- 草地
-  for row = 0, ROWS - 1 do
-    for col = 0, COLS - 1 do
-      spr(IMG.town, ground[row * COLS + col], col * TILE, row * TILE)
-    end
-  end
+  cls(0)
+  world_draw()   -- 設定相機，畫地面和裝飾
 
-  -- 上方一排樹當邊框
-  for col = 0, COLS - 1 do
-    local t = col % 2 == 0 and TREE_A or TREE_B
-    spr(IMG.town, GRASS, col * TILE, 0)
-    spr(IMG.town, t, col * TILE, 0)
-  end
-
-  -- 老苔（會面向主角）和主角
+  -- 老苔（會面向主角）和主角：都用世界座標
   spr(IMG.dungeon, ELDER.tile, ELDER.x, ELDER.y, player.x16 // 16 < ELDER.x)
   player_draw()
 
+  camera()        -- 介面固定在畫面上
   dialog_draw()   -- 最後畫，蓋在所有東西上面
 end

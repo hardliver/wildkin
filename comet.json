@@ -5,6 +5,7 @@
     "src/util.lua",
     "src/dialog.lua",
     "src/menu.lua",
+    "src/world.lua",
     "src/player.lua",
     "src/main.lua"
   ],
@@ -12,5 +13,8 @@
     "town": "assets/kenney/tiny-town/tilemap.png",
     "dungeon": "assets/kenney/tiny-dungeon/tilemap.png"
   },
-  "output": "build/wildkin.lua"
+  "output": "build/wildkin.lua",
+  "maps": {
+    "camp": "maps/camp.json"
+  }
 }
