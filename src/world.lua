@@ -43,6 +43,13 @@ function world_spr(v, x, y, flip)
   end
 end
 
+-- 畫格子編號 v 的圖的一部分（sx, sy, sw, sh：格子裡的範圍），左上角放在 (x, y)
+function world_sspr(v, sx, sy, sw, sh, x, y)
+  local img, n = IMG.town, v - 1
+  if v > TOWN_TILES then img, n = IMG.dungeon, v - TOWN_TILES - 1 end
+  sspr(img, (n % 12) * 16 + sx, (n // 12) * 16 + sy, sw, sh, x, y)
+end
+
 -- 世界座標 (px, py) 這一點所在的格子上的告示牌（沒有回傳 nil）
 function world_sign_at(px, py)
   local cx, cy = px // TILE, py // TILE
@@ -116,8 +123,11 @@ function world_follow(x, y)
 end
 
 -- 開始畫世界：設定相機，畫地面和裝飾。之後畫的角色也會跟著相機
+-- 畫的順序：地面 → 被風吹動的草 → 裝飾（房子、柵欄、告示牌）→ 植物（樹會隨風搖，ambient.lua）
 function world_draw()
   camera(world.cam_x, world.cam_y)
   map(world.map, "ground")
+  grass_draw()
   map(world.map, "deco")
+  plants_draw()
 end

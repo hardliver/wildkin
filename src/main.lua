@@ -10,6 +10,7 @@
 local function enter_map(name)
   world_enter(name)
   npc_load()
+  butterflies_enter()
 end
 
 -- 剛換到新地圖時，主角可能站在門上：要先離開門，才能再觸發，不然會來回彈
@@ -71,6 +72,7 @@ function _update()
   end
 
   player_update()
+  for _, n in ipairs(npcs) do npc_update(n) end
   if pressed(A) then interact() end
   check_door()
   world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)   -- 跟著主角的中心點
@@ -95,6 +97,7 @@ function _draw()
   cls(0)
   world_draw()   -- 設定相機，畫地面和裝飾
   draw_actors()  -- 世界座標
+  butterflies_draw()   -- 飛在大家上面
 
   camera()           -- 介面固定在畫面上
   dialog_draw()

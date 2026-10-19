@@ -6,6 +6,7 @@
     "src/dialog.lua",
     "src/menu.lua",
     "src/world.lua",
+    "src/ambient.lua",
     "src/transition.lua",
     "src/player.lua",
     "src/npc.lua",

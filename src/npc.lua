@@ -21,6 +21,8 @@ function npc_load()
         x = o.x * TILE,         -- 圖的左上角（世界座標）；和主角、world_blocked 用一樣的規則
         y = o.y * TILE,
         face_left = false,
+        seed = hash(o.x, o.y, 7),   -- 呼吸、東張西望的節奏，每個人錯開
+        talked = -10000,            -- 上次跟主角說話是第幾幀
       }
       npcs[#npcs + 1] = n
       world_add_blocker(n)      -- NPC 會擋路，不能穿過去
@@ -40,8 +42,22 @@ end
 -- 轉頭面向世界座標 x（通常是主角的中心）
 function npc_face(n, x)
   n.face_left = x < n.x + TILE // 2
+  n.talked = frame()
+end
+
+-- 東張西望：每 4 秒左右有機會轉向另一邊。剛說完話的 10 秒內一直看著主角
+local LOOK_EVERY, LOOK_AFTER_TALK = 240, 600
+
+function npc_update(n)
+  local f = frame()
+  if f - n.talked < LOOK_AFTER_TALK then return end
+  if (f + n.seed) % LOOK_EVERY == 0 and hash(f // LOOK_EVERY, n.seed) % 3 == 0 then
+    n.face_left = not n.face_left
+  end
 end
 
 function npc_draw(n)
-  world_spr(n.tile, n.x, n.y, n.face_left)
+  local img, idx = IMG.town, n.tile - 1
+  if n.tile > 132 then img, idx = IMG.dungeon, n.tile - 133 end
+  draw_body(img, idx, n.x, n.y, n.face_left, breath_lift(n.seed))
 end
