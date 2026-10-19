@@ -1,6 +1,6 @@
 {
   "01": {
-    "name": "芽角羊", "type": "grass",
+    "name": "芽角羊", "type": "grass", "sprite": 0,
     "base": { "hp": 45, "atk": 49, "def": 49, "spd": 45 },
     "catch": 45, "exp": 64,
     "work": { "farm": 1 },
@@ -8,7 +8,7 @@
     "desc": "角是兩片嫩芽。天氣好的時候會趴著曬太陽，角會長得特別快。"
   },
   "03": {
-    "name": "炭毛狸", "type": "fire",
+    "name": "炭毛狸", "type": "fire", "sprite": 1,
     "base": { "hp": 39, "atk": 55, "def": 40, "spd": 62 },
     "catch": 45, "exp": 62,
     "work": { "fire": 1 },
@@ -16,7 +16,7 @@
     "desc": "尾巴尖端是一塊悶燒的炭。冬天會有人偷偷靠在牠旁邊取暖。"
   },
   "05": {
-    "name": "鬚鬚鯰", "type": "water",
+    "name": "鬚鬚鯰", "type": "water", "sprite": 2,
     "base": { "hp": 50, "atk": 48, "def": 55, "spd": 40 },
     "catch": 45, "exp": 63,
     "work": { "water": 1 },
@@ -24,7 +24,7 @@
     "desc": "有手有腳的小鯰魚。長長的鬍鬚能感覺到要下雨了。"
   },
   "07": {
-    "name": "囤囤鼠", "type": "normal",
+    "name": "囤囤鼠", "type": "normal", "sprite": 3,
     "base": { "hp": 40, "atk": 40, "def": 35, "spd": 55 },
     "catch": 200, "exp": 50,
     "work": { "carry": 1, "lumber": 1 },
@@ -32,7 +32,7 @@
     "desc": "臉頰總是塞滿東西。喜歡啃木頭，營地的柵欄常被牠咬出缺口。"
   },
   "08": {
-    "name": "哨哨雀", "type": "normal",
+    "name": "哨哨雀", "type": "normal", "sprite": 4,
     "base": { "hp": 35, "atk": 45, "def": 30, "spd": 70 },
     "catch": 190, "exp": 55,
     "work": { "scout": 1 },

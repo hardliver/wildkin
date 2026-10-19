@@ -70,3 +70,13 @@ end
 
 if failed > 0 then error("kin.lua 有 " .. failed .. " 項測試沒通過") end
 print("✓ kin.lua：全部通過")
+
+-- W24：每種野伴都有戰鬥圖（sprite 是 kin_front／kin_back 的第幾格，check_data.mjs 會檢查範圍）
+do
+  assert(IMG.kin_front and IMG.kin_back, "戰鬥圖沒有載入")
+  for no, s in pairs(DATA.species) do
+    spr(IMG.kin_front, s.sprite, 0, 0)
+    spr(IMG.kin_back, s.sprite, 64, 0)
+  end
+  print("ok: 戰鬥圖")
+end

@@ -49,12 +49,21 @@ for (const [key, m] of Object.entries(moves)) {
   if (m.power === 0 && !e) err(`${at}：不造成傷害的招式一定要有 effect`);
 }
 
+// 戰鬥圖有幾格：直接讀 PNG 檔頭的寬度（第 16–19 byte）
+const pngWidth = (f) => fs.readFileSync(f).readUInt32BE(16);
+const frontCount = pngWidth("assets/art/kin_front.png") / 64, backCount = pngWidth("assets/art/kin_back.png") / 32;
+const spriteUsed = {};
+
 // 野伴
 for (const [no, s] of Object.entries(species)) {
   const at = `species.json 的 ${no}（${s.name}）`;
   if (!/^\d\d$/.test(no)) err(`${at}：編號要是兩位數字，例如 "07"`);
   if (!(s.type in types.names)) err(`${at}：屬性「${s.type}」不存在`);
   for (const k of STATS) if (!isInt(s.base?.[k]) || s.base[k] < 1) err(`${at}：base.${k} 要是正整數`);
+  if (!isInt(s.sprite) || s.sprite < 0 || s.sprite >= frontCount || s.sprite >= backCount)
+    err(`${at}：sprite 要是 0–${Math.min(frontCount, backCount) - 1}（kin_front.png／kin_back.png 的第幾格）`);
+  else if (spriteUsed[s.sprite]) err(`${at}：sprite ${s.sprite} 已經給 ${spriteUsed[s.sprite]} 用了`);
+  else spriteUsed[s.sprite] = no;
   if (!isInt(s.catch) || s.catch < 1 || s.catch > 255) err(`${at}：catch 要是 1–255`);
   if (!isInt(s.exp) || s.exp < 1) err(`${at}：exp 要是正整數`);
   for (const [w, lv] of Object.entries(s.work || {})) {
