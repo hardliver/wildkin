@@ -77,7 +77,10 @@
 
 ## M4：遇敵與回合制戰鬥
 
-- [ ] **W20 [引擎] 資料檔合併（JSON → Lua 表格）**：comet.json 加 `data`，像 `images` 一樣合併時轉換
+- [x] **W20 [引擎] 資料檔合併（JSON → Lua 表格）**（2026-10-19）：comet.json 加 `data`，像 `images` 一樣合併時轉換
+  - `"data": { "species": "data/species.json" }` → 遊戲裡 `DATA.species`；物件 → `{ key = 值 }`、陣列 → 從 1 開始的 Lua 陣列
+  - 不能有小數和 null，錯誤訊息指出檔案和位置（「data/species.json 的 [3].hp 是小數」）；資料檔裡的字會收進字型
+  - Studio 改了資料檔會自動重新合併；comet 的 `make check` 測試 12
 - [ ] **W21 [企劃] 第一批資料**：野伴 01、03、05、07、08，招式 12 招，屬性相剋表，寫成 `data/*.json`
 - [ ] **W22 [遊戲] 野伴個體**：從種類＋等級算出能力值；HP、經驗、記住的招式
 - [ ] **W23 [遊戲] 戰鬥邏輯（不碰畫面）**
