@@ -9,7 +9,8 @@ ENGINE ?= ../comet
 PORT ?= 8421
 
 # 合併 comet.json 列出的原始碼（用引擎附的工具，和 Comet Studio 的合併結果相同）
-build/wildkin.lua: comet.json $(wildcard src/*.lua)
+# 地圖、圖片改了也要重新合併
+build/wildkin.lua: comet.json $(wildcard src/*.lua maps/*.json assets/*/*.png assets/*/*/*.png)
 	node $(ENGINE)/tools/cart.mjs .
 
 # 1. 用引擎自己的 Makefile 編譯網頁版（引擎有改過才會重新編譯）
