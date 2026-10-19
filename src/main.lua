@@ -5,6 +5,7 @@
 --     營地南邊的門通往草原小徑（maps/route1.json）。
 --     NPC 和告示牌放在地圖的物件層（W17）：面對它按 A 就開始對話，NPC 會轉頭面向主角。
 --     草原小徑的南邊通往苔石村（maps/village.json，W18）。
+-- M4：戰鬥畫面在 battle_ui.lua（W25）。戰鬥中整個畫面交給它，地圖暫停。
 
 -- 進入一張地圖：地圖本身交給 world，NPC 從地圖的物件建立
 local function enter_map(name)
@@ -52,6 +53,8 @@ local function interact()
 end
 
 function _init()
+  -- 隊伍（暫時）：序章選初始野伴（W54）之前，先直接給一隻 Lv5 芽角羊
+  party = { kin_new("01", 5) }
   enter_map("camp")
   player_init(19 * TILE, 15 * TILE)   -- 營地空地的中間
 end
@@ -62,6 +65,12 @@ function _update()
   -- 轉場中：主角不能動
   if transition_active() then
     transition_update()
+    return
+  end
+
+  -- 戰鬥中：只處理戰鬥（戰鬥自己會處理對話框）
+  if battle_scene_active() then
+    battle_scene_update()
     return
   end
 
@@ -94,10 +103,14 @@ local function draw_actors()
 end
 
 function _draw()
-  cls(0)
-  world_draw()   -- 設定相機，畫地面和裝飾
-  draw_actors()  -- 世界座標
-  butterflies_draw()   -- 飛在大家上面
+  if battle_scene_active() then
+    battle_scene_draw()
+  else
+    cls(0)
+    world_draw()   -- 設定相機，畫地面和裝飾
+    draw_actors()  -- 世界座標
+    butterflies_draw()   -- 飛在大家上面
+  end
 
   camera()           -- 介面固定在畫面上
   dialog_draw()
