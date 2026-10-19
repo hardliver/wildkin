@@ -13,7 +13,7 @@
 --
 -- 畫面上的數值（view）和戰鬥的真正狀態分開：
 --   battle_step 一下子就把整回合算完了，但玩家要「先看到訊息，再看到血條變少」，
---   所以畫面用自己的一份 HP、經驗、等級，事件演到哪裡才更新到哪裡（W26 再把它變成慢慢減少）。
+--   所以畫面用自己的一份 HP、經驗、等級，事件演到哪裡才更新到哪裡（W26：血條、經驗條慢慢變化）。
 
 -- 戰鬥畫面自己的顏色（圖片的顏色從 16 號往上排，這裡用最後面幾號，不會撞到）
 local C_SKY, C_GROUND, C_GROUND_EDGE = 250, 251, 252
@@ -27,7 +27,9 @@ local S = nil   -- 目前的戰鬥畫面；nil = 不在戰鬥中
 -- S = {
 --   b       = battle.lua 的戰鬥狀態
 --   view    = { [1] = { kin, hp, exp, level }, [2] = ... }  畫面上顯示的數值
---   mode    = "msg"（訊息播放中，交給 dialog）／"command"（選指令）／"move"（選招式）
+--   mode    = "msg"（演出中）／"command"（選指令）／"move"（選招式）／"done"（結束轉場中）
+--   co      = 正在跑的演出（coroutine），nil = 沒有
+--   fx      = 每一邊的演出狀態：hidden（閃爍中藏起來）、sink（倒下沉了幾像素）、dx（進場滑入的位移）
 --   cmd     = 指令選單（戰鬥、野伴、背包、逃跑）
 --   moves   = 招式選單
 --   on_end  = 戰鬥結束後呼叫，參數是 b.over
@@ -38,7 +40,7 @@ local S = nil   -- 目前的戰鬥畫面；nil = 不在戰鬥中
 -- ============================================================
 
 local function view_of(k)
-  return { kin = k, hp = k.hp, exp = k.exp, level = k.level }
+  return { kin = k, hp = k.hp, exp = k.exp, exp_target = k.exp, level = k.level }
 end
 
 -- 畫面上的最大 HP 用「畫面上的等級」算（升級訊息出來之前，血條上限還是舊的）
@@ -50,49 +52,113 @@ local function refresh_view(side)
   S.view[side] = view_of(battle_active(S.b, side))
 end
 
--- 事件演到這一個時，畫面跟著更新
-local function apply(e)
-  local v = e.side and S.view[e.side]
+-- ============================================================
+-- 演出：用 coroutine 照順序寫
+-- ============================================================
+-- 一回合的演出是「訊息 → 閃爍 → 血條慢慢減少 → 下一句訊息……」，
+-- 每一步都要等好幾幀。如果用一般函式，得把它拆成一堆「做完這個再呼叫那個」的回呼；
+-- 用 coroutine 就能照順序寫，每次 wait() 或 msg() 都會「暫停到下一幀再回來」。
+-- battle_scene_update 每幀呼叫一次 coroutine.resume，讓它往下跑一點。
+
+-- 等 n 幀
+local function wait(n)
+  for _ = 1, n do coroutine.yield() end
+end
+
+-- 顯示一句訊息，等玩家按 A 關掉
+local function msg(text)
+  S.last = text
+  dialog_open(text)
+  while dialog_active() do coroutine.yield() end
+end
+
+-- 開始一段演出（取代目前的）
+local function run(fn)
+  S.mode = "msg"
+  S.co = coroutine.create(fn)
+end
+
+local function say(text, after)
+  run(function() msg(text); after() end)
+end
+
+-- 被打到：圖片閃 3 下（藏 4 幀、出現 4 幀）
+local function flash(side)
+  local fx = S.fx[side]
+  for _ = 1, 3 do
+    fx.hidden = true; wait(4)
+    fx.hidden = false; wait(4)
+  end
+end
+
+-- 從 a 慢慢變到 b，總共 frames 幀，每幀呼叫 set(目前的值)
+local function tween(a, b, frames, set)
+  for t = 1, frames do
+    set(a + (b - a) * t // frames)
+    wait(1)
+  end
+end
+
+-- 血條慢慢變到 to：變化越多越久（整條約 1 秒），最少 8 幀
+local function slide_hp(side, to)
+  local v = S.view[side]
+  local frames = clamp(math.abs(to - v.hp) * 60 // view_max_hp(v), 8, 60)
+  tween(v.hp, to, frames, function(x) v.hp = x end)
+end
+
+-- 經驗條慢慢增加，但最多到「下一級」為止（升級之後再繼續）
+local function fill_exp(v)
+  local to = v.exp_target
+  if v.level < 50 then to = math.min(to, kin_exp_for(v.level + 1)) end
+  if to > v.exp then tween(v.exp, to, 40, function(x) v.exp = x end) end
+end
+
+-- 倒下：往下沉進草地（24 幀）
+local function sink(side)
+  tween(0, 64, 24, function(x) S.fx[side].sink = x end)
+end
+
+-- 演出一個事件
+local function show(e)
   local K = e.kind
-  if K == "damage" or K == "heal" or K == "burn_damage" then v.hp = e.hp
-  elseif K == "exp" then v.exp = v.exp + e.amount
+  local v = e.side and S.view[e.side]
+  local text = battle_event_text(S.b, e)
+  if K == "damage" then
+    flash(e.side)
+    slide_hp(e.side, e.hp)
+  elseif K == "burn_damage" then
+    flash(e.side)
+    slide_hp(e.side, e.hp)
+  elseif K == "heal" then
+    slide_hp(e.side, e.hp)
+  elseif K == "faint" then
+    sink(e.side)
+  elseif K == "exp" then
+    msg(text)
+    v.exp_target = v.exp + e.amount
+    fill_exp(v)
+    return
   elseif K == "level" then
     local old = view_max_hp(v)
     v.level = e.level
     v.hp = v.hp + view_max_hp(v) - old       -- 和 kin_gain_exp 一樣：上限加多少，目前 HP 也加多少
-  elseif K == "switch" then refresh_view(e.side)
+    msg(text)
+    fill_exp(v)                              -- 剩下的經驗繼續加到新的一級
+    return
+  elseif K == "switch" then
+    refresh_view(e.side)
+    S.fx[e.side] = { sink = 0 }
   end
-end
-
--- ============================================================
--- 訊息：一串文字依序用對話框播放
--- ============================================================
-
--- 依序演出事件，演完呼叫 done
-local function play(events, done)
-  local i = 0
-  local function next_event()
-    i = i + 1
-    local e = events[i]
-    if not e then return done() end
-    apply(e)
-    local t = battle_event_text(S.b, e)
-    if t then dialog_open(t, next_event) else next_event() end
-  end
-  S.mode = "msg"
-  next_event()
-end
-
-local function say(text, done)
-  S.mode = "msg"
-  dialog_open(text, done)
+  if text then msg(text) end
 end
 
 -- ============================================================
 -- 流程
 -- ============================================================
 
-local to_command   -- 下面才定義（after_turn 會用到）
+local function to_command()
+  S.mode = "command"
+end
 
 -- 結束：轉場到全黑時才關掉戰鬥畫面（在那之前還是畫戰鬥），然後通知呼叫的人
 local function finish()
@@ -104,26 +170,20 @@ local function finish()
   end)
 end
 
--- 一回合演完：結束了就離開；有一邊倒下就換下一隻；不然回到選指令
-local function after_turn(events)
-  if S.b.over then return finish() end
-  for _, e in ipairs(events) do
-    if e.kind == "need_switch" then
-      -- 倒下之後換下一隻（玩家這邊之後改成自己選，W35）
-      local i = battle_next_alive(S.b, e.side)
-      return play(battle_send_out(S.b, e.side, i), function() after_turn({}) end)
-    end
-  end
-  to_command()
-end
-
 local function do_turn(choice)
   local events = battle_step(S.b, choice, battle_ai(S.b, 2))
-  play(events, function() after_turn(events) end)
-end
-
-to_command = function()
-  S.mode = "command"
+  run(function()
+    for _, e in ipairs(events) do show(e) end
+    if S.b.over then return finish() end
+    for _, e in ipairs(events) do
+      if e.kind == "need_switch" then
+        -- 倒下之後換下一隻（玩家這邊之後改成自己選，W35）
+        local i = battle_next_alive(S.b, e.side)
+        for _, e2 in ipairs(battle_send_out(S.b, e.side, i)) do show(e2) end
+      end
+    end
+    to_command()
+  end)
 end
 
 local function open_moves()
@@ -143,15 +203,19 @@ local function begin(foe_party, opts, on_end)
   local b = battle_new(party, foe_party, opts)
   S = {
     b = b, view = {}, on_end = on_end,
+    fx = { { sink = 0, dx = 0 }, { sink = 0, dx = 0 } },   -- 演出用：hidden（閃爍）、sink（倒下）、dx（進場滑入）
     cmd = menu_new({ items = { "戰鬥", "野伴", "背包", "逃跑" }, cols = 2, x = 0, y = 0, cancel = false }),
   }
   S.cmd.x, S.cmd.y, S.cmd.h = 316 - S.cmd.w, 184, 52   -- 疊在訊息框右邊
   refresh_view(1)
   refresh_view(2)
   local foe = battle_active(b, 2)
-  local intro = (b.wild and "野生的" or "對手派出了") .. kin_name(foe) .. (b.wild and "出現了！" or "！")
-  say(intro, function()
-    say("上吧！" .. kin_name(battle_active(b, 1)) .. "！", to_command)
+  run(function()
+    -- 進場：對手從左邊、自己從右邊滑進來（GB 的開場）
+    tween(240, 0, 40, function(x) S.fx[2].dx = -x; S.fx[1].dx = x end)
+    msg((b.wild and "野生的" or "對手派出了") .. kin_name(foe) .. (b.wild and "出現了！" or "！"))
+    msg("上吧！" .. kin_name(battle_active(b, 1)) .. "！")
+    to_command()
   end)
 end
 
@@ -169,8 +233,12 @@ end
 -- ============================================================
 
 function battle_scene_update()
-  if dialog_active() then
-    dialog_update()
+  if S.co then
+    if dialog_active() then dialog_update() end
+    local co = S.co
+    local ok, err = coroutine.resume(co)
+    if not ok then error(err) end
+    if S and S.co == co and coroutine.status(co) == "dead" then S.co = nil end
     return
   end
   if S.mode == "command" then
@@ -267,17 +335,20 @@ local function bracket(x1, x2, y_top, y_bottom, side_x)
   rect(x1, y_bottom, x2 - x1 + 1, 2, 0)
 end
 
+-- 野伴的圖：閃爍時不畫；倒下時往下沉（只畫上面的部分、往下移，看起來像沉進草地）
 local function draw_foe()
-  local v = S.view[2]
-  if v.hp <= 0 then return end   -- 倒下就不畫（W26 加上往下沉的動畫）
-  spr(IMG.kin_front, kin_species(v.kin).sprite, 224, 18)
+  local v, fx = S.view[2], S.fx[2]
+  if fx.hidden or fx.sink >= 64 then return end
+  local n = kin_species(v.kin).sprite
+  sspr(IMG.kin_front, n * 64, 0, 64, 64 - fx.sink, 224 + fx.dx, 18 + fx.sink)
 end
 
 local function draw_mine()
-  local v = S.view[1]
-  if v.hp <= 0 then return end
+  local v, fx = S.view[1], S.fx[1]
+  if fx.hidden or fx.sink >= 64 then return end
   local n = kin_species(v.kin).sprite
-  sspr(IMG.kin_back, n * 32, 0, 32, 32, 40, 120, 64, 64)   -- 背面圖放大 2 倍
+  local h = (64 - fx.sink) // 2                                          -- 原圖要畫幾列（放大 2 倍前）
+  sspr(IMG.kin_back, n * 32, 0, 32, h, 40 + fx.dx, 120 + 64 - h * 2, 64, h * 2)   -- 背面圖放大 2 倍
 end
 
 function battle_scene_draw()
@@ -305,7 +376,11 @@ function battle_scene_draw()
   bracket(166, 310, 122, 166, 308)
 
   -- 下方：訊息框和選單（訊息播放中由 dialog_draw 畫）
-  if S.mode == "command" then
+  if (S.mode == "msg" or S.mode == "done") and not dialog_active() then
+    -- 動畫中沒有對話框：留著上一句話（和 GB 一樣），版面才不會跳
+    ui_box(4, 184, 312, 52)
+    if S.last and textw(S.last) <= 292 then text(S.last, 14, 192, 0) end
+  elseif S.mode == "command" then
     ui_box(4, 184, 312, 52)
     text("要讓" .. kin_name(m.kin), 14, 192, 0)
     text("做什麼呢？", 14, 208, 0)
