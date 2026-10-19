@@ -14,6 +14,11 @@ local function enter_map(name)
   butterflies_enter()
 end
 
+-- 換地圖、放好主角之後呼叫（遇敵要知道主角一開始站在哪一格）
+local function after_place()
+  encounter_enter()
+end
+
 -- 剛換到新地圖時，主角可能站在門上：要先離開門，才能再觸發，不然會來回彈
 local door_armed = true
 
@@ -29,6 +34,7 @@ local function check_door()
   transition_start(function()
     enter_map(door.to)
     player_place(door.tx, door.ty)
+    after_place()
     world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)
   end)
 end
@@ -57,6 +63,7 @@ function _init()
   party = { kin_new("01", 5) }
   enter_map("camp")
   player_init(19 * TILE, 15 * TILE)   -- 營地空地的中間
+  after_place()
 end
 
 function _update()
@@ -84,6 +91,7 @@ function _update()
   for _, n in ipairs(npcs) do npc_update(n) end
   if pressed(A) then interact() end
   check_door()
+  if not transition_active() then encounter_check() end
   world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)   -- 跟著主角的中心點
 end
 
@@ -109,6 +117,7 @@ function _draw()
     cls(0)
     world_draw()   -- 設定相機，畫地面和裝飾
     draw_actors()  -- 世界座標
+    tallgrass_front()    -- 草叢蓋住主角的腳
     butterflies_draw()   -- 飛在大家上面
   end
 

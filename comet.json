@@ -10,6 +10,7 @@
     "src/transition.lua",
     "src/player.lua",
     "src/npc.lua",
+    "src/encounter.lua",
     "src/talk.lua",
     "src/kin.lua",
     "src/battle.lua",
@@ -21,7 +22,8 @@
     "town": "assets/kenney/tiny-town/tilemap.png",
     "dungeon": "assets/kenney/tiny-dungeon/tilemap.png",
     "kin_front": { "file": "assets/art/kin_front.png", "tile": 64 },
-    "kin_back": { "file": "assets/art/kin_back.png", "tile": 32 }
+    "kin_back": { "file": "assets/art/kin_back.png", "tile": 32 },
+    "tallgrass": "assets/art/tallgrass.png"
   },
   "output": "build/wildkin.lua",
   "maps": {

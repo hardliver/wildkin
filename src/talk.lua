@@ -29,15 +29,9 @@ TALK.elder = function()
 end
 
 -- 草原小徑上的旅人
--- 旅人：暫時用來進入戰鬥（W25）。草叢遇敵（W28）做好之後改回只有聊天
-TALK.route1_traveler = function()
-  dialog_ask("我在這片草叢蹲了三個小時，\n一隻野伴都沒抓到。" ..
-    "\f這速度……跟我還房貸差不多。\f咦，草叢在動！要不要去看看？", { "去看看", "算了" }, function(i)
-    if i ~= 1 then return end
-    for _, k in ipairs(party) do kin_heal(k) end   -- 暫時：每次都先補滿，方便一直測
-    battle_scene_start({ kin_new("07", 3) }, { wild = true })
-  end)
-end
+TALK.route1_traveler =
+  "我在這片草叢蹲了三個小時，\n一隻野伴都沒抓到。" ..
+  "\f這速度……跟我還房貸差不多。"
 
 -- ==================== 苔石村 ====================
 -- 旅店、商店、招式回想的功能在 W55 才做，先讓他們說明一下

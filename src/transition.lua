@@ -5,10 +5,12 @@
 -- 再用 HALF 幀縮回去。引擎沒有半透明，這樣每幀只要畫 15 個 rect，主機上也很便宜。
 
 local HALF = 16
-local trans = nil   -- { t = 經過幾幀, on_middle = 全黑時要做的事 }
+local FLASH = 24    -- 遇敵時先閃爍幾幀（白、原本的畫面交替，每 4 幀換一次 → 閃 3 下）
+local trans = nil   -- { t = 經過幾幀, on_middle = 全黑時要做的事, flash = 還要閃幾幀 }
 
-function transition_start(on_middle)
-  trans = { t = 0, on_middle = on_middle }
+-- flash = true：遇到野伴時用，先閃 3 下再拉百葉窗（GB 的遇敵轉場）
+function transition_start(on_middle, flash)
+  trans = { t = 0, on_middle = on_middle, flash = flash and FLASH or 0 }
 end
 
 function transition_active()
@@ -17,6 +19,10 @@ end
 
 function transition_update()
   if not trans then return end
+  if trans.flash > 0 then
+    trans.flash = trans.flash - 1
+    return
+  end
   trans.t = trans.t + 1
   if trans.t == HALF then trans.on_middle() end
   if trans.t >= HALF * 2 then trans = nil end
@@ -24,6 +30,11 @@ end
 
 function transition_draw()
   if not trans then return end
+  if trans.flash > 0 then
+    camera()
+    if (trans.flash // 4) % 2 == 1 then rect(0, 0, SCREEN_W, SCREEN_H, 7) end
+    return
+  end
   -- 前半段越來越黑，後半段越來越亮：0 → HALF → 0
   local k = trans.t <= HALF and trans.t or HALF * 2 - trans.t
   local h = k * 16 // HALF

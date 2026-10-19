@@ -40,6 +40,7 @@ end
 --   → 風弱時只有幾棵在晃；風強時大家都在晃，但各晃各的
 
 local wind = 0   -- 這一幀的風力，wind_update() 算
+function wind_now() return wind end
 
 function wind_update()
   local f = frame()

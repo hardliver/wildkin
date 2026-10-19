@@ -237,7 +237,7 @@ end
 
 -- 進場：轉場到全黑時換成戰鬥畫面
 function battle_scene_start(foe_party, opts, on_end)
-  transition_start(function() begin(foe_party, opts, on_end) end)
+  transition_start(function() begin(foe_party, opts, on_end) end, opts and opts.flash)
 end
 
 function battle_scene_active()
