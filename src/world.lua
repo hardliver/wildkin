@@ -123,9 +123,10 @@ function world_follow(x, y)
 end
 
 -- 開始畫世界：設定相機，畫地面和裝飾。之後畫的角色也會跟著相機
--- 畫的順序：地面 → 被風吹動的草 → 裝飾（房子、柵欄、告示牌）→ 植物（樹會隨風搖，ambient.lua）
+-- 畫的順序：地面 → 被風吹動的草 → 裝飾（房子、柵欄、告示牌）→ 植物（樹會隨風晃，ambient.lua）
 function world_draw()
   camera(world.cam_x, world.cam_y)
+  wind_update()
   map(world.map, "ground")
   grass_draw()
   map(world.map, "deco")

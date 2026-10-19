@@ -126,8 +126,6 @@ function player_draw()
 
   -- 影子
   rect(x + 3, y + 14, 10, 2, 5)
-  -- Kenney 的角色原本面向右，往左走時左右翻轉。
-  -- 站著不動時會呼吸（ambient.lua）；走路時用上面的踏步動作
-  local lift = player.walking and 0 or breath_lift(0)
-  draw_body(IMG.dungeon, HERO_TILE, x, y + bob, player.facing_left, lift)
+  -- Kenney 的角色原本面向右，往左走時左右翻轉
+  spr(IMG.dungeon, HERO_TILE, x, y + bob, player.facing_left)
 end

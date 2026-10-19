@@ -1,8 +1,11 @@
 -- ambient.lua：讓世界「活」起來的小動作
 --
---   呼吸：角色站著不動時，上半身每隔一陣子抬高 1 像素（吸氣）再放下
---   風：一陣一陣的風從左往右吹過地圖，經過的樹梢往右歪 1 像素、草叢翻動
+--   風：風力忽強忽弱。風弱時只有少數幾棵樹在晃，風強時大部分的樹都在晃，
+--       每棵樹有自己的節奏（樹梢往右歪 1 像素再回來），草叢也零星地翻動
 --   蝴蝶：草地上飛來飛去的小蝴蝶
+--
+-- （試過「呼吸」：上半身抬高 1 像素。16 × 16 的角色只能整塊拉長，看起來像頭在伸縮，
+--   不自然，所以拿掉了。要自然的呼吸得畫專門的待機動畫格，等之後有自己畫的角色再做）
 --
 -- 這些都只是「看起來」的東西，不影響遊戲：
 --   不用 rnd()：rnd 是遊戲共用的亂數，蝴蝶多抽一次，之後遇到的野伴就會不一樣。
@@ -29,51 +32,39 @@ function isin(i)
 end
 
 -- ============================================================
--- 呼吸
--- ============================================================
--- 每個角色的呼吸週期是 150 幀（2.5 秒），其中 50 幀上半身抬高 1 像素。
--- seed 讓每個人的節奏錯開，不會整個村子一起吸氣
-
-local BREATH_PERIOD, BREATH_IN = 150, 50
-
-function breath_lift(seed)
-  return (frame() + seed) % BREATH_PERIOD < BREATH_IN and 1 or 0
-end
-
--- 畫一個 16 × 16 的角色，上半身抬高 lift 像素：
---   上半部（第 0～8 列）畫在 y - lift，下半部（第 8～15 列）畫在原位。
---   第 8 列畫了兩次，剛好補上中間的空隙 → 身體看起來被「撐高」了一點，腳不動
-function draw_body(img, n, x, y, flip, lift)
-  if lift == 0 then
-    spr(img, n, x, y, flip)
-    return
-  end
-  local sx, sy = (n % 12) * 16, (n // 12) * 16   -- Kenney 的兩張圖都是一列 12 格
-  sspr(img, sx, sy, 16, 9, x, y - lift, 16, 9, flip)
-  sspr(img, sx, sy + 8, 16, 8, x, y + 8, 16, 8, flip)
-end
-
--- ============================================================
 -- 風
 -- ============================================================
--- 風是一道從左往右移動的「波」：每 300 幀（5 秒）吹過一陣。
--- 世界座標 x 的地方，在 frame × 2 - x 落在 0～40 之間時，正被風吹到。
--- 減去 x：右邊的東西比較晚被吹到，看起來風在移動
+-- 不要「一道波從左掃到右」：太整齊，看起來像機器。改成：
+--   1. 風力 0～8，由三條速度不同的 sin 疊出來，忽強忽弱、不會規律重複
+--   2. 每棵樹（每一格草）用 hash 決定「多強的風才會動」和「自己晃的節奏」
+--   → 風弱時只有幾棵在晃；風強時大家都在晃，但各晃各的
 
-local GUST_PERIOD = 300 * 2   -- 一陣風走完一圈的「距離」（frame × 2 為單位）
-local GUST_WIDTH = 40         -- 一陣風有多寬（像素）
+local wind = 0   -- 這一幀的風力，wind_update() 算
 
--- 世界座標 x 這裡的風：被吹到回傳 1，沒有回傳 0
-function wind_at(x)
-  return (frame() * 2 - x) % GUST_PERIOD < GUST_WIDTH and 1 or 0
+function wind_update()
+  local f = frame()
+  local w = isin(f // 29) + isin(f // 47 + 9) + isin(f // 83 + 20)   -- -24～24
+  wind = clamp((w + 8) // 3, 0, 8)   -- 大部分時間是微風（1～4），偶爾一陣強風
+end
+
+-- 第 (cx, cy) 格的東西這一幀要不要歪：回傳 0 或 1。
+-- 門檻 1～8：門檻低的比較容易被吹動。節奏 50～89 幀晃一次，其中一半的時間歪著
+local function sways(cx, cy)
+  local h = hash(cx, cy, 1)
+  if h % 8 + 1 > wind then return 0 end
+  local period = 50 + h % 40
+  return (frame() + h) % period < period // 2 and 1 or 0
 end
 
 -- ============================================================
 -- 植物：地圖的 plants 圖層（樹、灌木）
 -- ============================================================
 -- 這一層不用 map() 畫，而是由這裡一格一格畫，才能讓樹梢跟著風歪：
---   上面 10 列（樹冠）往右移 1 像素，下面 6 列（樹幹）不動。
+--   一般的樹：上面 10 列（樹冠）往右移 1 像素，下面 6 列（樹幹）不動
+--   兩格高的樹的上半格（town 第 3、4 格）：整格一起移；用下面那一格的位置判斷，上下才會一起動
 -- 只畫畫面看得到的格子（大約 21 × 16 格）
+
+local TALL_TOP = { [4] = true, [5] = true }   -- 地圖編號（town 第 3、4 格）
 
 function plants_draw()
   local m = world.map
@@ -83,11 +74,12 @@ function plants_draw()
       local v = mget(m, "plants", cx, cy)
       if v ~= 0 then
         local x, y = cx * TILE, cy * TILE
-        local lean = wind_at(x)
-        if lean == 0 then
+        if TALL_TOP[v] then
+          world_spr(v, x + sways(cx, cy + 1), y)
+        elseif sways(cx, cy) == 0 then
           world_spr(v, x, y)
         else
-          world_sspr(v, 0, 0, 16, 10, x + lean, y)
+          world_sspr(v, 0, 0, 16, 10, x + 1, y)
           world_sspr(v, 0, 10, 16, 6, x, y + 10)
         end
       end
@@ -95,7 +87,7 @@ function plants_draw()
   end
 end
 
--- 草叢翻動：風經過的地方，有草的地面（town 第 1、2 格）左右翻過來畫一次。
+-- 草叢翻動：有草的地面（town 第 1、2 格）左右翻過來畫一下，零星幾格、一次 8 幀。
 -- 地面是 map() 畫的，這裡直接蓋在上面（地面格子不透明，蓋上去就換掉了）
 local GRASS = { [2] = true, [3] = true }   -- 地圖編號（town 第 1、2 格：草叢、小花）
 
@@ -105,8 +97,12 @@ function grass_draw()
   for cy = cy0, cy0 + SCREEN_H // TILE do
     for cx = cx0, cx0 + SCREEN_W // TILE do
       local v = mget(m, "ground", cx, cy)
-      if GRASS[v] and wind_at(cx * TILE + 8) == 1 then
-        world_spr(v, cx * TILE, cy * TILE, true)
+      if GRASS[v] then
+        local h = hash(cx, cy, 2)
+        -- 比樹難吹動（門檻 3～10），每 60～109 幀翻一次
+        if h % 8 + 3 <= wind and (frame() + h) % (60 + h % 50) < 8 then
+          world_spr(v, cx * TILE, cy * TILE, true)
+        end
       end
     end
   end

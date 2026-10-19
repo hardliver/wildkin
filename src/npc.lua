@@ -21,7 +21,7 @@ function npc_load()
         x = o.x * TILE,         -- 圖的左上角（世界座標）；和主角、world_blocked 用一樣的規則
         y = o.y * TILE,
         face_left = false,
-        seed = hash(o.x, o.y, 7),   -- 呼吸、東張西望的節奏，每個人錯開
+        seed = hash(o.x, o.y, 7),   -- 東張西望的節奏，每個人錯開
         talked = -10000,            -- 上次跟主角說話是第幾幀
       }
       npcs[#npcs + 1] = n
@@ -57,7 +57,5 @@ function npc_update(n)
 end
 
 function npc_draw(n)
-  local img, idx = IMG.town, n.tile - 1
-  if n.tile > 132 then img, idx = IMG.dungeon, n.tile - 133 end
-  draw_body(img, idx, n.x, n.y, n.face_left, breath_lift(n.seed))
+  world_spr(n.tile, n.x, n.y, n.face_left)
 end
