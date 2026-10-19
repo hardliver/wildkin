@@ -1,0 +1,87 @@
+-- battle_test.lua：battle.lua 的測試（make check 用）
+
+local failed = 0
+local function expect(name, got, want)
+  if got ~= want then
+    print("✗ " .. name .. "：得到 " .. tostring(got) .. "，應該是 " .. tostring(want))
+    failed = failed + 1
+  end
+end
+
+-- 1. 傷害公式：Lv5 芽角羊（攻 9）用葉刃（草，威力 45）打 Lv3 囤囤鼠（防 7，普通）
+--    基本 = (5×2//5+2) × 45 × 9 // 7 // 50 + 2 = 4 × 45 × 9 // 7 // 50 + 2 = 1620 // 7 // 50 + 2 = 231 // 50 + 2 = 6
+--    同屬性 6 × 3 // 2 = 9；草打普通是一般效果（× 2 // 2）= 9
+--    亂數 100 → 9；亂數 85 → 9 × 85 // 100 = 7
+local sheep, rat = kin_new("01", 5), kin_new("07", 3)
+expect("芽角羊攻擊", kin_stat(sheep, "atk"), 9)
+expect("囤囤鼠防禦", kin_stat(rat, "def"), 7)
+expect("葉刃傷害（亂數 100）", battle_damage(5, 45, 9, 7, "grass", "grass", "normal", 100), 9)
+expect("葉刃傷害（亂數 85）", battle_damage(5, 45, 9, 7, "grass", "grass", "normal", 85), 7)
+-- 沒有同屬性：撞擊（普通，威力 40）：4 × 40 × 9 // 7 // 50 + 2 = 1440 // 7 = 205 // 50 = 4 + 2 = 6
+expect("撞擊傷害（沒有同屬性）", battle_damage(5, 40, 9, 7, "normal", "grass", "normal", 100), 6)
+-- 效果絕佳：水打火 → 6 × 4 // 2 = 12（攻擊者是草，沒有同屬性）
+expect("效果絕佳", battle_damage(5, 40, 9, 7, "water", "grass", "fire", 100), 12)
+-- 效果不好：草打火 → 9 × 1 // 2 = 4
+expect("效果不好", battle_damage(5, 45, 9, 7, "grass", "grass", "fire", 100), 4)
+expect("沒有效果（電打岩）", battle_damage(5, 40, 9, 7, "electric", "normal", "rock", 100), 0)
+
+-- 2. 屬性相剋表
+expect("草打水", type_mult("grass", "water"), 4)
+expect("電打岩", type_mult("electric", "rock"), 0)
+expect("普通打草（表裡沒寫）", type_mult("normal", "grass"), 2)
+
+-- 3. 能力階段：攻擊 −1 → × 2 // 3；+2 → × 4 // 2
+local b = battle_new({ kin_new("01", 5) }, { kin_new("07", 3) }, { wild = true })
+b.sides[1].stages.atk = -1
+expect("攻擊 −1 階", battle_stat(b, 1, "atk"), 9 * 2 // 3)
+b.sides[1].stages.atk = 2
+expect("攻擊 +2 階", battle_stat(b, 1, "atk"), 9 * 4 // 2)
+b.sides[1].stages.atk = 0
+battle_active(b, 1).status = "burn"
+expect("灼傷攻擊減半", battle_stat(b, 1, "atk"), 9 // 2)
+
+-- 4. 灼傷：回合結束扣最大 HP 的 1/16（芽角羊 19 → 1）
+local hp0 = battle_active(b, 1).hp
+local ev = battle_step(b, { kind = "move", index = 2 }, { kind = "move", index = 1 })   -- 吼叫 vs 撞擊
+local burned = false
+for _, e in ipairs(ev) do if e.kind == "burn_damage" and e.side == 1 and e.amount == 1 then burned = true end end
+expect("灼傷扣血", burned, true)
+battle_active(b, 1).status = nil
+
+-- 5. 逃跑：芽角羊（速 9）對囤囤鼠（速 55 × 3 // 50 + 5 = 8）→ 速度不輸，一定成功
+local r = battle_new({ kin_new("01", 5) }, { kin_new("07", 3) }, { wild = true })
+battle_step(r, { kind = "run" }, battle_ai(r, 2))
+expect("速度不輸對方，一定逃得掉", r.over, "run")
+-- 訓練家戰不能逃
+local t = battle_new({ kin_new("01", 5) }, { kin_new("07", 3) }, { wild = false })
+ev = battle_step(t, { kind = "run" }, battle_ai(t, 2))
+expect("訓練家戰不能逃", ev[1].kind, "cant_run")
+expect("不能逃也沒有結束", t.over, nil)
+
+-- 6. 吼叫讓對方攻擊 −1；連用 4 次之後到底了
+local g = battle_new({ kin_new("01", 5) }, { kin_new("07", 3) }, { wild = true })
+for i = 1, 4 do battle_step(g, { kind = "move", index = 2 }, { kind = "move", index = 1 }) end
+expect("對方攻擊最多 −3", g.sides[2].stages.atk, -3)
+
+-- 7. 一整場戰鬥：固定的亂數種子（Mac 版測試是種子 1），印出事件，檢查一定會結束、HP 不會是負的
+print("---- 測試戰鬥：Lv5 芽角羊 vs 野生 Lv3 囤囤鼠 ----")
+local f = battle_new({ kin_new("01", 5) }, { kin_new("07", 3) }, { wild = true })
+local turns = 0
+while not f.over and turns < 30 do
+  turns = turns + 1
+  ev = battle_step(f, { kind = "move", index = 3 }, battle_ai(f, 2))   -- 一直用葉刃
+  for _, e in ipairs(ev) do
+    local line = battle_event_text(f, e)
+    if e.kind == "damage" then
+      line = (line and line .. " " or "") .. "（" .. e.amount .. " 傷害，剩 " .. e.hp .. "）"
+    end
+    if line then print("  第 " .. turns .. " 回合：" .. line) end
+    if e.hp and e.hp < 0 then expect("HP 不會是負的", e.hp, 0) end
+  end
+end
+expect("戰鬥在 30 回合內結束", f.over ~= nil, true)
+expect("Lv5 打 Lv3 應該贏", f.over, "win")
+expect("打贏得到經驗（囤囤鼠 50 × 3 // 7 = 21）", battle_active(f, 1).exp, 125 + 21)
+
+if failed > 0 then error("battle.lua 有 " .. failed .. " 項測試沒通過") end
+print("✓ battle.lua：全部通過")

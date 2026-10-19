@@ -12,6 +12,7 @@
     "src/npc.lua",
     "src/talk.lua",
     "src/kin.lua",
+    "src/battle.lua",
     "src/main.lua"
   ],
   "images": {
