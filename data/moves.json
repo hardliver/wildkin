@@ -1,0 +1,14 @@
+{
+  "tackle":    { "name": "撞擊",   "type": "normal", "power": 40, "accuracy": 95,  "pp": 35, "desc": "用身體撞向對方。" },
+  "scratch":   { "name": "抓抓",   "type": "normal", "power": 40, "accuracy": 100, "pp": 35, "desc": "用爪子抓對方。" },
+  "quick":     { "name": "快爪",   "type": "normal", "power": 40, "accuracy": 100, "pp": 30, "desc": "比對方先出手。", "effect": { "kind": "first" } },
+  "growl":     { "name": "吼叫",   "type": "normal", "power": 0,  "accuracy": 100, "pp": 40, "desc": "讓對方的攻擊下降。", "effect": { "kind": "stat", "target": "foe", "stat": "atk", "stages": -1 } },
+  "leer":      { "name": "瞪眼",   "type": "normal", "power": 0,  "accuracy": 100, "pp": 30, "desc": "讓對方的防禦下降。", "effect": { "kind": "stat", "target": "foe", "stat": "def", "stages": -1 } },
+  "leaf":      { "name": "葉刃",   "type": "grass",  "power": 45, "accuracy": 100, "pp": 25, "desc": "射出銳利的葉子。" },
+  "absorb":    { "name": "吸取",   "type": "grass",  "power": 30, "accuracy": 100, "pp": 20, "desc": "吸走對方的養分，回復造成傷害的一半。", "effect": { "kind": "drain" } },
+  "ember":     { "name": "火星",   "type": "fire",   "power": 40, "accuracy": 100, "pp": 25, "desc": "噴出小火星。有時會讓對方灼傷。", "effect": { "kind": "status", "status": "burn", "chance": 10 } },
+  "firefang":  { "name": "焰牙",   "type": "fire",   "power": 65, "accuracy": 95,  "pp": 15, "desc": "用帶著火的牙咬。有時會讓對方灼傷。", "effect": { "kind": "status", "status": "burn", "chance": 10 } },
+  "splash":    { "name": "水花",   "type": "water",  "power": 40, "accuracy": 100, "pp": 25, "desc": "朝對方潑水。" },
+  "bubblenet": { "name": "泡泡網", "type": "water",  "power": 20, "accuracy": 100, "pp": 30, "desc": "用泡泡纏住對方，讓對方的速度下降。", "effect": { "kind": "stat", "target": "foe", "stat": "spd", "stages": -1 } },
+  "mist":      { "name": "霧幕",   "type": "water",  "power": 0,  "accuracy": 0,    "pp": 20, "desc": "躲進霧裡，讓自己的防禦上升。", "effect": { "kind": "stat", "target": "self", "stat": "def", "stages": 1 } }
+}

@@ -129,6 +129,29 @@ Game Boy 時期寶可夢式的**回合制**：每回合雙方各選一個動作�
 戰鬥邏輯寫成「戰鬥狀態 + 雙方選擇 → 下一個戰鬥狀態」，不碰畫面、不碰輸入。
 畫面只是把狀態演出來。這樣之後連線時，兩台機器只要交換「選了哪一招」，各自算出一樣的結果。
 
+## 資料檔（data/*.json，W21）
+
+數值都放在 JSON，合併時變成 `DATA.名稱`（見 comet 的 W20）。改完跑 `make check` 檢查彼此對得上。
+
+| 檔案 | 內容 | 遊戲裡 |
+|---|---|---|
+| `types.json` | 屬性名稱、相剋表 | `DATA.types.names.grass` → "草"；`DATA.types.chart.grass.water` → 4 |
+| `moves.json` | 招式：名稱、屬性、威力、命中、次數、說明、效果 | `DATA.moves.leaf` |
+| `species.json` | 野伴：名稱、屬性、基礎值、捕獲率、基礎經驗、工作、學招表、手冊說明 | `DATA.species["01"]`（編號是兩位數字的字串） |
+| `encounters.json` | 每個區域的遇敵率和出現的野伴 | `DATA.encounters.route1` |
+| `work.json` | 工作特性的名稱 | `DATA.work.lumber` → "伐木" |
+
+約定（全部整數，沒有小數）：
+- **相剋倍率用「× 2 的整數」**：4 = 效果絕佳（×2）、2 = 一般、1 = 效果不好（×½）、0 = 沒有效果；表裡沒寫的組合都是 2。傷害計算時 `× 倍率 // 2`
+- **招式**：`power` 0 = 不造成傷害（一定要有 `effect`）；`accuracy` 0 = 必定命中；`effect.kind`：
+  - `first`：必定先動
+  - `stat`：`target`（foe／self）、`stat`（atk／def／spd）、`stages`（−3～+3）
+  - `drain`：回復造成傷害的一半
+  - `status`：`status`（burn／paralyze／sleep）、`chance`（1–100，%）
+- **學招表** `learn`：`[等級, 招式]`，依等級排序；第 1 級至少一招。野生野伴出現時，記住「等級以下最後學會的 4 招」
+- **遭遇表** `rate`：每走一格（16 像素）遇敵的機率，以 256 為分母（20 ≈ 8%）；`list` 依 `weight` 權重抽，等級在 `min`～`max` 之間
+- 檔案裡不放說明欄位（例如 `_note`）：資料會變成 Lua 表格，多出來的欄位在 `pairs()` 走訪時會被當成資料。說明寫在這裡
+
 ## 引擎（Comet）需要補的功能
 
 | 功能 | 用在 |

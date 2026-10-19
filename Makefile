@@ -1,6 +1,7 @@
 # 用法（在 wildkin 資料夾裡）：
 #   make         產生遊戲檔 build/wildkin.lua
 #   make serve   編譯引擎 + 遊戲，瀏覽器開 http://localhost:8421
+#   make check   檢查 data/*.json 彼此對得上
 #   make clean   清除編譯結果
 #
 # 引擎預設在旁邊的 ../comet；在別的地方的話：make serve ENGINE=/path/to/comet
@@ -24,7 +25,11 @@ serve: build/wildkin.lua
 	@for i in en0 en1 en2; do ip=$$(ipconfig getifaddr $$i 2>/dev/null) && echo "手機：http://$$ip:$(PORT)"; done; true
 	python3 $(ENGINE)/tools/serve.py $(PORT) build/web
 
+# 檢查資料檔：招式、野伴、遭遇表彼此對得上（打錯字在這裡就會發現）
+check:
+	node tools/check_data.mjs
+
 clean:
 	rm -rf build
 
-.PHONY: serve clean
+.PHONY: serve check clean

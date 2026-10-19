@@ -22,5 +22,12 @@
     "camp": "maps/camp.json",
     "route1": "maps/route1.json",
     "village": "maps/village.json"
+  },
+  "data": {
+    "types": "data/types.json",
+    "moves": "data/moves.json",
+    "species": "data/species.json",
+    "encounters": "data/encounters.json",
+    "work": "data/work.json"
   }
 }
