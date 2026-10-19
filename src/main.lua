@@ -4,6 +4,7 @@
 -- M3：營地是一張 40 × 30 格的地圖（maps/camp.json），相機跟著主角捲動。
 --     營地南邊的門通往草原小徑（maps/route1.json）。
 --     NPC 和告示牌放在地圖的物件層（W17）：面對它按 A 就開始對話，NPC 會轉頭面向主角。
+--     草原小徑的南邊通往苔石村（maps/village.json，W18）。
 
 -- 進入一張地圖：地圖本身交給 world，NPC 從地圖的物件建立
 local function enter_map(name)

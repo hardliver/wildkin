@@ -19,6 +19,7 @@
   "output": "build/wildkin.lua",
   "maps": {
     "camp": "maps/camp.json",
-    "route1": "maps/route1.json"
+    "route1": "maps/route1.json",
+    "village": "maps/village.json"
   }
 }
