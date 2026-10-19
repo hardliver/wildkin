@@ -28,6 +28,30 @@ function world_enter(name)
   world.blockers = {}
 end
 
+-- 畫一格地圖格子編號 v 的圖（NPC 的 tile 用的是地圖格子編號）。
+-- 地圖的格子編號把這張地圖用的圖接在一起，從 1 開始數：
+--   1～132：town（Tiny Town，12 × 11 格）的第 0～131 格
+--   133～ ：dungeon（Tiny Dungeon）的第 0 格開始
+-- （營地、草原小徑都是 tilesets = ["town", "dungeon"]）
+local TOWN_TILES = 132
+
+function world_spr(v, x, y, flip)
+  if v <= TOWN_TILES then
+    spr(IMG.town, v - 1, x, y, flip)
+  else
+    spr(IMG.dungeon, v - TOWN_TILES - 1, x, y, flip)
+  end
+end
+
+-- 世界座標 (px, py) 這一點所在的格子上的告示牌（沒有回傳 nil）
+function world_sign_at(px, py)
+  local cx, cy = px // TILE, py // TILE
+  for _, o in ipairs(world.objects) do
+    if o.type == "sign" and o.x == cx and o.y == cy then return o end
+  end
+  return nil
+end
+
 -- 第 (cx, cy) 格上的門（沒有回傳 nil）
 function world_door_at(cx, cy)
   for _, o in ipairs(world.objects) do

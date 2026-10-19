@@ -8,6 +8,8 @@
     "src/world.lua",
     "src/transition.lua",
     "src/player.lua",
+    "src/npc.lua",
+    "src/talk.lua",
     "src/main.lua"
   ],
   "images": {

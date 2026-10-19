@@ -12,7 +12,9 @@ player = {}
 function player_init(x, y)
   player.x16 = x * 16
   player.y16 = y * 16
-  player.facing_left = false
+  player.facing_left = false   -- 圖要不要左右翻轉（只看左右）
+  player.dir_x = 0             -- 面向哪個方向（上下左右四個之一）：跟 NPC 說話、看告示牌用
+  player.dir_y = 1             -- 一開始面向下
   player.walking = false
   player.walk_frames = 0    -- 走了幾幀（用來決定走路動畫的哪一步）
 end
@@ -75,6 +77,15 @@ function player_cell()
   return (player.x16 // 16 + 8) // TILE, (player.y16 // 16 + 12) // TILE
 end
 
+-- 主角面前距離 d 像素的那一點（世界座標）：從腳的中心往面向的方向量。
+-- 跟 NPC 說話時，從近到遠試好幾個距離（main.lua 的 interact）：
+--   從上面靠近 NPC 時，主角的腳離 NPC 的身體很近（圖會重疊），太遠的點會穿過 NPC；
+--   從下面靠近時，腳和 NPC 的身體之間隔著 NPC 的腳，要遠一點才碰得到。
+function player_front(d)
+  local cx, cy = player.x16 // 16 + 8, player.y16 // 16 + 12
+  return cx + player.dir_x * d, cy + player.dir_y * d
+end
+
 function player_update()
   local mx, my = move_input()
 
@@ -87,6 +98,15 @@ function player_update()
 
   if mx < 0 then player.facing_left = true end
   if mx > 0 then player.facing_left = false end
+
+  -- 面向：搖桿推得比較多的那個方向（斜推時，誰大就算誰）
+  if mx ~= 0 or my ~= 0 then
+    if math.abs(mx) > math.abs(my) then
+      player.dir_x, player.dir_y = mx > 0 and 1 or -1, 0
+    else
+      player.dir_x, player.dir_y = 0, my > 0 and 1 or -1
+    end
+  end
 
   player.walking = mx ~= 0 or my ~= 0
   if player.walking then

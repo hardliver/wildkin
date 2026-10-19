@@ -3,37 +3,12 @@
 -- M2：老苔站在營地中間，走過去按 A 會開始對話，最後問「是／否」。
 -- M3：營地是一張 40 × 30 格的地圖（maps/camp.json），相機跟著主角捲動。
 --     營地南邊的門通往草原小徑（maps/route1.json）。
+--     NPC 和告示牌放在地圖的物件層（W17）：面對它按 A 就開始對話，NPC 會轉頭面向主角。
 
--- 老苔：營地的管理員（Kenney Tiny Dungeon 第 84 格，紫袍白鬍子的老人）
-local ELDER = { tile = 84, x = 19 * TILE, y = 11 * TILE }   -- 世界座標：營地空地的北邊
-local TALK_RANGE = 24   -- 主角和老苔的距離在 24 像素內才能說話
-
-local function near_elder()
-  return world.name == "camp" and math.abs(player.x16 // 16 - ELDER.x) <= TALK_RANGE
-     and math.abs(player.y16 // 16 - ELDER.y) <= TALK_RANGE
-end
-
-local function talk_to_elder()
-  dialog_ask(
-    "你就是新來的拓荒者吧？我是新芽營地的管理員，大家都叫我老苔。" ..
-    "\f這座雲根島上住著許多野生的生物，\n我們叫牠們「野伴」。" ..
-    "\f牠們會幫忙種田、砍樹，\n也會陪你一起冒險。" ..
-    "\f那麼，你準備好出發了嗎？",
-    { "是", "否" },
-    function(choice)
-      if choice == 1 then
-        dialog_open("很好！先到營地外的草原小徑看看吧。\n小心草叢裡的野伴。")
-      else
-        dialog_open("沒關係，準備好了再來找我。")
-      end
-    end)
-end
-
--- 進入一張地圖：地圖本身交給 world，這張地圖特有的東西在這裡加
--- （W17 會改成從地圖的 NPC 物件自動產生）
+-- 進入一張地圖：地圖本身交給 world，NPC 從地圖的物件建立
 local function enter_map(name)
   world_enter(name)
-  if name == "camp" then world_add_blocker(ELDER) end   -- 老苔會擋路，不能穿過去
+  npc_load()
 end
 
 -- 剛換到新地圖時，主角可能站在門上：要先離開門，才能再觸發，不然會來回彈
@@ -53,6 +28,25 @@ local function check_door()
     player_place(door.tx, door.ty)
     world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)
   end)
+end
+
+-- 按 A：看主角面前有什麼。從近到遠（4～14 像素）找，最先碰到的那個：
+-- 貼著站、或中間隔一點點空隙，都能說話；NPC 和告示牌在同一個距離時，NPC 優先
+local function interact()
+  for d = 4, 14, 2 do
+    local fx, fy = player_front(d)
+    local n = npc_at(fx, fy)
+    if n then
+      npc_face(n, player.x16 // 16 + TILE // 2)
+      talk_to(n)
+      return
+    end
+    local sign = world_sign_at(fx, fy)
+    if sign then
+      dialog_open(sign.text)
+      return
+    end
+  end
 end
 
 function _init()
@@ -76,27 +70,30 @@ function _update()
   end
 
   player_update()
-  if pressed(A) and near_elder() then talk_to_elder() end
+  if pressed(A) then interact() end
   check_door()
   world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)   -- 跟著主角的中心點
+end
+
+-- 主角和 NPC 依 y 排序後畫：比較下面（y 比較大）的後畫，才會蓋住上面的。
+-- y 一樣時，主角最後畫（排序條件要完整，不然每次排出來的順序可能不同）
+local function draw_actors()
+  local list = {}
+  for i, n in ipairs(npcs) do list[#list + 1] = { y = n.y, order = i, npc = n } end
+  list[#list + 1] = { y = player.y16 // 16, order = #npcs + 1 }
+  table.sort(list, function(a, b)
+    if a.y ~= b.y then return a.y < b.y end
+    return a.order < b.order
+  end)
+  for _, e in ipairs(list) do
+    if e.npc then npc_draw(e.npc) else player_draw() end
+  end
 end
 
 function _draw()
   cls(0)
   world_draw()   -- 設定相機，畫地面和裝飾
-
-  -- 老苔（會面向主角）和主角：都用世界座標。
-  -- 比較下面（y 比較大）的後畫，才會蓋住上面的：主角站在老苔下方時蓋住老苔
-  local function draw_elder() spr(IMG.dungeon, ELDER.tile, ELDER.x, ELDER.y, player.x16 // 16 < ELDER.x) end
-  if world.name ~= "camp" then
-    player_draw()
-  elseif player.y16 // 16 >= ELDER.y then
-    draw_elder()
-    player_draw()
-  else
-    player_draw()
-    draw_elder()
-  end
+  draw_actors()  -- 世界座標
 
   camera()           -- 介面固定在畫面上
   dialog_draw()
