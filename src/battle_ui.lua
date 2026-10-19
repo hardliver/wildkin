@@ -82,13 +82,19 @@ local function say(text, after)
   run(function() msg(text); after() end)
 end
 
--- 被打到：圖片閃 3 下（藏 4 幀、出現 4 幀）
-local function flash(side)
-  local fx = S.fx[side]
-  for _ = 1, 3 do
-    fx.hidden = true; wait(4)
-    fx.hidden = false; wait(4)
-  end
+-- 給 battle_fx.lua 用的工具（動畫只能透過這些改畫面，不直接碰 S）
+local CENTER = { { 72, 152 }, { 256, 50 } }   -- 自己、對手的圖片中心
+local ctx = {
+  wait = wait,
+  pos = function(side) return CENTER[side][1], CENTER[side][2] end,
+  offset = function(side, x, y) S.fx[side].ox, S.fx[side].oy = x, y end,
+  hide = function(side, h) S.fx[side].hidden = h end,
+  shake = function(x, y) S.sx, S.sy = x, y end,
+  overlay = function(fn) S.overlay = fn end,
+}
+
+local function new_fx()
+  return { sink = 0, dx = 0, ox = 0, oy = 0, hidden = false }
 end
 
 -- 從 a 慢慢變到 b，總共 frames 幀，每幀呼叫 set(目前的值)
@@ -123,12 +129,21 @@ local function show(e)
   local K = e.kind
   local v = e.side and S.view[e.side]
   local text = battle_event_text(S.b, e)
-  if K == "damage" then
-    flash(e.side)
+  if K == "use" then
+    msg(text)                                -- 先說「○○使用了○○！」，再演招式
+    fx_move(ctx, e.move, e.side, 3 - e.side)
+    return
+  elseif K == "damage" then
+    fx_hit(ctx, e.side, e.mult)
     slide_hp(e.side, e.hp)
   elseif K == "burn_damage" then
-    flash(e.side)
+    fx_status(ctx, e.side, "burn")
+    fx_hit(ctx, e.side, 2)
     slide_hp(e.side, e.hp)
+  elseif K == "stat" then
+    fx_stat(ctx, e.side, e.amount > 0)
+  elseif K == "status" or K == "asleep" or K == "paralyzed" then
+    fx_status(ctx, e.side, K == "asleep" and "sleep" or K == "paralyzed" and "paralyze" or e.status)
   elseif K == "heal" then
     slide_hp(e.side, e.hp)
   elseif K == "faint" then
@@ -147,7 +162,7 @@ local function show(e)
     return
   elseif K == "switch" then
     refresh_view(e.side)
-    S.fx[e.side] = { sink = 0 }
+    S.fx[e.side] = new_fx()
   end
   if text then msg(text) end
 end
@@ -203,7 +218,8 @@ local function begin(foe_party, opts, on_end)
   local b = battle_new(party, foe_party, opts)
   S = {
     b = b, view = {}, on_end = on_end,
-    fx = { { sink = 0, dx = 0 }, { sink = 0, dx = 0 } },   -- 演出用：hidden（閃爍）、sink（倒下）、dx（進場滑入）
+    fx = { new_fx(), new_fx() },   -- 演出用：hidden（閃爍）、sink（倒下）、dx（進場滑入）、ox/oy（招式動畫的位移）
+    sx = 0, sy = 0,                -- 畫面晃動
     cmd = menu_new({ items = { "戰鬥", "野伴", "背包", "逃跑" }, cols = 2, x = 0, y = 0, cancel = false }),
   }
   S.cmd.x, S.cmd.y, S.cmd.h = 316 - S.cmd.w, 184, 52   -- 疊在訊息框右邊
@@ -340,7 +356,7 @@ local function draw_foe()
   local v, fx = S.view[2], S.fx[2]
   if fx.hidden or fx.sink >= 64 then return end
   local n = kin_species(v.kin).sprite
-  sspr(IMG.kin_front, n * 64, 0, 64, 64 - fx.sink, 224 + fx.dx, 18 + fx.sink)
+  sspr(IMG.kin_front, n * 64, 0, 64, 64 - fx.sink, 224 + fx.dx + fx.ox, 18 + fx.sink + fx.oy)
 end
 
 local function draw_mine()
@@ -348,24 +364,28 @@ local function draw_mine()
   if fx.hidden or fx.sink >= 64 then return end
   local n = kin_species(v.kin).sprite
   local h = (64 - fx.sink) // 2                                          -- 原圖要畫幾列（放大 2 倍前）
-  sspr(IMG.kin_back, n * 32, 0, 32, h, 40 + fx.dx, 120 + 64 - h * 2, 64, h * 2)   -- 背面圖放大 2 倍
+  sspr(IMG.kin_back, n * 32, 0, 32, h, 40 + fx.dx + fx.ox, 120 + 64 - h * 2 + fx.oy, 64, h * 2)   -- 背面圖放大 2 倍
 end
 
 function battle_scene_draw()
   camera()
   cls(C_SKY)
 
-  -- 對手：右上
+  -- 場地和野伴（會跟著畫面晃動）
+  camera(S.sx, S.sy)
   platform(256, 78, 50, 11)
+  platform(72, 178, 60, 12)
   draw_foe()
+  draw_mine()
+  camera()
+
+  -- 對手：左上的資訊
   local f = S.view[2]
   name_line(f, 18, 150, 12)
   hp_bar(26, 34, 124, f.hp, view_max_hp(f))
   bracket(14, 156, 30, 44, 14)
 
-  -- 自己：左下
-  platform(72, 178, 60, 12)
-  draw_mine()
+  -- 自己：右下的資訊
   local m = S.view[1]
   name_line(m, 170, 304, 104)
   hp_bar(178, 126, 126, m.hp, view_max_hp(m))
@@ -374,6 +394,13 @@ function battle_scene_draw()
   text("EXP", 170, 150, 0)
   exp_bar(198, 155, 106, m)
   bracket(166, 310, 122, 166, 308)
+
+  -- 招式動畫（蓋在資訊上面，也跟著晃）
+  if S.overlay then
+    camera(S.sx, S.sy)
+    S.overlay()
+    camera()
+  end
 
   -- 下方：訊息框和選單（訊息播放中由 dialog_draw 畫）
   if (S.mode == "msg" or S.mode == "done") and not dialog_active() then

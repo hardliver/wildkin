@@ -13,6 +13,7 @@
     "src/talk.lua",
     "src/kin.lua",
     "src/battle.lua",
+    "src/battle_fx.lua",
     "src/battle_ui.lua",
     "src/main.lua"
   ],
