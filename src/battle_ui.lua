@@ -248,13 +248,25 @@ end
 -- 每幀
 -- ============================================================
 
+-- 演出往前跑一幀；first = 這一幀的第一次（只有第一次看按鍵）
+local function step_show(first)
+  if dialog_active() then dialog_update(not first) end
+  local co = S.co
+  local ok, err = coroutine.resume(co)
+  if not ok then error(err) end
+  if S and S.co == co and coroutine.status(co) == "dead" then S.co = nil end
+end
+
+local FAST = 4   -- 按住 A 時演出幾倍速（W27）
+
 function battle_scene_update()
   if S.co then
-    if dialog_active() then dialog_update() end
-    local co = S.co
-    local ok, err = coroutine.resume(co)
-    if not ok then error(err) end
-    if S and S.co == co and coroutine.status(co) == "dead" then S.co = nil end
+    -- 按住 A：一幀跑 4 次（動畫、血條、字一起變快）；訊息還是要「按一下」才會換下一句
+    local n = btn(0, A) and FAST or 1
+    for i = 1, n do
+      if not (S and S.co) then break end
+      step_show(i == 1)
+    end
     return
   end
   if S.mode == "command" then

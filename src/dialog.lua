@@ -118,9 +118,11 @@ function dialog_active()
   return dlg ~= nil
 end
 
-function dialog_update()
+-- no_input = true：只讓字繼續出現，不看按鍵（戰鬥加速時一幀呼叫好幾次，
+-- 按一下 A 只能算一次，不然會「整頁顯示」和「下一頁」同一幀一起發生）
+function dialog_update(no_input)
   if not dlg then return end
-  local ok = pressed(A) or pressed(B)
+  local ok = not no_input and (pressed(A) or pressed(B))
 
   if dlg.shown < dlg.total then
     -- 字還在出現
@@ -138,6 +140,7 @@ function dialog_update()
       m.y = BOX_Y - m.h + 3
       dlg.menu = m
     end
+    if no_input then return end
     local r = menu_update(dlg.menu)
     if r then
       local choose = dlg.on_choice
