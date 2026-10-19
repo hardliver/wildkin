@@ -11,6 +11,7 @@
     "src/player.lua",
     "src/npc.lua",
     "src/talk.lua",
+    "src/kin.lua",
     "src/main.lua"
   ],
   "images": {
