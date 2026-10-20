@@ -437,3 +437,18 @@ function fx_status(ctx, side, status)
     end)
   end
 end
+
+-- 升級：金色的光點從腳下往上飄，繞著野伴轉
+function fx_levelup(ctx, side)
+  local x0, y0 = ctx.pos(side)
+  play(ctx, 40, function(i)
+    for k = 0, 7 do
+      local p = (i * 2 + k * 10) % 50                 -- 這顆光點升到哪（0～50）
+      local x = x0 + isin(k * 4 + i // 2) * 3
+      local y = y0 + 28 - p
+      local r = (p < 40) and 2 or 1
+      fx_disc(x, y, r, (k % 2 == 0) and 10 or 7)
+      if p % 10 < 5 then pset(x, y - 3, 7) end
+    end
+  end)
+end

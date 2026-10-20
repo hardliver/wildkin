@@ -21,6 +21,9 @@ pal(C_SKY, 240, 242, 224)
 pal(C_GROUND, 202, 222, 160)
 pal(C_GROUND_EDGE, 150, 182, 112)
 
+local STATS = { "hp", "atk", "def", "spd" }
+local STAT_LABEL = { hp = "最大HP", atk = "攻擊", def = "防禦", spd = "速度" }
+
 local STATUS_TAG = { burn = { "灼傷", 8 }, paralyze = { "麻痺", 10 }, sleep = { "睡眠", 13 } }
 
 local S = nil   -- 目前的戰鬥畫面；nil = 不在戰鬥中
@@ -76,6 +79,32 @@ end
 local function run(fn)
   S.mode = "msg"
   S.co = coroutine.create(fn)
+end
+
+-- 等玩家按 A 或 B（加速時一幀跑好幾次，只有每幀的第一次看按鍵）
+local function wait_press()
+  repeat coroutine.yield() until S.input_ok and (pressed(A) or pressed(B))
+end
+
+-- 問「是／否」之類的問題，回傳選了第幾項
+local function ask(text, choices)
+  S.last = text
+  local answer = nil
+  dialog_ask(text, choices, function(i) answer = i end)
+  while answer == nil do coroutine.yield() end
+  return answer
+end
+
+-- 在戰鬥畫面上開一個選單（畫在 S.panel_menu），回傳選了第幾項，按 B 回傳 0
+local function choose(m)
+  S.panel_menu = m
+  local r = nil
+  repeat
+    coroutine.yield()
+    if S.input_ok then r = menu_update(m) end
+  until r ~= nil
+  S.panel_menu = nil
+  return r
 end
 
 local function say(text, after)
@@ -154,12 +183,51 @@ local function show(e)
     fill_exp(v)
     return
   elseif K == "level" then
+    local before = {}
+    for _, st in ipairs(STATS) do before[st] = kin_stat({ no = v.kin.no, level = v.level }, st) end
     local old = view_max_hp(v)
     v.level = e.level
     v.hp = v.hp + view_max_hp(v) - old       -- 和 kin_gain_exp 一樣：上限加多少，目前 HP 也加多少
+    fx_levelup(ctx, e.side)
     msg(text)
+    -- 能力提升的表：先顯示「+多少」，按 A 再顯示提升後的數值（和 GB 一樣）
+    local lines = {}
+    for _, st in ipairs(STATS) do
+      local now = kin_stat({ no = v.kin.no, level = v.level }, st)
+      lines[#lines + 1] = { STAT_LABEL[st], now - before[st], now }
+    end
+    S.panel = { lines = lines, total = false }
+    wait_press()
+    S.panel.total = true
+    wait_press()
+    S.panel = nil
     fill_exp(v)                              -- 剩下的經驗繼續加到新的一級
     return
+  elseif K == "full" then
+    -- 招式滿了：問要不要忘掉一招
+    local k = v.kin
+    local new = DATA.moves[e.key].name
+    msg(text)
+    while true do
+      if ask("要忘掉一招，學會" .. new .. "嗎？", { "要", "不要" }) == 1 then
+        local items = {}
+        for i, m in ipairs(k.moves) do items[i] = DATA.moves[m.key].name end
+        local m = menu_new({ items = items, x = 0, y = 0 })
+        m.x, m.y = 316 - m.w, 184 - m.h
+        S.last = "要忘掉哪一招呢？"
+        local i = choose(m)
+        if i > 0 then
+          local old_name = items[i]
+          kin_replace_move(k, i, e.key)
+          msg("1、2 的……砰！")
+          msg(kin_name(k) .. "忘掉了" .. old_name .. "，\n學會了" .. new .. "！")
+          return
+        end
+      elseif ask("不學" .. new .. "了嗎？", { "對", "再想想" }) == 1 then
+        msg(kin_name(k) .. "沒有學" .. new .. "。")
+        return
+      end
+    end
   elseif K == "switch" then
     refresh_view(e.side)
     S.fx[e.side] = new_fx()
@@ -254,6 +322,7 @@ end
 
 -- 演出往前跑一幀；first = 這一幀的第一次（只有第一次看按鍵）
 local function step_show(first)
+  S.input_ok = first
   if dialog_active() then dialog_update(not first) end
   local co = S.co
   local ok, err = coroutine.resume(co)
@@ -437,5 +506,24 @@ function battle_scene_draw()
     ui_box(ix, 184, 316 - ix, 52)
     text("屬性 " .. DATA.types.names[d.type], ix + 10, 192, 0)
     text("次數 " .. mv.pp .. "/" .. d.pp, ix + 10, 208, mv.pp > 0 and 0 or 8)
+  end
+
+  -- 升級時的能力表（右上，蓋在資訊上面）
+  if S.panel then
+    local x, y, w, h = 180, 40, 132, 4 * 16 + 18
+    ui_box(x, y, w, h)
+    for i, l in ipairs(S.panel.lines) do
+      local ly = y + 9 + (i - 1) * 16
+      text(l[1], x + 10, ly, 0)
+      local v = S.panel.total and tostring(l[3]) or ("+" .. l[2])
+      text(v, x + w - 10 - textw(v), ly, 0)
+    end
+  end
+  if S.panel_menu then
+    menu_draw(S.panel_menu)
+    if S.last and not dialog_active() then
+      ui_box(4, 184, 312, 52)
+      text(S.last, 14, 192, 0)
+    end
   end
 end
