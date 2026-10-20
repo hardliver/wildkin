@@ -189,6 +189,10 @@ local function do_turn(choice)
   local events = battle_step(S.b, choice, battle_ai(S.b, 2))
   run(function()
     for _, e in ipairs(events) do show(e) end
+    if S.b.over == "lose" then
+      msg(PLAYER_NAME .. "沒有能戰鬥的野伴了！")
+      msg(PLAYER_NAME .. "眼前一片漆黑……")
+    end
     if S.b.over then return finish() end
     for _, e in ipairs(events) do
       if e.kind == "need_switch" then

@@ -7,6 +7,8 @@
 --     草原小徑的南邊通往苔石村（maps/village.json，W18）。
 -- M4：戰鬥畫面在 battle_ui.lua（W25）。戰鬥中整個畫面交給它，地圖暫停。
 
+PLAYER_NAME = "大志"   -- 主角的名字（W54 序章可以自己取）
+
 -- 進入一張地圖：地圖本身交給 world，NPC 從地圖的物件建立
 local function enter_map(name)
   world_enter(name)
@@ -17,6 +19,16 @@ end
 -- 換地圖、放好主角之後呼叫（遇敵要知道主角一開始站在哪一格）
 local function after_place()
   encounter_enter()
+end
+
+-- 直接把主角放到某張地圖的第 (cx, cy) 格，面向 (dx, dy)（全滅回營地、之後的營火傳送用）。
+-- 要在畫面全黑的時候呼叫（轉場的 on_middle 裡），玩家才看不到瞬間移動
+function warp(name, cx, cy, dx, dy)
+  enter_map(name)
+  player_place(cx, cy)
+  player.dir_x, player.dir_y = dx or 0, dy or 1
+  after_place()
+  world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)
 end
 
 -- 剛換到新地圖時，主角可能站在門上：要先離開門，才能再觸發，不然會來回彈

@@ -51,10 +51,7 @@ function encounter_check()
   local e = pick(t.list)
   local level = e.min + rnd(e.max - e.min + 1)
   battle_scene_start({ kin_new(e.species, level) }, { wild = true, flash = true }, function(result)
-    -- 暫時：全滅時直接補滿（W29 改成回營地）
-    if result == "lose" then
-      for _, k in ipairs(party) do kin_heal(k) end
-    end
+    if result == "lose" then wiped_out() end
   end)
 end
 
@@ -100,4 +97,15 @@ function tallgrass_front()
       sspr(IMG.tallgrass, f * 16, 9, 16, 7, cx * TILE, cy * TILE + 9)
     end
   end
+end
+
+-- ============================================================
+-- 全滅（W29）
+-- ============================================================
+-- 戰鬥畫面全黑的那一刻呼叫：回到營地老苔的小屋前，隊伍全部補滿，老苔說一句話。
+-- GB 會扣一半的錢；這個遊戲還沒有錢（W55 商店），先不扣。
+function wiped_out()
+  for _, k in ipairs(party) do kin_heal(k) end
+  warp("camp", 19, 13, 0, -1)          -- 老苔（19, 11）的前面，面向他
+  dialog_open(TALK.elder_rescue)
 end
