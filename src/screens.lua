@@ -297,16 +297,110 @@ function party_open(where, on_switch, active)
 end
 
 -- ============================================================
+-- 野伴手冊（W39）
+-- ============================================================
+-- DEX.seen[編號] = true：遇過（看過樣子）；DEX.caught[編號] = true：抓過（隊伍裡有過）
+-- 遇過的看得到樣子和名字；抓過的才看得到屬性和說明（GB 的做法）
+
+DEX = DEX or { seen = {}, caught = {} }
+
+function dex_seen(no) DEX.seen[no] = true end
+function dex_caught(no) DEX.seen[no] = true; DEX.caught[no] = true end
+
+local function dex_numbers()
+  local list = {}
+  for no in pairs(DATA.species) do list[#list + 1] = no end
+  table.sort(list)
+  return list
+end
+
+local function dex_count()
+  local seen, caught = 0, 0
+  for no in pairs(DATA.species) do
+    if DEX.seen[no] then seen = seen + 1 end
+    if DEX.caught[no] then caught = caught + 1 end
+  end
+  return seen, caught
+end
+
+local function dex_detail(nos, index)
+  local screen = { index = index }
+  function screen.update(self)
+    if pressed(A) or pressed(B) then ui_pop() return end
+    if pressed_repeat(UP) then self.index = (self.index - 2) % #nos + 1 end
+    if pressed_repeat(DOWN) then self.index = self.index % #nos + 1 end
+  end
+  function screen.draw(self)
+    local no = nos[self.index]
+    local sp = DATA.species[no]
+    ui_box(4, 4, 312, 232)
+    rect(14, 14, 68, 68, 6)
+    if DEX.seen[no] then spr(IMG.kin_front, sp.sprite, 16, 16) end
+    text("No." .. no, 92, 14, 0)
+    text(DEX.seen[no] and sp.name or "？？？", 92, 32, 0)
+    if DEX.caught[no] then
+      local tname = DATA.types.names[sp.type]
+      rect(92, 51, textw(tname) + 8, 15, TYPE_COLOR[sp.type] or 13)
+      text(tname, 96, 51, 7)
+      local works = {}
+      for w, lv in pairs(sp.work or {}) do works[#works + 1] = DATA.work[w] .. " " .. lv end
+      table.sort(works)
+      text("工作：" .. table.concat(works, "、"), 14, 96, 0)
+      rect(10, 118, 300, 1, 5)
+      for i, l in ipairs(wrap_text(sp.desc, 290)) do text(l, 14, 124 + (i - 1) * 16, 0) end
+    elseif DEX.seen[no] then
+      text("還沒抓到過。抓到之後才會知道更多。", 14, 96, 5)
+    end
+  end
+  ui_push(screen)
+end
+
+function dex_open()
+  local nos = dex_numbers()
+  local screen = { index = 1, top = 1 }
+  local ROWS = 9
+  function screen.update(self)
+    if pressed(B) then ui_pop() return end
+    if pressed_repeat(UP) then self.index = math.max(self.index - 1, 1) end
+    if pressed_repeat(DOWN) then self.index = math.min(self.index + 1, #nos) end
+    if self.index < self.top then self.top = self.index end
+    if self.index >= self.top + ROWS then self.top = self.index - ROWS + 1 end
+    if pressed(A) and DEX.seen[nos[self.index]] then dex_detail(nos, self.index) end
+  end
+  function screen.draw(self)
+    local x, y, w = 60, 4, 200
+    ui_box(x, y, w, 232)
+    local seen, caught = dex_count()
+    text("野伴手冊", x + 12, y + 8, 0)
+    local c = "遇過 " .. seen .. "　抓過 " .. caught
+    text(c, x + w - 12 - textw(c), y + 8, 5)
+    rect(x + 8, y + 26, w - 16, 1, 5)
+    for r = 0, ROWS - 1 do
+      local i = self.top + r
+      local no = nos[i]
+      if not no then break end
+      local ry = y + 32 + r * 21
+      if i == self.index then ui_arrow_right(x + 10, ry + 4, 0) end
+      if DEX.caught[no] then fx_disc(x + 24, ry + 7, 3, 9) end   -- 抓過：橘色圓點
+      text(no, x + 32, ry, 0)
+      text(DEX.seen[no] and DATA.species[no].name or "？？？", x + 58, ry, DEX.seen[no] and 0 or 5)
+    end
+  end
+  ui_push(screen)
+end
+
+-- ============================================================
 -- START 選單（地圖上）
 -- ============================================================
 
 function field_menu_open()
-  local m = menu_new({ items = { "野伴", "背包", "關閉" }, x = 0, y = 8 })
+  local m = menu_new({ items = { "野伴", "背包", "手冊", "關閉" }, x = 0, y = 8 })
   m.x = 316 - m.w
   local screen = { menu = m }
   function screen.update(self)
     local r = menu_update(self.menu)
-    if r == 0 or r == 3 or pressed(START) then ui_pop()
+    if r == 0 or r == 4 or pressed(START) then ui_pop()
+    elseif r == 3 then dex_open()
     elseif r == 1 then party_open("field")
     elseif r == 2 then
       bag_open("field", function(key, i)

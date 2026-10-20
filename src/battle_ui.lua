@@ -218,6 +218,7 @@ local function evolve_scene(k, to)
   wait(12)
   S.evo.flash, S.evo.show_new, S.evo.glow = false, true, 0
   local events = kin_evolve(k, to)
+  dex_caught(to)
   msg("恭喜！" .. from_name .. "進化成" .. kin_name(k) .. "了！")
   for _, e in ipairs(events) do
     if e.kind == "learn" then msg(kin_name(k) .. "學會了" .. DATA.moves[e.key].name .. "！")
@@ -262,6 +263,7 @@ local function show(e)
     msg(text)
     -- 加入隊伍（滿 6 隻送到營地的牧場，W44 之後在基地看得到）
     local k = battle_active(S.b, 2)
+    dex_caught(k.no)
     if #party < 6 then
       party[#party + 1] = k
       msg(kin_name(k) .. "加入了隊伍！")
@@ -308,6 +310,7 @@ local function show(e)
     forget_and_learn(v.kin, e.key)
     return
   elseif K == "switch" then
+    if e.side == 2 then dex_seen(battle_active(S.b, 2).no) end
     refresh_view(e.side)
     S.fx[e.side] = new_fx()
   end
@@ -395,6 +398,7 @@ local function begin(foe_party, opts, on_end)
   refresh_view(1)
   refresh_view(2)
   local foe = battle_active(b, 2)
+  dex_seen(foe.no)
   run(function()
     -- 進場：對手從左邊、自己從右邊滑進來（GB 的開場）
     tween(240, 0, 40, function(x) S.fx[2].dx = -x; S.fx[1].dx = x end)
