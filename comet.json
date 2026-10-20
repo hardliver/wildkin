@@ -12,6 +12,7 @@
     "src/player.lua",
     "src/npc.lua",
     "src/encounter.lua",
+    "src/gather.lua",
     "src/trainer.lua",
     "src/talk.lua",
     "src/kin.lua",

@@ -4,5 +4,14 @@
   "ball": { "name": "野伴球", "sort": 10, "kind": "ball", "rate": 100, "price": 200, "battle": true, "field": false,
             "desc": "丟向野生的野伴，就有機會抓到。\n沒抓到不會退費。" },
   "superpotion": { "name": "好傷藥", "sort": 2, "kind": "heal", "amount": 50, "price": 700, "battle": true, "field": true,
-                   "desc": "HP 回復 50。\n藥膏味很重，聞起來像老家的客廳。" }
+                   "desc": "HP 回復 50。\n藥膏味很重，聞起來像老家的客廳。" },
+  "wood":     { "name": "木材", "sort": 101, "kind": "material", "price": 10, "battle": false, "field": false, "desc": "做球、蓋設施都用得到。\n聞起來像搬家時的紙箱。" },
+  "stone":    { "name": "石頭", "sort": 102, "kind": "material", "price": 10, "battle": false, "field": false, "desc": "蓋設施用的石頭。\n比健檢報告上的結石大很多。" },
+  "ore":      { "name": "礦石", "sort": 103, "kind": "material", "price": 30, "battle": false, "field": false, "desc": "放進爐子裡可以煉出金屬。" },
+  "berry":    { "name": "莓果", "sort": 104, "kind": "material", "price": 10, "battle": false, "field": false, "desc": "酸酸甜甜的。做回復藥、飼料的材料。" },
+  "wheat":    { "name": "麥",   "sort": 105, "kind": "material", "price": 10, "battle": false, "field": false, "desc": "做飼料的材料。" },
+  "fiber":    { "name": "纖維", "sort": 106, "kind": "material", "price": 10, "battle": false, "field": false, "desc": "可以搓成繩子。" },
+  "mushroom": { "name": "菇",   "sort": 107, "kind": "material", "price": 20, "battle": false, "field": false, "desc": "做萬用藥草的材料。\n不認識的菇不要亂吃。" },
+  "metal":    { "name": "金屬", "sort": 108, "kind": "material", "price": 50, "battle": false, "field": false, "desc": "做好球的材料。" },
+  "charcoal": { "name": "炭",   "sort": 109, "kind": "material", "price": 30, "battle": false, "field": false, "desc": "做精製球的材料。" }
 }

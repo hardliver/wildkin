@@ -9,7 +9,12 @@
     {"type":"sign","x":27,"y":14,"text":"設施空地\n（之後可以在這裡蓋設施，派野伴來工作）"},
     {"type":"sign","x":18,"y":25,"text":"新芽營地\n往南：草原小徑"},
     {"type":"door","x":19,"y":29,"to":"route1","tx":9,"ty":2},
-    {"type":"door","x":20,"y":29,"to":"route1","tx":10,"ty":2}
+    {"type":"door","x":20,"y":29,"to":"route1","tx":10,"ty":2},
+    {"type":"gather","x":4,"y":6,"item":"berry","amount":2,"tile":6},
+    {"type":"gather","x":8,"y":22,"item":"stone","amount":2,"tile":44},
+    {"type":"gather","x":33,"y":24,"item":"wood","amount":2,"tile":107},
+    {"type":"gather","x":30,"y":3,"item":"fiber","amount":1,"tile":18},
+    {"type":"gather","x":5,"y":13,"item":"wood","amount":2,"tile":107}
   ],
   "layers": {
     "ground": [

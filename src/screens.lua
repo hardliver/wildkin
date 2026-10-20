@@ -39,11 +39,13 @@ function bag_add(key, n)
 end
 
 -- 背包裡有的道具，依 sort 排好；where = "field"／"battle"：只列出那裡能用的
+-- where = "field"／"battle"：只列出那裡能用的；where = "material"：材料
 local function bag_list(where)
   local keys = {}
   for key, n in pairs(BAG) do
     local it = DATA.items[key]
-    if n > 0 and it and it[where] then keys[#keys + 1] = key end
+    local show = it and ((where == "material" and it.kind == "material") or (where ~= "material" and it[where]))
+    if n > 0 and show then keys[#keys + 1] = key end
   end
   table.sort(keys, function(a, b) return DATA.items[a].sort < DATA.items[b].sort end)
   return keys
@@ -61,24 +63,50 @@ end
 
 -- 打開背包。where：在哪裡用；on_use(道具, 隊伍第幾隻)：決定要用了（數量由這裡扣）
 -- opts.wild：戰鬥是不是野生戰（野伴球只能對野生的用）
+-- 在地圖上有兩個分頁：道具、材料（左右鍵切換）；戰鬥中只有道具
 function bag_open(where, on_use, opts)
-  local keys = bag_list(where)
-  if #keys == 0 then
+  local tabs = { { name = "道具", keys = bag_list(where) } }
+  if where == "field" then tabs[2] = { name = "材料", keys = bag_list("material") } end
+  local empty = true
+  for _, t in ipairs(tabs) do if #t.keys > 0 then empty = false end end
+  if empty then
     dialog_open("背包裡什麼都沒有。")
     return
   end
-  local items = {}
-  for i, key in ipairs(keys) do items[i] = DATA.items[key].name .. " ×" .. BAG[key] end
-  local m = menu_new({ items = items, x = 0, y = 8 })
-  m.x = 316 - m.w - (where == "field" and 66 or 0)   -- 在地圖上：放在 START 選單的左邊，兩個並排
-  local screen = { menu = m }
+  local screen = { tab = (#tabs[1].keys == 0) and 2 or 1 }
+  -- 換分頁時重做選單（項目、寬度都不一樣）
+  function screen.build(self)
+    local keys = tabs[self.tab].keys
+    local items = {}
+    for i, key in ipairs(keys) do items[i] = DATA.items[key].name .. " ×" .. BAG[key] end
+    if #items == 0 then items[1] = "（沒有東西）" end
+    local m = menu_new({ items = items, x = 0, y = 24 })
+    m.x = 316 - m.w - (where == "field" and 66 or 0)   -- 在地圖上：放在 START 選單的左邊，兩個並排
+    self.menu, self.keys = m, keys
+  end
+  screen:build()
   function screen.update(self)
+    if #tabs > 1 and (pressed(LEFT) or pressed(RIGHT)) then
+      self.tab = 3 - self.tab
+      self:build()
+      return
+    end
     local r = menu_update(self.menu)
     if r == 0 then ui_pop() return end
     if not r then return end
-    local key = keys[r]
-    if DATA.items[key].kind == "ball" then
+    local key = self.keys[r]
+    if not key then return end
+    local it = DATA.items[key]
+    if it.kind == "material" then
+      dialog_open("做東西用的材料。可以在營地的工作台使用。")
+      return
+    end
+    if it.kind == "ball" then
       -- 野伴球：不用選野伴，直接丟
+      if where ~= "battle" then
+        dialog_open("在戰鬥中對野生的野伴丟。")
+        return
+      end
       if not (opts and opts.wild) then
         dialog_open("不能搶別人的野伴！")
         return
@@ -101,12 +129,25 @@ function bag_open(where, on_use, opts)
     end)
   end
   function screen.draw(self)
-    menu_draw(self.menu)
+    -- 分頁標籤（在選單上面）
+    local m = self.menu
+    local x = m.x
+    for i, t in ipairs(tabs) do
+      local w = textw(t.name) + 12
+      rect(x, 8, w, 16, i == self.tab and 0 or 5)
+      text(t.name, x + 6, 9, 7)
+      x = x + w + 2
+    end
+    if #tabs > 1 then text("←→", x + 4, 9, 5) end
+    menu_draw(m)
     -- 下方：游標所在道具的說明
     ui_box(4, 184, 312, 52)
-    local lines = {}
-    for l in (DATA.items[keys[self.menu.index]].desc .. "\n"):gmatch("(.-)\n") do lines[#lines + 1] = l end
-    for i, l in ipairs(lines) do text(l, 14, 192 + (i - 1) * 16, 0) end
+    local key = self.keys[m.index]
+    if key then
+      local lines = {}
+      for l in (DATA.items[key].desc .. "\n"):gmatch("(.-)\n") do lines[#lines + 1] = l end
+      for i, l in ipairs(lines) do text(l, 14, 192 + (i - 1) * 16, 0) end
+    end
   end
   ui_push(screen)
 end

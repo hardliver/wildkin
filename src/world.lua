@@ -141,6 +141,7 @@ function world_draw()
   map(world.map, "ground")
   grass_draw()
   tallgrass_draw()   -- 遇敵草叢（encounter.lua）
+  gather_draw()      -- 採集點（gather.lua）
   map(world.map, "deco")
   plants_draw()
 end

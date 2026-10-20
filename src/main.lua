@@ -13,6 +13,7 @@ PLAYER_NAME = "大志"   -- 主角的名字（W54 序章可以自己取）
 local function enter_map(name)
   world_enter(name)
   npc_load()
+  gather_load()
   butterflies_enter()
 end
 
@@ -65,6 +66,11 @@ local function interact()
     local sign = world_sign_at(fx, fy)
     if sign then
       dialog_open(sign.text)
+      return
+    end
+    local g = gather_at(fx, fy)
+    if g then
+      gather_take(g)
       return
     end
   end
