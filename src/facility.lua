@@ -5,14 +5,16 @@
 -- 面對蓋好的設施按 A → 看看／拆掉（拿回一半材料）。
 -- 空地和設施都會擋路：載入地圖時把那 4 格的 solid 設成 1（在 Studio 移動空地，碰撞會跟著走）。
 --
--- 記錄：FACILITY["地圖:x:y"] = { kind = "lumber", workers = {} }
---   workers：派駐的野伴（W45）；存檔時一起存（W49）
+-- 記錄：FACILITY["地圖:x:y"] = { kind = "lumber", workers = { 野伴, … } }
+--   workers：派駐的野伴（W45）。派過去的野伴離開隊伍／牧場，叫回來才會回去；存檔時一起存（W49）
+-- 派駐的野伴在設施旁邊走來走去：在 4 個定點（前面左右、兩側）之間走，停下來時一跳一跳地工作
 -- 設施的圖：assets/art/facilities.png，每格 32×32；第 0 格是空地，其他是 facilities.json 的 sprite
 
 FACILITY = FACILITY or {}
 
 local lots = {}       -- 這張地圖的空地
-local tick = 0        -- 畫面計時（蓋好時的煙塵）
+local tick = 0        -- 畫面計時（蓋好時的煙塵、野伴走路）
+local MAX_WORKERS = 3 -- 一個設施最多派幾隻
 
 local function key(l) return world.name .. ":" .. l.cx .. ":" .. l.cy end
 
@@ -142,6 +144,170 @@ local function build_menu(l)
   ui_push(screen)
 end
 
+-- ============================================================
+-- 派駐野伴（W45）
+-- ============================================================
+
+-- 這隻野伴的某項工作等級（不會就是 0）
+local function work_level(k, work)
+  local w = kin_species(k).work
+  return (w and w[work]) or 0
+end
+
+-- 叫回來：隊伍有空位回隊伍，滿了去牧場。回傳去了哪裡
+function send_home(k)
+  if #party < 6 then
+    party[#party + 1] = k
+    return "隊伍"
+  end
+  RANCH[#RANCH + 1] = k
+  return "牧場"
+end
+
+-- 每天的產出：{ { "wood", 2 } }（基本量 × 派駐野伴的工作等級總和）。W46 睡覺時結算也用這個
+function facility_output(fac)
+  local f = DATA.facilities[fac.kind]
+  local total = 0
+  for _, k in ipairs(fac.workers) do total = total + work_level(k, f.work) end
+  local list = {}
+  for _, c in ipairs(sorted_cost(f.output)) do
+    if c[2] * total > 0 then list[#list + 1] = { c[1], c[2] * total } end
+  end
+  return list, total
+end
+
+-- 一行野伴：小圖示、名字、Lv、工作等級。y 是這一行的上緣
+local function worker_row(k, work, x, y, w, selected)
+  if selected then ui_arrow_right(x + 4, y + 5, 0) end
+  kin_icon_draw(k.no, x + 14, y + 1, false, 0, true)
+  text(kin_name(k), x + 36, y + 1, 0)
+  local lv = "Lv" .. k.level
+  text(lv, x + 120, y + 1, 5)
+  local wl = DATA.work[work] .. " " .. work_level(k, work)
+  text(wl, x + w - 12 - textw(wl), y + 1, 0)
+end
+
+-- 可以派的野伴：隊伍和牧場裡，會這項工作的
+local function candidates(work)
+  local list = {}
+  for i, k in ipairs(party) do
+    if work_level(k, work) > 0 then list[#list + 1] = { k = k, from = "隊伍" } end
+  end
+  for i, k in ipairs(RANCH) do
+    if work_level(k, work) > 0 then list[#list + 1] = { k = k, from = "牧場" } end
+  end
+  return list
+end
+
+local function remove_from(t, k)
+  for i, v in ipairs(t) do
+    if v == k then table.remove(t, i) return end
+  end
+end
+
+-- 沒有能派的：告訴玩家哪些「見過的」野伴會這項工作（沒見過的不爆雷）
+local function nobody_text(f)
+  local names = {}
+  local nos = {}
+  for no in pairs(DATA.species) do nos[#nos + 1] = no end
+  table.sort(nos)
+  for _, no in ipairs(nos) do
+    local w = DATA.species[no].work
+    if DEX.seen[no] and w and w[f.work] then names[#names + 1] = DATA.species[no].name end
+  end
+  local s = "隊伍和牧場裡沒有會" .. DATA.work[f.work] .. "的野伴。"
+  if #names > 0 then s = s .. "\n" .. table.concat(names, "、") .. "會" .. DATA.work[f.work] .. "。" end
+  return s
+end
+
+-- 選要派哪一隻
+local function pick_worker(l, fac)
+  local f = DATA.facilities[fac.kind]
+  local list = candidates(f.work)
+  if #list == 0 then
+    dialog_open(nobody_text(f))
+    return
+  end
+  local screen = { index = 1 }
+  function screen.update(self)
+    if pressed_repeat(UP) then self.index = (self.index - 2) % #list + 1 end
+    if pressed_repeat(DOWN) then self.index = self.index % #list + 1 end
+    if pressed(B) then ui_pop() return end
+    if not pressed(A) then return end
+    local c = list[self.index]
+    if c.from == "隊伍" and #party <= 1 then
+      dialog_open("隊伍裡至少要留一隻野伴。")
+      return
+    end
+    remove_from(c.from == "隊伍" and party or RANCH, c.k)
+    fac.workers[#fac.workers + 1] = c.k
+    ui_pop()
+    dialog_open(kin_name(c.k) .. "開始在" .. f.name .. "工作了！")
+  end
+  function screen.draw(self)
+    local x, y, w = 24, 40, 264      -- 往右下錯開，看得到底下派駐畫面的標題
+    ui_box(x, y, w, 18 + #list * 20)
+    for i, c in ipairs(list) do
+      local ry = y + 9 + (i - 1) * 20
+      worker_row(c.k, f.work, x + 4, ry, w - 48, i == self.index)
+      text(c.from, x + w - 12 - textw(c.from), ry + 1, 5)
+    end
+    ui_box(4, 184, 312, 52)
+    text("要派哪一隻去" .. f.name .. "？", 14, 192, 0)
+    text("派去工作的野伴會離開" .. (#RANCH > 0 and "隊伍或牧場" or "隊伍") .. "。", 14, 210, 5)
+  end
+  ui_push(screen)
+end
+
+-- 派駐畫面：3 個位置，空的選了派一隻，有野伴的選了叫回來
+local function workers_screen(l, fac)
+  local f = DATA.facilities[fac.kind]
+  local screen = { index = 1 }
+  function screen.update(self)
+    if pressed_repeat(UP) then self.index = (self.index - 2) % MAX_WORKERS + 1 end
+    if pressed_repeat(DOWN) then self.index = self.index % MAX_WORKERS + 1 end
+    if pressed(B) then ui_pop() return end
+    if not pressed(A) then return end
+    local k = fac.workers[self.index]
+    if not k then
+      pick_worker(l, fac)
+      return
+    end
+    dialog_ask("要叫" .. kin_name(k) .. "回來嗎？", { "叫回來", "不要" }, function(c)
+      if c ~= 1 then return end
+      remove_from(fac.workers, k)
+      local where = send_home(k)
+      dialog_open(kin_name(k) .. "回到" .. where .. "了。")
+    end)
+  end
+  function screen.draw(self)
+    local x, y, w = 8, 8, 304
+    ui_box(x, y, w, 26 + MAX_WORKERS * 20)
+    text(f.name .. "：派駐的野伴", x + 12, y + 7, 0)
+    for i = 1, MAX_WORKERS do
+      local ry = y + 27 + (i - 1) * 20
+      local k = fac.workers[i]
+      if k then
+        worker_row(k, f.work, x + 4, ry, w - 4, i == self.index)
+      else
+        if i == self.index then ui_arrow_right(x + 8, ry + 6, 0) end
+        text("（空位）", x + 40, ry + 1, 5)
+      end
+    end
+    ui_box(4, 184, 312, 52)
+    local out = facility_output(fac)
+    if #out == 0 then
+      text("沒有會" .. DATA.work[f.work] .. "的野伴工作，就不會有產出。", 14, 192, 0)
+    else
+      local parts = {}
+      for _, c in ipairs(out) do parts[#parts + 1] = DATA.items[c[1]].name .. " " .. c[2] end
+      text("每天產出：" .. table.concat(parts, "、"), 14, 192, 0)
+    end
+    text("在營地的床上睡一覺，就會收到產出。", 14, 210, 5)
+  end
+  ui_push(screen)
+end
+
 local function demolish(l)
   local fac = FACILITY[l.key]
   local f = DATA.facilities[fac.kind]
@@ -151,9 +317,11 @@ local function demolish(l)
   end
   local msg = "要拆掉" .. f.name .. "嗎？"
   if next(back) then msg = msg .. "\n可以拿回" .. cost_text(back) .. "。" end
+  if #fac.workers > 0 then msg = msg .. "\n在這裡工作的野伴會回去。" end
   dialog_ask(msg, { "拆掉", "不要" }, function(c)
     if c ~= 1 then return end
     for k, n in pairs(back) do bag_add(k, n) end
+    for _, k in ipairs(fac.workers) do send_home(k) end
     FACILITY[l.key] = nil
     l.dust = tick
     ui_clear()
@@ -169,15 +337,20 @@ function facility_interact(l)
     return
   end
   local f = DATA.facilities[fac.kind]
-  local m = menu_new({ items = { "看看", "拆掉", "取消" }, x = 0, y = 8 })
+  local m = menu_new({ items = { "派駐", "看看", "拆掉", "取消" }, x = 0, y = 8 })
   m.x = 316 - m.w
   local screen = { menu = m }
   function screen.update(self)
     local r = menu_update(self.menu)
-    if r == 0 or r == 3 then ui_pop()
+    if r == 0 or r == 4 then ui_pop()
     elseif r == 1 then
-      dialog_open(f.name .. "：" .. f.desc .. "\n還沒有野伴在這裡工作。")
+      workers_screen(l, fac)
     elseif r == 2 then
+      local names = {}
+      for _, k in ipairs(fac.workers) do names[#names + 1] = kin_name(k) end
+      local who = (#names > 0) and ("在這裡工作：" .. table.concat(names, "、") .. "。") or "還沒有野伴在這裡工作。"
+      dialog_open(f.name .. "：" .. f.desc .. "\n" .. who)
+    elseif r == 3 then
       demolish(l)
     end
   end
@@ -202,6 +375,75 @@ local function draw_dust(l)
       rect(x - r, y - r + 1, r * 2, r * 2 - 2, 6)
       rect(x - r + 1, y - r, r * 2 - 2, r * 2, 6)
       rect(x - r + 2, y - r + 1, r - 1, r - 1, 7)
+    end
+  end
+end
+
+-- ============================================================
+-- 在設施旁邊走來走去的野伴
+-- ============================================================
+
+-- 4 個定點（圖示左上角，相對設施左上角）：前面左、前面右、左側、右側。
+-- 設施之間、設施前面都留了一格走道，圖示站在走道上
+local SPOTS = { { 2, 24 }, { 15, 24 }, { -10, 10 }, { 26, 10 } }
+local FRONT_Y = 24
+local walkers = {}   -- walkers[野伴] = { x, y, spot, wait, right, step }（只是畫面，不存檔）
+
+local function walker(l, k, i)
+  local w = walkers[k]
+  if not w or w.lot ~= l then
+    local s = (i - 1) % #SPOTS + 1
+    w = { lot = l, x = SPOTS[s][1], y = SPOTS[s][2], spot = s, wait = 30 + hash(i, l.cx, l.cy) % 90, right = s ~= 4, step = 0 }
+    walkers[k] = w
+  end
+  return w
+end
+
+-- 一幀：停著就倒數（工作中）；倒數完選下一個定點，先走到前面那一排、再左右走、再上下走（不會穿過設施）
+local function walker_step(l, w, i)
+  local s = SPOTS[w.spot]
+  local tx, ty = s[1], s[2]
+  if w.x == tx and w.y == ty then
+    if w.wait > 0 then
+      w.wait = w.wait - 1
+      return false
+    end
+    local n = hash(tick, i, l.cx * 64 + l.cy) % (#SPOTS - 1) + 1
+    w.spot = (w.spot + n - 1) % #SPOTS + 1             -- 一定換一個定點
+    w.wait = 90 + hash(tick, i, 7) % 150
+    return true
+  end
+  if tick % 2 == 1 then return true end                 -- 走慢一點：兩幀走一像素
+  w.step = w.step + 1
+  if w.x ~= tx and w.y ~= FRONT_Y then
+    w.y = w.y + (FRONT_Y > w.y and 1 or -1)
+  elseif w.x ~= tx then
+    w.right = tx > w.x
+    w.x = w.x + (w.right and 1 or -1)
+  else
+    w.y = w.y + (ty > w.y and 1 or -1)
+  end
+  return true
+end
+
+-- 給 main.lua 的 draw_actors：把野伴加進「依 y 排序」的清單，和主角、NPC 互相遮擋
+function facility_actors(list)
+  for _, l in ipairs(lots) do
+    local fac = FACILITY[l.key]
+    if fac then
+      for i, k in ipairs(fac.workers) do
+        local w = walker(l, k, i)
+        local moving = walker_step(l, w, i)
+        local x, y = l.x + w.x, l.y + w.y
+        if moving then
+          list[#list + 1] = { y = y, draw = function() kin_icon_draw(k.no, x, y, true, w.step, w.right) end }
+        else
+          -- 工作中：面向設施，每 24 幀跳一下
+          local right = (w.spot == 3) or (w.spot ~= 4 and w.right)
+          local hop = (tick + i * 8) % 24 < 4 and 1 or 0
+          list[#list + 1] = { y = y, draw = function() kin_icon_draw(k.no, x, y - hop, false, 0, right) end }
+        end
+      end
     end
   end
 end

@@ -136,18 +136,20 @@ function _update()
   world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)   -- 跟著主角的中心點
 end
 
--- 主角和 NPC 依 y 排序後畫：比較下面（y 比較大）的後畫，才會蓋住上面的。
+-- 主角、NPC、在設施工作的野伴依 y 排序後畫：比較下面（y 比較大）的後畫，才會蓋住上面的。
 -- y 一樣時，主角最後畫（排序條件要完整，不然每次排出來的順序可能不同）
 local function draw_actors()
   local list = {}
   for i, n in ipairs(npcs) do list[#list + 1] = { y = n.y, order = i, npc = n } end
-  list[#list + 1] = { y = player.y16 // 16, order = #npcs + 1 }
+  list[#list + 1] = { y = player.y16 // 16, order = 1000 }
+  facility_actors(list)   -- 在設施工作的野伴（facility.lua）
+  for i, e in ipairs(list) do e.order = e.order or i end
   table.sort(list, function(a, b)
     if a.y ~= b.y then return a.y < b.y end
     return a.order < b.order
   end)
   for _, e in ipairs(list) do
-    if e.npc then npc_draw(e.npc) else player_draw() end
+    if e.npc then npc_draw(e.npc) elseif e.draw then e.draw() else player_draw() end
   end
 end
 
