@@ -86,7 +86,7 @@ function bag_open(where, on_use, opts)
   end
   screen:build()
   function screen.update(self)
-    if #tabs > 1 and (pressed(LEFT) or pressed(RIGHT)) then
+    if #tabs > 1 and (pressed(L) or pressed(R)) then   -- L、R 切換分頁（鍵盤 Q、E）
       self.tab = 3 - self.tab
       self:build()
       return
@@ -129,16 +129,24 @@ function bag_open(where, on_use, opts)
     end)
   end
   function screen.draw(self)
-    -- 分頁標籤（在選單上面）
+    -- 分頁標籤（在選單上面，靠右對齊選單）：[L] 道具 材料 [R]
     local m = self.menu
-    local x = m.x
-    for i, t in ipairs(tabs) do
-      local w = textw(t.name) + 12
-      rect(x, 8, w, 16, i == self.tab and 0 or 5)
-      text(t.name, x + 6, 9, 7)
-      x = x + w + 2
+    local function keycap(x, label)
+      rect(x, 10, 11, 12, 0)
+      rect(x + 1, 11, 9, 10, 6)
+      text(label, x + 3, 9, 0)
     end
-    if #tabs > 1 then text("←→", x + 4, 9, 5) end
+    local widths, total = {}, 0
+    for i, t in ipairs(tabs) do widths[i] = textw(t.name) + 12; total = total + widths[i] + 2 end
+    local caps = (#tabs > 1) and 13 or 0
+    local x = m.x + m.w - total - caps * 2 + 2
+    if caps > 0 then keycap(x, "L"); x = x + caps end
+    for i, t in ipairs(tabs) do
+      rect(x, 8, widths[i], 16, i == self.tab and 0 or 5)
+      text(t.name, x + 6, 9, 7)
+      x = x + widths[i] + 2
+    end
+    if caps > 0 then keycap(x, "R") end
     menu_draw(m)
     -- 下方：游標所在道具的說明
     ui_box(4, 184, 312, 52)
