@@ -35,6 +35,7 @@ function battle_new(party, foe_party, opts)
   return {
     sides = { new_side(party), new_side(foe_party) },
     wild = opts.wild or false,
+    trainer = opts.trainer,   -- 訓練家的名字（訊息用：「阿穗的炭毛狸使用了……」）
     turn = 0,
     run_tries = 0,
     over = nil,
@@ -328,7 +329,7 @@ function battle_event_text(b, e)
   local function who(side)
     local k = battle_active(b, side)
     local name = kin_name(k)
-    if side == 2 then name = (b.wild and "野生的" or "對手的") .. name end
+    if side == 2 then name = (b.wild and "野生的" or ((b.trainer or "對手") .. "的")) .. name end
     return name
   end
   local K = e.kind
@@ -354,7 +355,7 @@ function battle_event_text(b, e)
   if K == "level" then return who(e.side) .. "升到了 Lv" .. e.level .. "！" end
   if K == "learn" then return who(e.side) .. "學會了" .. DATA.moves[e.key].name .. "！" end
   if K == "full" then return who(e.side) .. "想學" .. DATA.moves[e.key].name .. "，可是已經記住 4 招了。" end
-  if K == "switch" then return (e.side == 1 and "上吧！" or "對手換上了") .. kin_name(battle_active(b, e.side)) .. "！" end
+  if K == "switch" then return (e.side == 1 and "上吧！" or ((b.trainer or "對手") .. "換上了")) .. kin_name(battle_active(b, e.side)) .. "！" end
   if K == "run" then return e.ok and "順利逃走了！" or "逃不掉！就像當年的車貸。" end
   if K == "cant_run" then return "不能從對戰中逃走！" end
   return nil

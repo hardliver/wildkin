@@ -80,6 +80,12 @@ function world_add_blocker(who)
   world.blockers[#world.blockers + 1] = who
 end
 
+function world_remove_blocker(who)
+  for i, b in ipairs(world.blockers) do
+    if b == who then table.remove(world.blockers, i) return end
+  end
+end
+
 -- 地圖上這個像素是不是牆（solid 圖層不是 0；地圖外面也算牆）
 local function solid_px(px, py)
   if px < 0 or py < 0 or px >= world.w or py >= world.h then return true end

@@ -13,7 +13,7 @@ npcs = {}
 function npc_load()
   npcs = {}
   for _, o in ipairs(world.objects) do
-    if o.type == "npc" then
+    if o.type == "npc" and not trainer_gone(o) then
       local n = {
         name = o.name,
         tile = o.tile,
@@ -23,7 +23,10 @@ function npc_load()
         face_left = false,
         seed = hash(o.x, o.y, 7),   -- 東張西望的節奏，每個人錯開
         talked = -10000,            -- 上次跟主角說話是第幾幀
+        trainer = o.trainer,        -- 訓練家的編號（data/trainers.json），一般 NPC 是 nil
+        look = o.look,              -- 訓練家面向哪邊（up／down／left／right）
       }
+      if o.look == "left" then n.face_left = true end
       npcs[#npcs + 1] = n
       world_add_blocker(n)      -- NPC 會擋路，不能穿過去
     end
@@ -49,11 +52,20 @@ end
 local LOOK_EVERY, LOOK_AFTER_TALK = 240, 600
 
 function npc_update(n)
+  if n.trainer and not trainer_defeated(n) then return end   -- 訓練家盯著自己的方向，不東張西望
   local f = frame()
   if f - n.talked < LOOK_AFTER_TALK then return end
   if (f + n.seed) % LOOK_EVERY == 0 and hash(f // LOOK_EVERY, n.seed) % 3 == 0 then
     n.face_left = not n.face_left
   end
+end
+
+-- 從地圖上拿掉（訓練家打完走掉）
+function npc_remove(n)
+  for i, m in ipairs(npcs) do
+    if m == n then table.remove(npcs, i) break end
+  end
+  world_remove_blocker(n)
 end
 
 function npc_draw(n)

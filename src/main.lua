@@ -93,6 +93,13 @@ function _update()
     return
   end
 
+  -- 訓練家的流程（走過來、說話、開戰）：自己處理對話框
+  if trainer_running() then
+    trainer_update()
+    for _, n in ipairs(npcs) do npc_update(n) end
+    return
+  end
+
   -- 對話中：只處理對話，主角不能動
   if dialog_active() then
     dialog_update()
@@ -103,7 +110,7 @@ function _update()
   for _, n in ipairs(npcs) do npc_update(n) end
   if pressed(A) then interact() end
   check_door()
-  if not transition_active() then encounter_check() end
+  if not transition_active() and not trainer_check() then encounter_check() end
   world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)   -- 跟著主角的中心點
 end
 
@@ -131,6 +138,7 @@ function _draw()
     draw_actors()  -- 世界座標
     tallgrass_front()    -- 草叢蓋住主角的腳
     butterflies_draw()   -- 飛在大家上面
+    trainer_draw()       -- 訓練家頭上的「！」
   end
 
   camera()           -- 介面固定在畫面上

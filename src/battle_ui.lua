@@ -301,7 +301,12 @@ local function begin(foe_party, opts, on_end)
   run(function()
     -- 進場：對手從左邊、自己從右邊滑進來（GB 的開場）
     tween(240, 0, 40, function(x) S.fx[2].dx = -x; S.fx[1].dx = x end)
-    msg((b.wild and "野生的" or "對手派出了") .. kin_name(foe) .. (b.wild and "出現了！" or "！"))
+    if b.wild then
+      msg("野生的" .. kin_name(foe) .. "出現了！")
+    else
+      msg((b.trainer or "對手") .. "要和你對戰！")
+      msg((b.trainer or "對手") .. "派出了" .. kin_name(foe) .. "！")
+    end
     msg("上吧！" .. kin_name(battle_active(b, 1)) .. "！")
     to_command()
   end)
@@ -351,7 +356,11 @@ function battle_scene_update()
     elseif r == 3 then
       say("背包裡什麼都沒有。", to_command)
     elseif r == 4 then
-      do_turn({ kind = "run" })
+      if S.b.wild then
+        do_turn({ kind = "run" })
+      else
+        say("不能從對戰中逃走！", to_command)   -- 訓練家戰：不花掉這回合
+      end
     end
   elseif S.mode == "move" then
     local r = menu_update(S.moves)

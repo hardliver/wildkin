@@ -10,6 +10,7 @@ import fs from "fs";
 
 const read = (name) => JSON.parse(fs.readFileSync(`data/${name}.json`, "utf8"));
 const types = read("types"), moves = read("moves"), species = read("species");
+const trainers = read("trainers");
 const encounters = read("encounters"), work = read("work");
 const errors = [];
 const err = (msg) => errors.push(msg);
@@ -98,4 +99,18 @@ if (errors.length) {
   for (const e of errors) console.log("  ✗ " + e);
   process.exit(1);
 }
-console.log(`✓ 資料檔：${Object.keys(species).length} 種野伴、${Object.keys(moves).length} 招、${Object.keys(encounters).length} 張遭遇表，彼此都對得上`);
+// 訓練家
+for (const [id, t] of Object.entries(trainers)) {
+  const at = `trainers.json 的 ${id}`;
+  if (typeof t.name !== "string" || !t.name) err(`${at}：要有 name`);
+  for (const k of ["intro", "win", "after"]) if (typeof t[k] !== "string") err(`${at}：要有 ${k}（台詞）`);
+  if (!isInt(t.sight) || t.sight < 0 || t.sight > 8) err(`${at}：sight 要是 0–8（往面向看幾格）`);
+  if (!isInt(t.notice) || t.notice < 0 || t.notice > 3) err(`${at}：notice 要是 0–3（靠近幾格內一定發現）`);
+  if (!Array.isArray(t.party) || t.party.length < 1 || t.party.length > 6) err(`${at}：party 要有 1–6 隻`);
+  else for (const p of t.party) {
+    if (p.species !== "rival" && !(p.species in species)) err(`${at}：野伴「${p.species}」不在 species.json（"rival" = 剋制主角初始野伴的那一隻）`);
+    if (!isInt(p.level) || p.level < 1 || p.level > 50) err(`${at}：等級要 1–50`);
+  }
+}
+
+console.log(`✓ 資料檔：${Object.keys(species).length} 種野伴、${Object.keys(moves).length} 招、${Object.keys(encounters).length} 張遭遇表、${Object.keys(trainers).length} 位訓練家，彼此都對得上`);

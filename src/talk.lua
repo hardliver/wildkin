@@ -68,6 +68,7 @@ TALK.village_guard =
 
 -- 跟 NPC 說話：找它的對話編號來執行。沒寫的編號顯示「……」並在主控台提醒
 function talk_to(npc)
+  if npc.trainer then return trainer_talk(npc) end
   local t = TALK[npc.talk]
   if type(t) == "function" then
     t(npc)

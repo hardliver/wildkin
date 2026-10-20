@@ -11,6 +11,7 @@
     "src/player.lua",
     "src/npc.lua",
     "src/encounter.lua",
+    "src/trainer.lua",
     "src/talk.lua",
     "src/kin.lua",
     "src/battle.lua",
@@ -36,6 +37,7 @@
     "moves": "data/moves.json",
     "species": "data/species.json",
     "encounters": "data/encounters.json",
-    "work": "data/work.json"
+    "work": "data/work.json",
+    "trainers": "data/trainers.json"
   }
 }
