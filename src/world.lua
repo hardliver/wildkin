@@ -26,6 +26,7 @@ function world_enter(name)
   world.w = mapw(m) * TILE
   world.h = maph(m) * TILE
   world.blockers = {}
+  world.has_plants = pcall(mget, m, "plants", 0, 0)   -- 這張地圖有沒有 plants 圖層
 end
 
 -- 畫一格地圖格子編號 v 的圖（NPC 的 tile 用的是地圖格子編號）。
@@ -87,9 +88,13 @@ function world_remove_blocker(who)
 end
 
 -- 地圖上這個像素是不是牆（solid 圖層不是 0；地圖外面也算牆）
+-- 規則：plants 圖層（樹、灌木）有東西的格子一律走不過去，不用另外在 solid 畫。
+-- （W19c 補樹的時候漏標碰撞，可以走到樹上；有這條規則，以後在 Studio 畫樹忘了畫碰撞也沒關係）
 local function solid_px(px, py)
   if px < 0 or py < 0 or px >= world.w or py >= world.h then return true end
-  return mget(world.map, "solid", px // TILE, py // TILE) ~= 0
+  local cx, cy = px // TILE, py // TILE
+  if mget(world.map, "solid", cx, cy) ~= 0 then return true end
+  return world.has_plants and mget(world.map, "plants", cx, cy) ~= 0
 end
 
 -- 兩個方框有沒有重疊（左上角 + 寬高）
