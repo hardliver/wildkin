@@ -293,8 +293,18 @@ local function do_turn(choice)
     if S.b.over then return finish() end
     for _, e in ipairs(events) do
       if e.kind == "need_switch" then
-        -- 倒下之後換下一隻（玩家這邊之後改成自己選，W35）
-        local i = battle_next_alive(S.b, e.side)
+        local i
+        if e.side == 1 then
+          -- 自己的野伴倒下：玩家選下一隻（不能取消、不能選倒下的）
+          party_pick("要換哪一隻上場？", function(j)
+            if party[j].hp <= 0 then dialog_open(kin_name(party[j]) .. "已經倒下了，不能戰鬥！") return end
+            ui_clear()
+            i = j
+          end, { forced = true })
+          while i == nil do coroutine.yield() end
+        else
+          i = battle_next_alive(S.b, e.side)
+        end
         for _, e2 in ipairs(battle_send_out(S.b, e.side, i)) do show(e2) end
       end
     end
@@ -385,7 +395,9 @@ function battle_scene_update()
     if r == 1 then
       open_moves()
     elseif r == 2 then
-      say(#party > 1 and "換人的選單在 W35 才會做好。" or "沒有其他可以換上的野伴。", to_command)
+      party_open("battle", function(i)
+        do_turn({ kind = "switch", index = i })
+      end, S.b.sides[1].active)
     elseif r == 3 then
       bag_open("battle", function(key, i)
         do_turn({ kind = "item", item = key, target = i })
