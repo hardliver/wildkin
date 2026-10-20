@@ -116,6 +116,8 @@ end
 -- ============================================================
 
 local ROW = 30
+STATUS_NAME = { burn = "灼傷", paralyze = "麻痺", sleep = "睡眠" }
+STATUS_COLOR = { burn = 8, paralyze = 10, sleep = 13 }
 
 local function mini_hp_bar(x, y, w, hp, max)
   rect(x, y, w, 5, 0)
@@ -145,6 +147,15 @@ function party_pick(prompt, on_pick, opts)
       if i == self.mark then rect(x + 4, ry - 2, w - 8, ROW - 2, 6) end   -- 換順序：先選的那一隻底色變灰
       if i == self.index then ui_arrow_right(x + 8, ry + 4, 0) end
       text(kin_name(k), x + 20, ry, k.hp > 0 and 0 or 5)
+      -- 狀態：倒下／灼傷／麻痺／睡眠（戰鬥結束後狀態還在，要回復才會好，和 GB 一樣）
+      local tag, c = nil, nil
+      if k.hp <= 0 then tag, c = "倒下", 5
+      elseif k.status then tag, c = STATUS_NAME[k.status], STATUS_COLOR[k.status] end
+      if tag then
+        local tx = x + 24 + textw(kin_name(k))
+        rect(tx - 2, ry + 1, textw(tag) + 4, 13, c)
+        text(tag, tx, ry, 7)
+      end
       local lv = "Lv" .. k.level
       text(lv, x + w - 12 - textw(lv), ry, 0)
       mini_hp_bar(x + 20, ry + 16, 100, k.hp, kin_max_hp(k))
@@ -215,8 +226,7 @@ function summary_open(index)
     rect(92, 51, textw(tname) + 8, 15, TYPE_COLOR[sp.type] or 13)
     text(tname, 96, 51, 7)
     if k.status then
-      local ST = { burn = "灼傷", paralyze = "麻痺", sleep = "睡眠" }
-      text(ST[k.status], 92 + textw(tname) + 16, 51, 8)
+      text(STATUS_NAME[k.status], 92 + textw(tname) + 16, 51, STATUS_COLOR[k.status])
     end
     -- 右上：能力
     local x = 200
