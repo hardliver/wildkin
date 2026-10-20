@@ -86,17 +86,22 @@ function tallgrass_draw()
   end
 end
 
--- 角色之後畫：主角腳邊的草叢下半部再畫一次，蓋住主角的腳（看起來站在草裡面）
-function tallgrass_front()
-  if not has_grass then return end
-  local x, y = player.x16 // 16, player.y16 // 16
+-- 角色之後畫：站在草叢裡的角色（主角、NPC），腳邊那格草叢的下半部再畫一次，
+-- 蓋住腳，看起來站在草裡面
+local function cover_feet(x, y)
   for cx = x // TILE, (x + 15) // TILE do
     local cy = (y + 15) // TILE
     if in_grass(cx, cy) then
       local f = grass_frame(cx, cy)
-      sspr(IMG.tallgrass, f * 16, 9, 16, 7, cx * TILE, cy * TILE + 9)
+      sspr(IMG.tallgrass, f * 16, 10, 16, 6, cx * TILE, cy * TILE + 10)
     end
   end
+end
+
+function tallgrass_front()
+  if not has_grass then return end
+  cover_feet(player.x16 // 16, player.y16 // 16)
+  for _, n in ipairs(npcs) do cover_feet(n.x, n.y) end
 end
 
 -- ============================================================
