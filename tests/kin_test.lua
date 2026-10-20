@@ -80,3 +80,22 @@ do
   end
   print("ok: 戰鬥圖")
 end
+
+-- W38：進化
+do
+  local k = kin_new("01", 15)
+  assert(kin_can_evolve(k) == nil, "15 級不能進化")
+  k.level = 16
+  assert(kin_can_evolve(k) == "02", "16 級芽角羊可以進化成林角羊")
+  k.evolve_skip = 16
+  assert(kin_can_evolve(k) == nil, "取消之後同一級不再問")
+  k.level = 17
+  assert(kin_can_evolve(k) == "02", "下一級會再問")
+  k.hp = 10
+  local before = kin_max_hp(k)
+  kin_evolve(k, "02")
+  assert(k.no == "02" and kin_name(k) == "林角羊", "進化後換種類")
+  assert(k.hp == 10 + kin_max_hp(k) - before, "最大 HP 增加多少，目前 HP 也增加多少")
+  assert(kin_can_evolve(k) == nil, "林角羊不會再進化")
+  print("ok: 進化")
+end

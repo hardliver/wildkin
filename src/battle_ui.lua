@@ -158,6 +158,77 @@ local function sink(side)
   tween(0, 64, 24, function(x) S.fx[side].sink = x end)
 end
 
+-- 招式滿了：問要不要忘掉一招來學 key（升級、進化都會用到）
+local function forget_and_learn(k, key)
+  local new = DATA.moves[key].name
+  while true do
+    if ask("要忘掉一招，學會" .. new .. "嗎？", { "要", "不要" }) == 1 then
+      local items = {}
+      for i, m in ipairs(k.moves) do items[i] = DATA.moves[m.key].name end
+      local m = menu_new({ items = items, x = 0, y = 0 })
+      m.x, m.y = 316 - m.w, 184 - m.h
+      S.last = "要忘掉哪一招呢？"
+      local i = choose(m)
+      if i > 0 then
+        local old_name = items[i]
+        kin_replace_move(k, i, key)
+        msg("1、2 的……砰！")
+        msg(kin_name(k) .. "忘掉了" .. old_name .. "，\n學會了" .. new .. "！")
+        return
+      end
+    elseif ask("不學" .. new .. "了嗎？", { "對", "再想想" }) == 1 then
+      msg(kin_name(k) .. "沒有學" .. new .. "。")
+      return
+    end
+  end
+end
+
+-- ============================================================
+-- 進化（W38）
+-- ============================================================
+-- 戰鬥結束後、離開之前：新舊兩個樣子交替閃，越閃越快；按 B 可以取消
+
+local function evolve_scene(k, to)
+  local from_name = kin_name(k)
+  S.evo = { from = kin_species(k).sprite, to = DATA.species[to].sprite, show_new = false, glow = 0 }
+  S.mode = "evolve"
+  msg("咦？" .. from_name .. "的樣子……！")
+  -- 交替：一開始每 24 幀換一次，越來越快，最後每 2 幀換一次
+  local interval, t, cancelled = 24, 0, false
+  while interval > 2 do
+    for _ = 1, interval do
+      coroutine.yield()
+      t = t + 1
+      S.evo.glow = t
+      if S.input_ok and pressed(B) then cancelled = true break end
+    end
+    if cancelled then break end
+    S.evo.show_new = not S.evo.show_new
+    interval = interval * 4 // 5
+  end
+  if cancelled then
+    S.evo.show_new, S.evo.glow = false, 0
+    k.evolve_skip = k.level
+    msg("咦？" .. from_name .. "停止了變化。")
+    S.evo = nil
+    return
+  end
+  -- 白光一閃，變成新的樣子
+  S.evo.flash = true
+  wait(12)
+  S.evo.flash, S.evo.show_new, S.evo.glow = false, true, 0
+  local events = kin_evolve(k, to)
+  msg("恭喜！" .. from_name .. "進化成" .. kin_name(k) .. "了！")
+  for _, e in ipairs(events) do
+    if e.kind == "learn" then msg(kin_name(k) .. "學會了" .. DATA.moves[e.key].name .. "！")
+    elseif e.kind == "full" then
+      msg(kin_name(k) .. "想學" .. DATA.moves[e.key].name .. "，可是已經記住 4 招了。")
+      forget_and_learn(k, e.key)
+    end
+  end
+  S.evo = nil
+end
+
 -- 演出一個事件
 local function show(e)
   local K = e.kind
@@ -233,30 +304,9 @@ local function show(e)
     fill_exp(v)                              -- 剩下的經驗繼續加到新的一級
     return
   elseif K == "full" then
-    -- 招式滿了：問要不要忘掉一招
-    local k = v.kin
-    local new = DATA.moves[e.key].name
     msg(text)
-    while true do
-      if ask("要忘掉一招，學會" .. new .. "嗎？", { "要", "不要" }) == 1 then
-        local items = {}
-        for i, m in ipairs(k.moves) do items[i] = DATA.moves[m.key].name end
-        local m = menu_new({ items = items, x = 0, y = 0 })
-        m.x, m.y = 316 - m.w, 184 - m.h
-        S.last = "要忘掉哪一招呢？"
-        local i = choose(m)
-        if i > 0 then
-          local old_name = items[i]
-          kin_replace_move(k, i, e.key)
-          msg("1、2 的……砰！")
-          msg(kin_name(k) .. "忘掉了" .. old_name .. "，\n學會了" .. new .. "！")
-          return
-        end
-      elseif ask("不學" .. new .. "了嗎？", { "對", "再想想" }) == 1 then
-        msg(kin_name(k) .. "沒有學" .. new .. "。")
-        return
-      end
-    end
+    forget_and_learn(v.kin, e.key)
+    return
   elseif K == "switch" then
     refresh_view(e.side)
     S.fx[e.side] = new_fx()
@@ -290,7 +340,15 @@ local function do_turn(choice)
       msg(PLAYER_NAME .. "沒有能戰鬥的野伴了！")
       msg(PLAYER_NAME .. "眼前一片漆黑……")
     end
-    if S.b.over then return finish() end
+    if S.b.over then
+      if S.b.over ~= "lose" then
+        for _, k in ipairs(party) do
+          local to = kin_can_evolve(k)
+          if to then evolve_scene(k, to) end
+        end
+      end
+      return finish()
+    end
     for _, e in ipairs(events) do
       if e.kind == "need_switch" then
         local i
@@ -508,8 +566,26 @@ local function draw_mine()
   sspr(IMG.kin_back, n * 32, 0, 32, h, 40 + fx.dx + fx.ox, 120 + 64 - h * 2 + fx.oy, 64, h * 2)   -- 背面圖放大 2 倍
 end
 
+local function draw_evolution()
+  local E = S.evo
+  cls(C_SKY)
+  -- 背後的光：一圈一圈往外擴散
+  for k = 0, 3 do
+    local r = (E.glow * 2 + k * 18) % 72
+    if E.glow > 0 then fx_ring(160, 88, r + 10, (k % 2 == 0) and 7 or 10) end
+  end
+  local n = E.show_new and E.to or E.from
+  sspr(IMG.kin_front, n * 64, 0, 64, 64, 112, 40, 96, 96)   -- 放大 1.5 倍
+  if E.flash then rect(0, 0, SCREEN_W, 184, 7) end
+  if not dialog_active() then
+    ui_box(4, 184, 312, 52)
+    if S.last then text(S.last, 14, 192, 0) end
+  end
+end
+
 function battle_scene_draw()
   camera()
+  if S.evo then return draw_evolution() end
   cls(C_SKY)
 
   -- 場地和野伴（會跟著畫面晃動）

@@ -122,3 +122,30 @@ function kin_heal(k)
   for _, m in ipairs(k.moves) do m.pp = DATA.moves[m.key].pp end
   k.status = nil
 end
+
+-- ============================================================
+-- 進化（W38）
+-- ============================================================
+-- species.json 的 evolve = { to = "02", level = 16 }：到了那個等級就會進化。
+-- 玩家取消的話記住 k.evolve_skip = 目前等級，等下一次升級才會再問（和 GB 一樣）
+
+-- 這隻現在能不能進化：能的話回傳進化後的編號
+function kin_can_evolve(k)
+  local e = kin_species(k).evolve
+  if not e or k.hp <= 0 or k.level < e.level then return nil end
+  if k.evolve_skip and k.evolve_skip >= k.level then return nil end
+  return e.to
+end
+
+-- 進化：換種類；最大 HP 增加多少、目前 HP 也增加多少；學會新種類在這個等級的招。回傳學招的事件
+function kin_evolve(k, to)
+  local old_max = kin_max_hp(k)
+  k.no = to
+  k.hp = k.hp + kin_max_hp(k) - old_max
+  k.evolve_skip = nil
+  local events = {}
+  for _, entry in ipairs(kin_species(k).learn) do
+    if entry[1] == k.level then events[#events + 1] = kin_learn(k, entry[2]) end
+  end
+  return events
+end

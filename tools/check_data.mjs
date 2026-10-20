@@ -66,6 +66,10 @@ for (const [no, s] of Object.entries(species)) {
   else if (spriteUsed[s.sprite]) err(`${at}：sprite ${s.sprite} 已經給 ${spriteUsed[s.sprite]} 用了`);
   else spriteUsed[s.sprite] = no;
   if (!isInt(s.catch) || s.catch < 1 || s.catch > 255) err(`${at}：catch 要是 1–255`);
+  if (s.evolve !== undefined) {
+    if (!(s.evolve.to in species)) err(`${at}：evolve.to「${s.evolve.to}」不在 species.json`);
+    if (!isInt(s.evolve.level) || s.evolve.level < 2 || s.evolve.level > 50) err(`${at}：evolve.level 要是 2–50`);
+  }
   if (!isInt(s.exp) || s.exp < 1) err(`${at}：exp 要是正整數`);
   for (const [w, lv] of Object.entries(s.work || {})) {
     if (!(w in work)) err(`${at}：工作特性「${w}」不在 work.json`);

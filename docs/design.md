@@ -137,7 +137,7 @@ Game Boy 時期寶可夢式的**回合制**：每回合雙方各選一個動作�
 |---|---|---|
 | `types.json` | 屬性名稱、相剋表 | `DATA.types.names.grass` → "草"；`DATA.types.chart.grass.water` → 4 |
 | `moves.json` | 招式：名稱、屬性、威力、命中、次數、說明、效果 | `DATA.moves.leaf` |
-| `species.json` | 野伴：名稱、屬性、戰鬥圖格數（`sprite`）、基礎值、捕獲率、基礎經驗、工作、學招表、手冊說明 | `DATA.species["01"]`（編號是兩位數字的字串） |
+| `species.json` | 野伴：名稱、屬性、戰鬥圖格數（`sprite`）、進化（`evolve`）、基礎值、捕獲率、基礎經驗、工作、學招表、手冊說明 | `DATA.species["01"]`（編號是兩位數字的字串） |
 | `encounters.json` | 每個區域的遇敵率和出現的野伴 | `DATA.encounters.route1` |
 | `work.json` | 工作特性的名稱 | `DATA.work.lumber` → "伐木" |
 | `items.json` | 道具：名稱、種類（heal／ball）、效果量、價錢、能在哪裡用、說明 | `DATA.items.potion` |
