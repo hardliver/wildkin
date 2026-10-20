@@ -8,28 +8,52 @@
 -- 記錄：FACILITY["地圖:x:y"] = { kind = "lumber", workers = { 野伴, … } }
 --   workers：派駐的野伴（W45）。派過去的野伴離開隊伍／牧場，叫回來才會回去；存檔時一起存（W49）
 -- 派駐的野伴在設施旁邊走來走去：在 4 個定點（前面左右、兩側）之間走，停下來時一跳一跳地工作
--- 設施的圖：assets/art/facilities.png，每格 32×32；第 0 格是空地，其他是 facilities.json 的 sprite
+-- 設施的圖：assets/art/facilities.png，每格 32×32；第 0 格是空地，其他是 facilities.json 的 sprite，第 5 格是工作台
+--
+-- 工作台：地圖物件 type = "workbench"，也是 2×2 格、擋路；面對它按 A 開製作（W47）
 
 FACILITY = FACILITY or {}
 
 local lots = {}       -- 這張地圖的空地
+local benches = {}    -- 這張地圖的工作台
+local WORKBENCH_SPRITE = 5
 local tick = 0        -- 畫面計時（蓋好時的煙塵、野伴走路）
 local MAX_WORKERS = 3 -- 一個設施最多派幾隻
 
 local function key(l) return world.name .. ":" .. l.cx .. ":" .. l.cy end
 
+local function block_2x2(o)
+  for dy = 0, 1 do
+    for dx = 0, 1 do mset(world.map, "solid", o.x + dx, o.y + dy, 1) end
+  end
+end
+
 function facility_load()
-  lots = {}
+  lots, benches = {}, {}
   for _, o in ipairs(world.objects) do
     if o.type == "lot" then
       local l = { cx = o.x, cy = o.y, x = o.x * TILE, y = o.y * TILE }
       l.key = key(l)
       lots[#lots + 1] = l
-      for dy = 0, 1 do
-        for dx = 0, 1 do mset(world.map, "solid", o.x + dx, o.y + dy, 1) end
-      end
+      block_2x2(o)
+    elseif o.type == "workbench" then
+      benches[#benches + 1] = { cx = o.x, cy = o.y, x = o.x * TILE, y = o.y * TILE }
+      block_2x2(o)
     end
   end
+end
+
+-- 世界座標 (px, py) 這一點上的工作台
+function workbench_at(px, py)
+  local cx, cy = px // TILE, py // TILE
+  for _, b in ipairs(benches) do
+    if cx >= b.cx and cx <= b.cx + 1 and cy >= b.cy and cy <= b.cy + 1 then return b end
+  end
+  return nil
+end
+
+function workbench_interact(b)
+  dialog_open("工作台：用材料做道具的地方。\n鋸子和鐵鎚都準備好了，做法還在研究中。")
 end
 
 -- 世界座標 (px, py) 這一點上的空地／設施
@@ -456,6 +480,7 @@ function facility_draw()
     local n = fac and DATA.facilities[fac.kind].sprite or 0
     spr(IMG.facilities, n, l.x, l.y)
   end
+  for _, b in ipairs(benches) do spr(IMG.facilities, WORKBENCH_SPRITE, b.x, b.y) end
 end
 
 -- 角色之後畫（煙塵蓋在設施和主角上面）

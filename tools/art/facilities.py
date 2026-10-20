@@ -96,11 +96,74 @@ def storage():
     box(im, 13, 6, 6, 5, NAVY); px(im, 15, 7, S3)
     return im
 
+
+MUSH_R, MUSH_W = (0xe8, 0x45, 0x37), (0xff, 0xff, 0xff)
+FIB1, FIB2 = (0xcf, 0x82, 0x54), (0xfd, 0xbe, 0x53)
+
+def mushroom(im, x, y, big=False):
+    """小香菇：紅傘白點（x, y 是傘的左上）"""
+    w = 6 if big else 4
+    for i in range(w): px(im, x + i, y, OUT)
+    for j in (1, 2):
+        px(im, x - 1, y + j, OUT); px(im, x + w, y + j, OUT)
+        for i in range(w): px(im, x + i, y + j, MUSH_R)
+    for i in range(w): px(im, x + i, y + 3, OUT)
+    px(im, x + 1, y + 1, MUSH_W)
+    if big: px(im, x + 4, y + 2, MUSH_W)
+    sx = x + w // 2 - 1
+    for j in (4, 5): px(im, sx - 1, y + j, OUT); px(im, sx, y + j, W4); px(im, sx + 1, y + j, W4); px(im, sx + 2, y + j, OUT)
+    px(im, sx, y + 6, OUT); px(im, sx + 1, y + 6, OUT)
+
+def gather():
+    """採集點：左邊一根長滿香菇的苔木，右邊一個裝滿纖維的竹簍"""
+    im = new()
+    # 苔木（橫躺）
+    box(im, 1, 18, 17, 9, W2)
+    hline(im, 2, 16, 19, W3); hline(im, 2, 16, 25, W1)
+    for x in (4, 9, 13): px(im, x, 22, W1); px(im, x + 1, 22, W1)
+    log_end(im, 15, 20)
+    hline(im, 2, 9, 18, G1); hline(im, 3, 6, 17, G2); px(im, 11, 18, G1)   # 苔
+    mushroom(im, 2, 11, big=True); mushroom(im, 10, 13)
+    # 竹簍
+    box(im, 18, 15, 12, 14, W3)
+    for y in range(17, 28, 2): hline(im, 19, 28, y, D1)
+    for x in range(20, 28, 3): vline(im, x, 16, 27, D1)
+    hline(im, 17, 30, 15, OUT); hline(im, 17, 30, 16, W2)
+    # 簍子裡冒出來的纖維（一束一束金黃色）
+    for (x, h) in ((19, 6), (21, 9), (23, 7), (25, 10), (27, 6), (29, 5)):
+        for j in range(h):
+            px(im, x, 14 - j, FIB2 if j % 3 else FIB1)
+        px(im, x, 14 - h, OUT)
+    return im
+
+def workbench():
+    """工作台：桌面上有鋸子、鐵鎚、一塊木板；有四隻腳，看得出是桌子"""
+    im = new()
+    # 桌面（俯視一點點：上面淺、前緣深）
+    box(im, 1, 12, 30, 7, W3)
+    hline(im, 2, 29, 13, W4)
+    hline(im, 1, 30, 18, OUT); box(im, 1, 17, 30, 3, W2)
+    # 桌腳和橫撐
+    for x in (3, 26):
+        box(im, x, 19, 4, 11, W2); vline(im, x + 1, 20, 28, W1)
+    box(im, 6, 24, 21, 3, W1)
+    # 桌上的木板
+    box(im, 15, 9, 13, 5, W4); hline(im, 16, 26, 11, D1)
+    # 鋸子：鐵的鋸片＋木柄
+    box(im, 4, 7, 9, 5, S3)
+    for x in range(5, 12, 2): px(im, x, 11, S1)
+    box(im, 11, 5, 4, 6, RED)
+    # 鐵鎚（斜放在木板上）
+    box(im, 22, 3, 7, 4, S2); px(im, 23, 4, S3)
+    for k in range(6): px(im, 24 - k // 2, 7 + k, W1)
+    return im
+
 if __name__ == "__main__":
-    # 輸出到 assets/art/facilities.png：第 0 格空地、1 伐木場、2 田、3 倉庫（每格 32×32）
+    # 輸出到 assets/art/facilities.png：第 0 格空地、1 伐木場、2 田、3 倉庫、4 採集點、5 工作台（每格 32×32）
     import os
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../assets/art/facilities.png")
-    sheet = Image.new("RGBA", (32 * 4, 32), (0, 0, 0, 0))
-    for i, f in enumerate((lot, lumber, farm, storage)):
+    FRAMES = (lot, lumber, farm, storage, gather, workbench)
+    sheet = Image.new("RGBA", (32 * len(FRAMES), 32), (0, 0, 0, 0))
+    for i, f in enumerate(FRAMES):
         sheet.paste(f(), (i * 32, 0))
     sheet.save(out)

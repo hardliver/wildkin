@@ -79,6 +79,11 @@ local function interact()
       facility_interact(f)
       return
     end
+    local wb = workbench_at(fx, fy)
+    if wb then
+      workbench_interact(wb)
+      return
+    end
   end
 end
 

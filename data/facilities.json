@@ -2,5 +2,7 @@
   "lumber": { "name": "伐木場", "sort": 1, "work": "lumber", "sprite": 1, "cost": { "wood": 5 }, "output": { "wood": 2 },
               "desc": "派會伐木的野伴來砍樹，每天產出木材。" },
   "farm":   { "name": "田", "sort": 2, "work": "farm", "sprite": 2, "cost": { "wood": 6 }, "output": { "berry": 1, "wheat": 1 },
-              "desc": "派會種田的野伴來照顧，每天收成莓果和麥。" }
+              "desc": "派會種田的野伴來照顧，每天收成莓果和麥。" },
+  "gather": { "name": "採集點", "sort": 3, "work": "gather", "sprite": 4, "cost": { "wood": 10, "stone": 5 }, "output": { "fiber": 1, "mushroom": 1 },
+              "desc": "派會採集的野伴去附近找，每天帶回纖維和菇。" }
 }
