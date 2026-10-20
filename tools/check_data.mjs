@@ -11,7 +11,7 @@ import fs from "fs";
 const read = (name) => JSON.parse(fs.readFileSync(`data/${name}.json`, "utf8"));
 const types = read("types"), moves = read("moves"), species = read("species");
 const trainers = read("trainers"), items = read("items");
-const encounters = read("encounters"), work = read("work");
+const encounters = read("encounters"), work = read("work"), facilities = read("facilities");
 const errors = [];
 const err = (msg) => errors.push(msg);
 const isInt = (v) => Number.isInteger(v);
@@ -98,6 +98,27 @@ for (const [area, t] of Object.entries(encounters)) {
   }
 }
 
+// 設施（W44）：facilities.png 第 0 格是空地，sprite 從 1 開始
+const facilityCount = pngWidth("assets/art/facilities.png") / 32;
+for (const [key, f] of Object.entries(facilities)) {
+  const at = `facilities.json 的 ${key}（${f.name}）`;
+  if (!f.name) err(`${at}：沒有 name`);
+  if (!isInt(f.sort)) err(`${at}：sort 要是整數`);
+  if (!(f.work in work)) err(`${at}：工作「${f.work}」不在 work.json`);
+  if (!isInt(f.sprite) || f.sprite < 1 || f.sprite >= facilityCount) err(`${at}：sprite 要是 1–${facilityCount - 1}（facilities.png 的第幾格；第 0 格是空地）`);
+  if (!f.desc) err(`${at}：沒有 desc`);
+  for (const field of ["cost", "output"]) {
+    const t = f[field];
+    if (!t || typeof t !== "object") { err(`${at}：沒有 ${field}`); continue; }
+    for (const [item, n] of Object.entries(t)) {
+      if (!(item in items)) err(`${at}：${field} 的「${item}」不在 items.json`);
+      else if (items[item].kind !== "material") err(`${at}：${field} 的「${item}」不是材料`);
+      if (!isInt(n) || n < 1) err(`${at}：${field}.${item} 要是正整數`);
+    }
+  }
+  if (f.cost && Object.keys(f.cost).length === 0) err(`${at}：cost 至少要一樣材料`);
+}
+
 if (errors.length) {
   console.log(`資料檔有 ${errors.length} 個問題：`);
   for (const e of errors) console.log("  ✗ " + e);
@@ -130,4 +151,4 @@ for (const [id, it] of Object.entries(items)) {
   else if (sorts[it.sort]) err(`${at}：sort ${it.sort} 和 ${sorts[it.sort]} 重複`); else sorts[it.sort] = id;
 }
 
-console.log(`✓ 資料檔：${Object.keys(species).length} 種野伴、${Object.keys(moves).length} 招、${Object.keys(encounters).length} 張遭遇表、${Object.keys(trainers).length} 位訓練家、${Object.keys(items).length} 種道具，彼此都對得上`);
+console.log(`✓ 資料檔：${Object.keys(species).length} 種野伴、${Object.keys(moves).length} 招、${Object.keys(encounters).length} 張遭遇表、${Object.keys(trainers).length} 位訓練家、${Object.keys(items).length} 種道具、${Object.keys(facilities).length} 種設施，彼此都對得上`);

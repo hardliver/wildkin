@@ -14,6 +14,7 @@ local function enter_map(name)
   world_enter(name)
   npc_load()
   gather_load()
+  facility_load()
   butterflies_enter()
 end
 
@@ -73,6 +74,11 @@ local function interact()
       gather_take(g)
       return
     end
+    local f = facility_at(fx, fy)
+    if f then
+      facility_interact(f)
+      return
+    end
   end
 end
 
@@ -80,7 +86,7 @@ function _init()
   -- 隊伍（暫時）：序章選初始野伴（W54）之前，先直接給一隻 Lv5 芽角羊
   party = { kin_new("01", 5) }
   BAG = { potion = 3, ball = 5 }   -- 暫時：一開始有 3 瓶回復藥、5 顆野伴球（W54 序章、W55 商店之後改）
-  RANCH = {}                        -- 隊伍滿 6 隻之後抓到的，送到營地的牧場（W44 基地）
+  RANCH = {}                        -- 隊伍滿 6 隻之後抓到的，送到營地的牧場（W45 派駐時可以選）
   for _, k in ipairs(party) do dex_caught(k.no) end   -- 一開始的隊伍也算抓過
   enter_map("camp")
   player_init(19 * TILE, 15 * TILE)   -- 營地空地的中間
@@ -153,6 +159,7 @@ function _draw()
     world_draw()   -- 設定相機，畫地面和裝飾
     draw_actors()  -- 世界座標
     tallgrass_front()    -- 草叢蓋住主角的腳
+    facility_draw_top()  -- 剛蓋好的設施冒出的煙塵
     butterflies_draw()   -- 飛在大家上面
     trainer_draw()       -- 訓練家頭上的「！」
   end

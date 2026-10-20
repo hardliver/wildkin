@@ -13,6 +13,7 @@
     "src/npc.lua",
     "src/encounter.lua",
     "src/gather.lua",
+    "src/facility.lua",
     "src/trainer.lua",
     "src/talk.lua",
     "src/kin.lua",
@@ -27,7 +28,8 @@
     "kin_front": { "file": "assets/art/kin_front.png", "tile": 64 },
     "kin_back": { "file": "assets/art/kin_back.png", "tile": 32 },
     "tallgrass": "assets/art/tallgrass.png",
-    "kin_icons": "assets/art/kin_icons.png"
+    "kin_icons": "assets/art/kin_icons.png",
+    "facilities": { "file": "assets/art/facilities.png", "tile": 32 }
   },
   "output": "build/wildkin.lua",
   "maps": {
@@ -42,6 +44,7 @@
     "encounters": "data/encounters.json",
     "work": "data/work.json",
     "trainers": "data/trainers.json",
-    "items": "data/items.json"
+    "items": "data/items.json",
+    "facilities": "data/facilities.json"
   }
 }
