@@ -96,5 +96,34 @@ do
   expect("回復不超過最大 HP", ev[2].amount, 3)
 end
 
+-- W34：抓捕
+do
+  -- 抓捕值：Lv3 囤囤鼠（捕獲率 200）滿血 → (3m − 2m) × 200 × 100 // (3m × 100) = 200 // 3 = 66
+  local rat = kin_new("07", 3)
+  expect("抓捕值（滿血）", catch_value(rat, 100), 66)
+  rat.hp = 1
+  local m = kin_max_hp(rat)
+  expect("抓捕值（剩 1 點）", catch_value(rat, 100), (3 * m - 2) * 200 // (3 * m))
+  rat.status = "sleep"
+  expect("抓捕值（睡著 × 2，最多 255）", catch_value(rat, 100), 255)
+  -- 抓捕值 255 一定抓到：事件 item → shake 1、2、3 → caught → end
+  local b = battle_new({ kin_new("01", 5) }, { rat }, { wild = true })
+  local ev = battle_step(b, { kind = "item", item = "ball" }, { kind = "move", index = 1 })
+  expect("丟球事件", ev[1].kind, "item")
+  expect("搖了 3 下", ev[4].kind == "shake" and ev[4].n, 3)
+  expect("抓到了", ev[5].kind, "caught")
+  expect("戰鬥結束", b.over, "caught")
+  -- 1000 次統計：Lv3 囤囤鼠滿血（a = 66）抓到的機率應該接近 66/255 ≈ 26%
+  local got = 0
+  for _ = 1, 1000 do
+    local r = kin_new("07", 3)
+    local b2 = battle_new({ kin_new("01", 5) }, { r }, { wild = true })
+    battle_step(b2, { kind = "item", item = "ball" }, { kind = "move", index = 1 })
+    if b2.over == "caught" then got = got + 1 end
+  end
+  print("  滿血囤囤鼠 1000 球抓到 " .. got .. " 次（理論約 259）")
+  expect("抓捕機率在合理範圍", got > 200 and got < 320, true)
+end
+
 if failed > 0 then error("battle.lua 有 " .. failed .. " 項測試沒通過") end
 print("✓ battle.lua：全部通過")

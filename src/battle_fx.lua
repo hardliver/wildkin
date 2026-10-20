@@ -452,3 +452,89 @@ function fx_levelup(ctx, side)
     end
   end)
 end
+
+-- ============================================================
+-- 野伴球（W34）
+-- ============================================================
+
+-- 野伴球的造型：藤編的球，淺褐色的藤條交錯，中間一圈綠色草繩。
+-- （不能用紅白兩半＋中間按鈕的造型：那是精靈球，見 content.md 的「不能用」）
+local C_WICKER, C_WICKER_D, C_ROPE = 244, 245, 246
+pal(C_WICKER, 222, 176, 112)
+pal(C_WICKER_D, 150, 102, 58)
+pal(C_ROPE, 92, 152, 70)
+
+-- 畫一顆球；tilt = 左右晃的角度（-2～2，上半部往那邊偏）
+function fx_draw_ball(x, y, tilt)
+  tilt = tilt or 0
+  local W = { 2, 3, 4, 5, 5, 5, 5, 5, 4, 3, 2 }
+  for dy = -5, 5 do
+    local hw = W[dy + 6]
+    local sx = (dy < 0) and (tilt * (-dy) // 4) or 0
+    rect(x - hw - 1 + sx, y + dy, hw * 2 + 3, 1, 0)                  -- 外框
+    for dx = -hw, hw do
+      -- 藤條交錯：斜的格子紋，一格亮一格暗
+      local c = ((dx + dy + 20) // 2 + (dx - dy + 20) // 2) % 2 == 0 and C_WICKER or C_WICKER_D
+      if dy == 0 or dy == 1 then c = C_ROPE end                       -- 中間的草繩
+      pset(x + dx + sx, y + dy, c)
+    end
+  end
+  pset(x - 2 + tilt, y - 3, 7)                                        -- 反光
+end
+
+-- 丟球：從左下拋到對手身上 → 對手被白光吸進球裡 → 球掉到地上
+function fx_ball_throw(ctx, set_ball)
+  local tx, ty = ctx.pos(2)
+  local sx, sy = 30, 170
+  for i = 1, 24 do
+    local x, y = arc(sx, sy, tx, ty - 6, i, 24, 60)
+    set_ball(x, y, (i // 3) % 2 == 0 and 2 or -2)
+    ctx.wait(1)
+  end
+  -- 白光把野伴吸進去
+  play(ctx, 14, function(i)
+    fx_ring(tx, ty - 6, 30 - i * 2, 7)
+    fx_ring(tx, ty - 6, 28 - i * 2, 7)
+  end)
+  ctx.hide(2, true)
+  -- 掉到地上，彈一下
+  for i = 1, 12 do
+    local y = ty - 6 + (ty + 22 - (ty - 6)) * i // 12
+    set_ball(tx, y, 0)
+    ctx.wait(1)
+  end
+  for i = 1, 8 do
+    set_ball(tx, ty + 22 - (i <= 4 and i or 8 - i), 0)
+    ctx.wait(1)
+  end
+  ctx.wait(10)
+end
+
+-- 搖一下：往左、往右、回正
+function fx_ball_shake(ctx, set_ball)
+  local tx, ty = ctx.pos(2)
+  for _, t in ipairs({ -1, -2, -2, -1, 0, 1, 2, 2, 1, 0 }) do
+    set_ball(tx + t // 2, ty + 22, t)
+    ctx.wait(2)
+  end
+  ctx.wait(24)
+end
+
+-- 抓到：球的上方冒出星星
+function fx_ball_caught(ctx)
+  local tx, ty = ctx.pos(2)
+  play(ctx, 30, function(i)
+    for k = 0, 2 do
+      local x, y = tx - 12 + k * 12, ty + 10 - i // 2 - (k % 2) * 4
+      rect(x - 2, y, 5, 1, 10); rect(x, y - 2, 1, 5, 10); pset(x, y, 7)
+    end
+  end)
+end
+
+-- 破掉：球裂開一圈光，野伴跳出來
+function fx_ball_break(ctx, set_ball)
+  local tx, ty = ctx.pos(2)
+  set_ball(nil)
+  play(ctx, 12, function(i) burst(tx, ty + 16, 6 + i, 7, 10) end)
+  ctx.hide(2, false)
+end

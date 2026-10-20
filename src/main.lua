@@ -73,7 +73,8 @@ end
 function _init()
   -- 隊伍（暫時）：序章選初始野伴（W54）之前，先直接給一隻 Lv5 芽角羊
   party = { kin_new("01", 5) }
-  BAG = { potion = 3 }   -- 暫時：一開始有 3 瓶回復藥（W55 商店之後改成老苔給、或自己買）
+  BAG = { potion = 3, ball = 5 }   -- 暫時：一開始有 3 瓶回復藥、5 顆野伴球（W54 序章、W55 商店之後改）
+  RANCH = {}                        -- 隊伍滿 6 隻之後抓到的，送到營地的牧場（W44 基地）
   enter_map("camp")
   player_init(19 * TILE, 15 * TILE)   -- 營地空地的中間
   after_place()

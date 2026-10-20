@@ -122,6 +122,11 @@ local ctx = {
   overlay = function(fn) S.overlay = fn end,
 }
 
+-- 野伴球的位置（丟球、搖晃時畫；nil = 不畫）
+local function set_ball(x, y, tilt)
+  if x == nil then S.ball = nil else S.ball = { x = x, y = y, tilt = tilt } end
+end
+
 local function new_fx()
   return { sink = 0, dx = 0, ox = 0, oy = 0, hidden = false }
 end
@@ -173,6 +178,28 @@ local function show(e)
     fx_stat(ctx, e.side, e.amount > 0)
   elseif K == "status" or K == "asleep" or K == "paralyzed" then
     fx_status(ctx, e.side, K == "asleep" and "sleep" or K == "paralyzed" and "paralyze" or e.status)
+  elseif K == "item" and DATA.items[e.item].kind == "ball" then
+    msg(text)
+    fx_ball_throw(ctx, set_ball)
+    return
+  elseif K == "shake" then
+    fx_ball_shake(ctx, set_ball)
+  elseif K == "broke" then
+    fx_ball_break(ctx, set_ball)
+  elseif K == "caught" then
+    fx_ball_caught(ctx)
+    msg(text)
+    -- 加入隊伍（滿 6 隻送到營地的牧場，W44 之後在基地看得到）
+    local k = battle_active(S.b, 2)
+    if #party < 6 then
+      party[#party + 1] = k
+      msg(kin_name(k) .. "加入了隊伍！")
+    else
+      RANCH = RANCH or {}
+      RANCH[#RANCH + 1] = k
+      msg("隊伍滿了，" .. kin_name(k) .. "被送到營地的牧場。")
+    end
+    return
   elseif K == "item_heal" then
     if e.index == S.b.sides[e.side].active then slide_hp(e.side, e.hp) end
   elseif K == "heal" then
@@ -362,7 +389,7 @@ function battle_scene_update()
     elseif r == 3 then
       bag_open("battle", function(key, i)
         do_turn({ kind = "item", item = key, target = i })
-      end)
+      end, { wild = S.b.wild })
     elseif r == 4 then
       if S.b.wild then
         do_turn({ kind = "run" })
@@ -496,6 +523,8 @@ function battle_scene_draw()
   text("EXP", 170, 150, 0)
   exp_bar(198, 155, 106, m)
   bracket(166, 310, 122, 166, 308)
+
+  if S.ball then fx_draw_ball(S.ball.x, S.ball.y, S.ball.tilt) end
 
   -- 招式動畫（蓋在資訊上面，也跟著晃）
   if S.overlay then

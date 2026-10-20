@@ -4,7 +4,7 @@
 --   local b = battle_new({ kin_new("01", 5) }, { kin_new("07", 3) }, { wild = true })
 --   local events = battle_step(b, { kind = "move", index = 1 }, battle_ai(b, 2))
 --   -- events：這回合發生的事，依順序排好，畫面照著一個一個演出（W26）
---   -- b.over：戰鬥結束時是 "win"、"lose"、"run"，還沒結束是 nil
+--   -- b.over：戰鬥結束時是 "win"、"lose"、"run"、"caught"，還沒結束是 nil
 --
 -- 為什麼和畫面分開（design.md「為連線對戰預留」）：
 --   戰鬥只由「目前狀態 + 雙方選了什麼」決定，算出新的狀態和事件。
@@ -17,7 +17,7 @@
 --   { kind = "switch", index = 隊伍第幾隻 }
 --   { kind = "run" }                  逃跑（只有野生戰）
 --   { kind = "item", item = "potion", target = 隊伍第幾隻 }   用道具（W33）。背包的數量由畫面那邊扣
---   （抓捕在 W34 加）
+--   { kind = "item", item = "ball" }            丟野伴球（W34，只有野生戰；畫面那邊會擋）
 
 local STAGE_MIN, STAGE_MAX = -3, 3
 local STAT_NAMES = { atk = "攻擊", def = "防禦", spd = "速度" }
@@ -234,12 +234,68 @@ local function use_move(b, side, index, ev)
   check_faint(b, target, ev)
 end
 
+-- ============================================================
+-- 抓捕（W34）
+-- ============================================================
+-- 抓捕值 a（0～255）= (3 × 最大HP − 2 × 目前HP) × 種類的捕獲率 × 球的倍率 // (3 × 最大HP × 100)
+--   HP 越少越好抓：滿血時是 1/3，剩 1 點時接近 1 倍；球的倍率 100 = 一般的野伴球
+--   睡著 × 2、麻痺／灼傷 × 3 // 2
+-- 球搖 4 次，每次 rnd(256) < SHAKE[a] 才繼續搖；4 次都過就抓到 → 抓到的機率剛好 ≈ a / 255
+-- SHAKE[a + 1] = 256 × (a / 255) 的 4 次方根（tools 外面用 Python 算好的整數，遊戲裡不用小數）
+local SHAKE = {
+  0, 64, 76, 84, 90, 95, 100, 104, 107, 110, 113, 116, 119, 121, 123, 126,
+  128, 130, 131, 133, 135, 137, 138, 140, 141, 143, 144, 146, 147, 148, 149, 151,
+  152, 153, 154, 155, 156, 157, 159, 160, 161, 162, 163, 164, 164, 165, 166, 167,
+  168, 169, 170, 171, 172, 172, 173, 174, 175, 176, 176, 177, 178, 179, 179, 180,
+  181, 181, 182, 183, 183, 184, 185, 185, 186, 187, 187, 188, 189, 189, 190, 190,
+  191, 192, 192, 193, 193, 194, 195, 195, 196, 196, 197, 197, 198, 198, 199, 200,
+  200, 201, 201, 202, 202, 203, 203, 204, 204, 205, 205, 206, 206, 206, 207, 207,
+  208, 208, 209, 209, 210, 210, 211, 211, 212, 212, 212, 213, 213, 214, 214, 215,
+  215, 215, 216, 216, 217, 217, 217, 218, 218, 219, 219, 219, 220, 220, 221, 221,
+  221, 222, 222, 223, 223, 223, 224, 224, 224, 225, 225, 226, 226, 226, 227, 227,
+  227, 228, 228, 228, 229, 229, 229, 230, 230, 230, 231, 231, 231, 232, 232, 233,
+  233, 233, 233, 234, 234, 234, 235, 235, 235, 236, 236, 236, 237, 237, 237, 238,
+  238, 238, 239, 239, 239, 240, 240, 240, 240, 241, 241, 241, 242, 242, 242, 242,
+  243, 243, 243, 244, 244, 244, 245, 245, 245, 245, 246, 246, 246, 247, 247, 247,
+  247, 248, 248, 248, 248, 249, 249, 249, 250, 250, 250, 250, 251, 251, 251, 251,
+  252, 252, 252, 252, 253, 253, 253, 253, 254, 254, 254, 254, 255, 255, 255, 256,
+}
+
+function catch_value(k, ball_rate)
+  local max = kin_max_hp(k)
+  local a = (3 * max - 2 * k.hp) * kin_species(k).catch * ball_rate // (3 * max * 100)
+  if k.status == "sleep" then a = a * 2
+  elseif k.status == "paralyze" or k.status == "burn" then a = a * 3 // 2 end
+  return clamp(a, 1, 255)
+end
+
+-- 丟球：事件 ball → shake × 0～3 → caught 或 broke
+local function throw_ball(b, side, c, ev)
+  local foe = battle_active(b, other(side))
+  local a = catch_value(foe, DATA.items[c.item].rate)
+  local shakes = 0
+  for _ = 1, 4 do
+    if rnd(256) >= SHAKE[a + 1] then break end
+    shakes = shakes + 1
+  end
+  for i = 1, math.min(shakes, 3) do ev[#ev + 1] = { kind = "shake", side = side, n = i } end
+  if shakes == 4 then
+    b.over = "caught"
+    ev[#ev + 1] = { kind = "caught", side = side }
+    ev[#ev + 1] = { kind = "end", result = "caught" }
+  else
+    ev[#ev + 1] = { kind = "broke", side = side, shakes = shakes }
+  end
+end
+
 -- 用道具：目前只有回復 HP 的（W33）。昏倒的、HP 滿的不能用（畫面那邊會先擋掉）
 local function use_item(b, side, c, ev)
   local it = DATA.items[c.item]
   local k = b.sides[side].party[c.target]
   ev[#ev + 1] = { kind = "item", side = side, item = c.item }
-  if it.kind == "heal" then
+  if it.kind == "ball" then
+    throw_ball(b, side, c, ev)
+  elseif it.kind == "heal" then
     local heal = math.min(it.amount, kin_max_hp(k) - k.hp)
     k.hp = k.hp + heal
     ev[#ev + 1] = { kind = "item_heal", side = side, index = c.target, amount = heal, hp = k.hp }
@@ -373,7 +429,17 @@ function battle_event_text(b, e)
   if K == "switch" then return (e.side == 1 and "上吧！" or ((b.trainer or "對手") .. "換上了")) .. kin_name(battle_active(b, e.side)) .. "！" end
   if K == "run" then return e.ok and "順利逃走了！" or "逃不掉！就像當年的車貸。" end
   if K == "cant_run" then return "不能從對戰中逃走！" end
-  if K == "item" then return (e.side == 1 and PLAYER_NAME or (b.trainer or "對手")) .. "使用了" .. DATA.items[e.item].name .. "！" end
+  if K == "item" then
+    if DATA.items[e.item].kind == "ball" then return PLAYER_NAME .. "丟出了" .. DATA.items[e.item].name .. "！" end
+    return (e.side == 1 and PLAYER_NAME or (b.trainer or "對手")) .. "使用了" .. DATA.items[e.item].name .. "！"
+  end
+  if K == "caught" then return "抓到了" .. kin_name(battle_active(b, 2)) .. "！" end
+  if K == "broke" then
+    if e.shakes == 0 then return "啊！一下就跑出來了！" end
+    if e.shakes == 1 then return "可惡！差一點點……" end
+    if e.shakes == 2 then return "唉呀！只差一點了！" end
+    return "可惜！就差那麼一點！"
+  end
   if K == "item_heal" then return kin_name(b.sides[e.side].party[e.index]) .. "回復了 " .. e.amount .. " 點 HP！" end
   return nil
 end

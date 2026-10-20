@@ -120,6 +120,7 @@ for (const [id, it] of Object.entries(items)) {
   if (typeof it.name !== "string" || typeof it.desc !== "string") err(`${at}：要有 name、desc`);
   if (!["heal", "ball"].includes(it.kind)) err(`${at}：kind 只能是 heal、ball`);
   if (it.kind === "heal" && (!isInt(it.amount) || it.amount < 1)) err(`${at}：heal 要有 amount（正整數）`);
+  if (it.kind === "ball" && (!isInt(it.rate) || it.rate < 1)) err(`${at}：ball 要有 rate（倍率，100 = 一般）`);
   if (!isInt(it.price) || it.price < 0) err(`${at}：price 要是 0 以上的整數`);
   if (!isInt(it.sort)) err(`${at}：sort（背包裡的順序）要是整數`);
   else if (sorts[it.sort]) err(`${at}：sort ${it.sort} 和 ${sorts[it.sort]} 重複`); else sorts[it.sort] = id;

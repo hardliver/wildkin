@@ -60,7 +60,8 @@ local function item_target_ok(key, k)
 end
 
 -- 打開背包。where：在哪裡用；on_use(道具, 隊伍第幾隻)：決定要用了（數量由這裡扣）
-function bag_open(where, on_use)
+-- opts.wild：戰鬥是不是野生戰（野伴球只能對野生的用）
+function bag_open(where, on_use, opts)
   local keys = bag_list(where)
   if #keys == 0 then
     dialog_open("背包裡什麼都沒有。")
@@ -76,6 +77,17 @@ function bag_open(where, on_use)
     if r == 0 then ui_pop() return end
     if not r then return end
     local key = keys[r]
+    if DATA.items[key].kind == "ball" then
+      -- 野伴球：不用選野伴，直接丟
+      if not (opts and opts.wild) then
+        dialog_open("不能搶別人的野伴！")
+        return
+      end
+      bag_add(key, -1)
+      ui_pop()
+      on_use(key, nil)
+      return
+    end
     party_pick("要給哪一隻用？", function(i)
       local ok, why = item_target_ok(key, party[i])
       if not ok then
