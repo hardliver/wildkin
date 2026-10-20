@@ -1,0 +1,6 @@
+{
+  "potion": { "name": "回復藥", "sort": 1, "kind": "heal", "amount": 20, "price": 300, "battle": true, "field": true,
+              "desc": "HP 回復 20。\n對肩頸痠痛無效。" },
+  "superpotion": { "name": "好傷藥", "sort": 2, "kind": "heal", "amount": 50, "price": 700, "battle": true, "field": true,
+                   "desc": "HP 回復 50。\n藥膏味很重，聞起來像老家的客廳。" }
+}

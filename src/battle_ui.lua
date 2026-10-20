@@ -173,6 +173,8 @@ local function show(e)
     fx_stat(ctx, e.side, e.amount > 0)
   elseif K == "status" or K == "asleep" or K == "paralyzed" then
     fx_status(ctx, e.side, K == "asleep" and "sleep" or K == "paralyzed" and "paralyze" or e.status)
+  elseif K == "item_heal" then
+    if e.index == S.b.sides[e.side].active then slide_hp(e.side, e.hp) end
   elseif K == "heal" then
     slide_hp(e.side, e.hp)
   elseif K == "faint" then
@@ -338,6 +340,10 @@ end
 local FAST = 4   -- 按住 A 時演出幾倍速（W27）
 
 function battle_scene_update()
+  if ui_active() then
+    ui_update()
+    return
+  end
   if S.co then
     -- 按住 A：一幀跑 4 次（動畫、血條、字一起變快）；訊息還是要「按一下」才會換下一句
     local n = btn(0, A) and FAST or 1
@@ -354,7 +360,9 @@ function battle_scene_update()
     elseif r == 2 then
       say(#party > 1 and "換人的選單在 W35 才會做好。" or "沒有其他可以換上的野伴。", to_command)
     elseif r == 3 then
-      say("背包裡什麼都沒有。", to_command)
+      bag_open("battle", function(key, i)
+        do_turn({ kind = "item", item = key, target = i })
+      end)
     elseif r == 4 then
       if S.b.wild then
         do_turn({ kind = "run" })
@@ -535,4 +543,6 @@ function battle_scene_draw()
       text(S.last, 14, 192, 0)
     end
   end
+
+  ui_draw()   -- 背包、選野伴（screens.lua）
 end

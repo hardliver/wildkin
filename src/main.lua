@@ -73,6 +73,7 @@ end
 function _init()
   -- 隊伍（暫時）：序章選初始野伴（W54）之前，先直接給一隻 Lv5 芽角羊
   party = { kin_new("01", 5) }
+  BAG = { potion = 3 }   -- 暫時：一開始有 3 瓶回復藥（W55 商店之後改成老苔給、或自己買）
   enter_map("camp")
   player_init(19 * TILE, 15 * TILE)   -- 營地空地的中間
   after_place()
@@ -100,6 +101,12 @@ function _update()
     return
   end
 
+  -- START 選單、背包……（screens.lua）
+  if ui_active() then
+    ui_update()
+    return
+  end
+
   -- 對話中：只處理對話，主角不能動
   if dialog_active() then
     dialog_update()
@@ -109,6 +116,7 @@ function _update()
   player_update()
   for _, n in ipairs(npcs) do npc_update(n) end
   if pressed(A) then interact() end
+  if pressed(START) then field_menu_open() return end
   check_door()
   if not transition_active() and not trainer_check() then encounter_check() end
   world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)   -- 跟著主角的中心點
@@ -142,6 +150,7 @@ function _draw()
   end
 
   camera()           -- 介面固定在畫面上
+  if not battle_scene_active() then ui_draw() end   -- 戰鬥中由戰鬥畫面自己畫
   dialog_draw()
   transition_draw()  -- 轉場蓋在最上面
 end

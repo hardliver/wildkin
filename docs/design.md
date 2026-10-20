@@ -140,6 +140,7 @@ Game Boy 時期寶可夢式的**回合制**：每回合雙方各選一個動作�
 | `species.json` | 野伴：名稱、屬性、戰鬥圖格數（`sprite`）、基礎值、捕獲率、基礎經驗、工作、學招表、手冊說明 | `DATA.species["01"]`（編號是兩位數字的字串） |
 | `encounters.json` | 每個區域的遇敵率和出現的野伴 | `DATA.encounters.route1` |
 | `work.json` | 工作特性的名稱 | `DATA.work.lumber` → "伐木" |
+| `items.json` | 道具：名稱、種類（heal／ball）、效果量、價錢、能在哪裡用、說明 | `DATA.items.potion` |
 | `trainers.json` | 訓練家：名字、隊伍、視線、台詞（地圖 NPC 的 `trainer` 欄位指到這裡） | `DATA.trainers.rival1` |
 
 約定（全部整數，沒有小數）：

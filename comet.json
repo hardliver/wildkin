@@ -5,6 +5,7 @@
     "src/util.lua",
     "src/dialog.lua",
     "src/menu.lua",
+    "src/screens.lua",
     "src/world.lua",
     "src/ambient.lua",
     "src/transition.lua",
@@ -38,6 +39,7 @@
     "species": "data/species.json",
     "encounters": "data/encounters.json",
     "work": "data/work.json",
-    "trainers": "data/trainers.json"
+    "trainers": "data/trainers.json",
+    "items": "data/items.json"
   }
 }

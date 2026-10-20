@@ -16,7 +16,8 @@
 --   { kind = "move", index = 1～4 }   使用第幾招
 --   { kind = "switch", index = 隊伍第幾隻 }
 --   { kind = "run" }                  逃跑（只有野生戰）
---   （背包、抓捕在 W33、W34 加）
+--   { kind = "item", item = "potion", target = 隊伍第幾隻 }   用道具（W33）。背包的數量由畫面那邊扣
+--   （抓捕在 W34 加）
 
 local STAGE_MIN, STAGE_MAX = -3, 3
 local STAT_NAMES = { atk = "攻擊", def = "防禦", spd = "速度" }
@@ -233,6 +234,18 @@ local function use_move(b, side, index, ev)
   check_faint(b, target, ev)
 end
 
+-- 用道具：目前只有回復 HP 的（W33）。昏倒的、HP 滿的不能用（畫面那邊會先擋掉）
+local function use_item(b, side, c, ev)
+  local it = DATA.items[c.item]
+  local k = b.sides[side].party[c.target]
+  ev[#ev + 1] = { kind = "item", side = side, item = c.item }
+  if it.kind == "heal" then
+    local heal = math.min(it.amount, kin_max_hp(k) - k.hp)
+    k.hp = k.hp + heal
+    ev[#ev + 1] = { kind = "item_heal", side = side, index = c.target, amount = heal, hp = k.hp }
+  end
+end
+
 local function do_switch(b, side, index, ev)
   local s = b.sides[side]
   s.active = index
@@ -287,6 +300,8 @@ function battle_step(b, c1, c2)
       do_switch(b, side, c.index, ev)
     elseif c.kind == "run" then
       try_run(b, ev)
+    elseif c.kind == "item" then
+      use_item(b, side, c, ev)
     end
   end
   if not b.over then end_of_turn(b, ev) end
@@ -358,5 +373,7 @@ function battle_event_text(b, e)
   if K == "switch" then return (e.side == 1 and "上吧！" or ((b.trainer or "對手") .. "換上了")) .. kin_name(battle_active(b, e.side)) .. "！" end
   if K == "run" then return e.ok and "順利逃走了！" or "逃不掉！就像當年的車貸。" end
   if K == "cant_run" then return "不能從對戰中逃走！" end
+  if K == "item" then return (e.side == 1 and PLAYER_NAME or (b.trainer or "對手")) .. "使用了" .. DATA.items[e.item].name .. "！" end
+  if K == "item_heal" then return kin_name(b.sides[e.side].party[e.index]) .. "回復了 " .. e.amount .. " 點 HP！" end
   return nil
 end

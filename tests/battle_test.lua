@@ -83,5 +83,18 @@ expect("戰鬥在 30 回合內結束", f.over ~= nil, true)
 expect("Lv5 打 Lv3 應該贏", f.over, "win")
 expect("打贏得到經驗（囤囤鼠 50 × 3 // 7 = 21）", battle_active(f, 1).exp, 125 + 21)
 
+-- W33：用道具。回復藥一定比招式先（priority 2）；回復 20，但不會超過最大 HP
+do
+  local me, foe = kin_new("01", 10), kin_new("07", 10)
+  local b = battle_new({ me }, { foe }, { wild = true })
+  me.hp = 5
+  local ev = battle_step(b, { kind = "item", item = "potion", target = 1 }, { kind = "move", index = 1 })
+  expect("道具先動", ev[1].kind, "item")
+  expect("回復 20", ev[2].amount, 20)
+  me.hp = kin_max_hp(me) - 3
+  ev = battle_step(b, { kind = "item", item = "potion", target = 1 }, { kind = "move", index = 1 })
+  expect("回復不超過最大 HP", ev[2].amount, 3)
+end
+
 if failed > 0 then error("battle.lua 有 " .. failed .. " 項測試沒通過") end
 print("✓ battle.lua：全部通過")
