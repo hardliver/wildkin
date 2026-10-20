@@ -10,5 +10,12 @@
   "firefang":  { "name": "焰牙",   "type": "fire",   "power": 65, "accuracy": 95,  "pp": 15, "desc": "用帶著火的牙咬。有時會讓對方灼傷。", "effect": { "kind": "status", "status": "burn", "chance": 10 } },
   "splash":    { "name": "水花",   "type": "water",  "power": 40, "accuracy": 100, "pp": 25, "desc": "朝對方潑水。" },
   "bubblenet": { "name": "泡泡網", "type": "water",  "power": 20, "accuracy": 100, "pp": 30, "desc": "用泡泡纏住對方，讓對方的速度下降。", "effect": { "kind": "stat", "target": "foe", "stat": "spd", "stages": -1 } },
-  "mist":      { "name": "霧幕",   "type": "water",  "power": 0,  "accuracy": 0,    "pp": 20, "desc": "躲進霧裡，讓自己的防禦上升。", "effect": { "kind": "stat", "target": "self", "stat": "def", "stages": 1 } }
+  "mist":      { "name": "霧幕",   "type": "water",  "power": 0,  "accuracy": 0,    "pp": 20, "desc": "躲進霧裡，讓自己的防禦上升。", "effect": { "kind": "stat", "target": "self", "stat": "def", "stages": 1 } },
+  "vinewhip":  { "name": "藤鞭",     "type": "grass",    "power": 55, "accuracy": 100, "pp": 25, "desc": "用藤蔓抽打對方。" },
+  "stoveblast":{ "name": "爐口噴焰", "type": "fire",     "power": 80, "accuracy": 90,  "pp": 10, "desc": "打開爐門，噴出一大團火。有時會讓對方灼傷。", "effect": { "kind": "status", "status": "burn", "chance": 20 } },
+  "mudshot":   { "name": "泥水砲",   "type": "water",    "power": 60, "accuracy": 95,  "pp": 15, "desc": "噴出混著泥巴的水。讓對方的速度下降。", "effect": { "kind": "stat", "target": "foe", "stat": "spd", "stages": -1 } },
+  "bite":      { "name": "咬住",     "type": "normal",   "power": 60, "accuracy": 100, "pp": 25, "desc": "用力咬住對方。" },
+  "spark":     { "name": "電火花",   "type": "electric", "power": 40, "accuracy": 100, "pp": 30, "desc": "放出小小的電火花。有時會讓對方麻痺。", "effect": { "kind": "status", "status": "paralyze", "chance": 10 } },
+  "powder":    { "name": "麻痺鱗粉", "type": "electric", "power": 0,  "accuracy": 75,  "pp": 30, "desc": "灑出帶電的鱗粉，讓對方麻痺。", "effect": { "kind": "status", "status": "paralyze", "chance": 100 } },
+  "shell":     { "name": "縮殼",     "type": "normal",   "power": 0,  "accuracy": 0,   "pp": 30, "desc": "縮進殼裡，讓自己的防禦上升。", "effect": { "kind": "stat", "target": "self", "stat": "def", "stages": 1 } }
 }

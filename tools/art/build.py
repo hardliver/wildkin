@@ -1,21 +1,23 @@
 # 野伴戰鬥圖產生器（W24b）。在 wildkin/tools/art 執行：python3 build.py
-# 輸出 assets/art/kin_front.png（64×64 × 5）與 kin_back.png（32×32 × 5），預覽在 build/kin_preview.png
+# 輸出 assets/art/kin_front.png（64×64 × 10）與 kin_back.png（32×32 × 10），預覽在 build/kin_preview.png
 #
 # 引擎的調色盤所有圖片加起來最多 240 色（Kenney 的地圖已經用掉一些），
-# 所以 5 隻野伴的正面＋背面一起「減色」成 MAX_COLORS 色，共用同一組顏色。
+# 所以全部野伴的正面＋背面一起「減色」成 MAX_COLORS 色，共用同一組顏色。
 import os
 from PIL import Image
-import pals
+import pals, pals2
 
-MAX_COLORS = 96
+MAX_COLORS = 128
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "..", "assets", "art")
 BUILD = os.path.join(HERE, "..", "..", "build")
 
-fronts = [p.front() for p in pals.ALL]
-backs = [p.back() for p in pals.ALL]
-F = Image.new("RGBA", (64 * 5, 64), (0, 0, 0, 0))
-B = Image.new("RGBA", (32 * 5, 32), (0, 0, 0, 0))
+ALL = pals.ALL + pals2.ALL2   # 順序 = species.json 的 sprite（0～4 第一批、5～9 第二批）
+fronts = [p.front() for p in ALL]
+backs = [p.back() for p in ALL]
+N = len(ALL)
+F = Image.new("RGBA", (64 * N, 64), (0, 0, 0, 0))
+B = Image.new("RGBA", (32 * N, 32), (0, 0, 0, 0))
 for i, im in enumerate(fronts): F.paste(im, (i * 64, 0))
 for i, im in enumerate(backs): B.paste(im, (i * 32, 0))
 
@@ -47,8 +49,8 @@ cols = {p[:3] for im in (F, B) for p in im.getdata() if p[3]}
 print("colors:", len(cols))
 
 # 預覽：上排正面，下排背面（放大 2 倍，和遊戲裡一樣）
-P = Image.new("RGBA", (5 * 72 + 8, 64 * 2 + 24), (150, 190, 140, 255))
-for i in range(5):
+P = Image.new("RGBA", (N * 72 + 8, 64 * 2 + 24), (150, 190, 140, 255))
+for i in range(N):
     f = F.crop((i * 64, 0, i * 64 + 64, 64)); b = B.crop((i * 32, 0, i * 32 + 32, 32)).resize((64, 64), Image.NEAREST)
     P.paste(f, (8 + i * 72, 8), f); P.paste(b, (8 + i * 72, 80), b)
 P.resize((P.width * 3, P.height * 3), Image.NEAREST).save(os.path.join(BUILD, "kin_preview.png"))

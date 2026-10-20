@@ -359,10 +359,126 @@ MOVE_ANIM.mist = function(ctx, u, t)
   end)
 end
 
+-- 藤鞭：兩條藤蔓甩過去，在對方身上抽兩下
+MOVE_ANIM.vinewhip = function(ctx, u, t)
+  local ux, uy = ctx.pos(u)
+  local tx, ty = ctx.pos(t)
+  play(ctx, 24, function(i)
+    for k = 0, 1 do
+      local s = clamp(i - k * 6, 0, 12)
+      local n = 8
+      local px, py = ux, uy
+      for j = 1, n do                                   -- 藤蔓：從自己到對方，中間彎一下
+        local x, y = arc(ux, uy, tx + (k * 2 - 1) * 8, ty - 6 + k * 10, j * s, n * 12, 18 - k * 10)
+        thick_line(px, py, x, y, 2, (j % 2 == 0) and 3 or 11)
+        px, py = x, y
+      end
+    end
+  end)
+  play(ctx, 8, function(i)
+    thick_line(tx - 14, ty - 10 + i, tx + 14, ty + 4 + i, 2, 11)
+  end)
+end
+
+-- 爐口噴焰：先抖一下（爐子在加熱），再噴出一大團火球，打到時炸開
+MOVE_ANIM.stoveblast = function(ctx, u, t)
+  local ux, uy = ctx.pos(u)
+  local tx, ty = ctx.pos(t)
+  wiggle(ctx, u, 12, 2)
+  play(ctx, 18, function(i)
+    local x, y = arc(ux, uy, tx, ty, i, 18, 6)
+    flame(x, y, 4 + i // 3, i)
+    flame(x - (tx - ux) // 12, y - (ty - uy) // 12, 3, i + 1)
+  end)
+  play(ctx, 16, function(i)
+    for k = 0, 5 do
+      local a = k * 5 + i // 2
+      flame(tx + isin(a + 8) * (4 + i) // 4, ty + isin(a) * (4 + i) // 5, 6 - i // 3, i + k)
+    end
+  end)
+end
+
+-- 泥水砲：一串混著泥的水球
+MOVE_ANIM.mudshot = function(ctx, u, t)
+  local ux, uy = ctx.pos(u)
+  local tx, ty = ctx.pos(t)
+  wiggle(ctx, u, 6, 1)
+  play(ctx, 28, function(i)
+    for k = 0, 4 do
+      local s = i - k * 3
+      if s >= 1 and s <= 16 then
+        local x, y = arc(ux, uy, tx + (k - 2) * 5, ty, s, 16, 10)
+        fx_disc(x, y, 5, (k % 2 == 0) and 4 or 12)
+        pset(x - 2, y - 2, 7)
+      end
+    end
+  end)
+end
+
+-- 咬住：撲過去，上下兩排牙咬合（焰牙不帶火的版本）
+MOVE_ANIM.bite = function(ctx, u, t)
+  local back = lunge(ctx, u, t, 20, 6)
+  local tx, ty = ctx.pos(t)
+  play(ctx, 14, function(i)
+    local gap = math.max(18 - i * 3, 2)
+    for k = -2, 2 do
+      local x = tx + k * 7
+      for r = 0, 5 do
+        rect(x - 3 + r // 2, ty - gap - 6 + r, 6 - r // 2 * 2, 1, 7)
+        rect(x - 3 + r // 2, ty + gap + 6 - r, 6 - r // 2 * 2, 1, 7)
+      end
+    end
+  end)
+  back(8)
+end
+
+-- 閃電：從 (x1,y1) 到 (x2,y2) 折來折去的一條線
+local function bolt(x1, y1, x2, y2, seed, c)
+  local px, py = x1, y1
+  for j = 1, 6 do
+    local x = x1 + (x2 - x1) * j // 6 + ((j < 6) and (hash(seed, j) % 13 - 6) or 0)
+    local y = y1 + (y2 - y1) * j // 6 + ((j < 6) and (hash(seed, j, 3) % 9 - 4) or 0)
+    thick_line(px, py, x, y, 2, c)
+    px, py = x, y
+  end
+end
+
+-- 電火花：閃電從自己打到對方，閃 3 下
+MOVE_ANIM.spark = function(ctx, u, t)
+  local ux, uy = ctx.pos(u)
+  local tx, ty = ctx.pos(t)
+  play(ctx, 24, function(i)
+    if (i // 4) % 2 == 0 then
+      bolt(ux, uy - 8, tx, ty, i // 4, 10)
+      bolt(ux, uy - 8, tx, ty, i // 4 + 7, 7)
+    end
+  end)
+end
+
+-- 麻痺鱗粉：黃色的粉從翅膀灑下來，飄到對方身上
+MOVE_ANIM.powder = function(ctx, u, t)
+  local tx, ty = ctx.pos(t)
+  play(ctx, 40, function(i)
+    for k = 0, 11 do
+      local x = tx - 24 + (hash(k, 11) % 48) + isin(i // 2 + k * 3) // 3
+      local y = ty - 30 + ((i + hash(k, 12) % 40) % 40) * 3 // 2
+      pset(x, y, (k % 3 == 0) and 7 or 10)
+      pset(x + 1, y, 10)
+    end
+  end)
+end
+
+-- 縮殼：抖一下，身上一圈一圈的光往內收
+MOVE_ANIM.shell = function(ctx, u, t)
+  local ux, uy = ctx.pos(u)
+  wiggle(ctx, u, 8, 1)
+  play(ctx, 20, function(i) fx_ring(ux, uy, 28 - i, (i % 4 < 2) and 7 or 6) end)
+end
+
 -- 屬性預設（moves.json 加了新招、還沒寫動畫時用）
 local TYPE_ANIM = {
   normal = MOVE_ANIM.tackle, grass = MOVE_ANIM.leaf, fire = MOVE_ANIM.ember,
-  water = MOVE_ANIM.splash, electric = MOVE_ANIM.tackle, rock = MOVE_ANIM.tackle,
+  water = MOVE_ANIM.splash, electric = MOVE_ANIM.spark, rock = MOVE_ANIM.tackle,
 }
 
 function fx_move(ctx, key, u, t)

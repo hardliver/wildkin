@@ -7,6 +7,14 @@
     "learn": [ [1, "tackle"], [1, "growl"], [5, "leaf"], [9, "absorb"], [13, "leer"] ],
     "desc": "角是兩片嫩芽。天氣好的時候會趴著曬太陽，角會長得特別快。"
   },
+  "02": {
+    "name": "林角羊", "type": "grass", "sprite": 5,
+    "base": { "hp": 75, "atk": 80, "def": 80, "spd": 60 },
+    "catch": 45, "exp": 142,
+    "work": { "farm": 2, "lumber": 1 },
+    "learn": [ [1, "tackle"], [1, "growl"], [1, "leaf"], [1, "absorb"], [16, "vinewhip"], [20, "leer"] ],
+    "desc": "角長成了分岔的樹枝，背上長滿青苔。站著不動的時候，常被鳥當成樹。"
+  },
   "03": {
     "name": "炭毛狸", "type": "fire", "sprite": 1,
     "base": { "hp": 39, "atk": 55, "def": 40, "spd": 62 },
@@ -15,6 +23,14 @@
     "learn": [ [1, "scratch"], [1, "leer"], [5, "ember"], [9, "quick"], [13, "firefang"] ],
     "desc": "尾巴尖端是一塊悶燒的炭。冬天會有人偷偷靠在牠旁邊取暖。"
   },
+  "04": {
+    "name": "爐火狸", "type": "fire", "sprite": 6,
+    "base": { "hp": 68, "atk": 85, "def": 60, "spd": 88 },
+    "catch": 45, "exp": 142,
+    "work": { "fire": 2 },
+    "learn": [ [1, "scratch"], [1, "ember"], [1, "quick"], [1, "firefang"], [16, "bite"], [22, "stoveblast"] ],
+    "desc": "身體變成了一座鐵爐，背上的煙囪一直冒著煙。冬天時營地的人都搶著跟牠睡。"
+  },
   "05": {
     "name": "鬚鬚鯰", "type": "water", "sprite": 2,
     "base": { "hp": 50, "atk": 48, "def": 55, "spd": 40 },
@@ -22,6 +38,14 @@
     "work": { "water": 1 },
     "learn": [ [1, "tackle"], [1, "growl"], [5, "splash"], [9, "bubblenet"], [13, "mist"] ],
     "desc": "有手有腳的小鯰魚。長長的鬍鬚能感覺到要下雨了。"
+  },
+  "06": {
+    "name": "河伯鯰", "type": "water", "sprite": 7,
+    "base": { "hp": 85, "atk": 78, "def": 85, "spd": 55 },
+    "catch": 45, "exp": 147,
+    "work": { "water": 2, "carry": 1 },
+    "learn": [ [1, "tackle"], [1, "splash"], [1, "bubblenet"], [1, "mist"], [16, "mudshot"], [22, "bite"] ],
+    "desc": "長長的鬍鬚像披風一樣甩在背後。據說河裡的魚都要先跟牠打招呼。"
   },
   "07": {
     "name": "囤囤鼠", "type": "normal", "sprite": 3,
@@ -38,5 +62,21 @@
     "work": { "scout": 1 },
     "learn": [ [1, "scratch"], [1, "growl"], [5, "quick"], [9, "leer"] ],
     "desc": "頭上的羽毛像一支哨子，發現危險時會吹出尖銳的聲音。"
+  },
+  "09": {
+    "name": "菇菇蟹", "type": "grass", "sprite": 8,
+    "base": { "hp": 50, "atk": 50, "def": 65, "spd": 25 },
+    "catch": 150, "exp": 68,
+    "work": { "gather": 1, "farm": 1 },
+    "learn": [ [1, "scratch"], [1, "shell"], [5, "absorb"], [9, "vinewhip"], [13, "bite"] ],
+    "desc": "背著一朵香菇當殼。香菇長太大時，會去找一朵更大的換。"
+  },
+  "10": {
+    "name": "燈蛾", "type": "electric", "sprite": 9,
+    "base": { "hp": 40, "atk": 40, "def": 35, "spd": 70 },
+    "catch": 120, "exp": 70,
+    "work": { "power": 1 },
+    "learn": [ [1, "tackle"], [1, "spark"], [5, "powder"], [9, "quick"], [13, "spark"] ],
+    "desc": "翅膀上的斑點會發光。晚上會聚在營地的燈下，把燈泡換掉也沒用，因為牠就是燈。"
   }
 }
