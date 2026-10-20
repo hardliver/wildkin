@@ -149,3 +149,22 @@ function kin_evolve(k, to)
   end
   return events
 end
+
+-- ============================================================
+-- 16×16 小圖示（W42）：基地裡派駐的野伴走來走去用
+-- ============================================================
+-- kin_icons.png：每種 3 格，從第 sprite × 3 格開始：0 站著、1 左腳在前、2 右腳在前
+-- 走路循環：1 →（0，身體往上 1 像素）→ 2 →（0，往上 1 像素），每 STEP 幀換一拍
+local ICON_STEP = 6
+local WALK = { { 1, 0 }, { 0, -1 }, { 2, 0 }, { 0, -1 } }   -- { 第幾格, 往上幾像素 }
+
+-- no：種類編號；walking：在走嗎；t：計時（幀）；face_right：面向右（圖是面向左畫的，往右就翻轉）
+function kin_icon_draw(no, x, y, walking, t, face_right)
+  local base = DATA.species[no].sprite * 3
+  if not walking then
+    spr(IMG.kin_icons, base, x, y, face_right)
+    return
+  end
+  local w = WALK[(t // ICON_STEP) % 4 + 1]
+  spr(IMG.kin_icons, base + w[1], x, y + w[2], face_right)
+end

@@ -25,7 +25,8 @@
     "dungeon": "assets/kenney/tiny-dungeon/tilemap.png",
     "kin_front": { "file": "assets/art/kin_front.png", "tile": 64 },
     "kin_back": { "file": "assets/art/kin_back.png", "tile": 32 },
-    "tallgrass": "assets/art/tallgrass.png"
+    "tallgrass": "assets/art/tallgrass.png",
+    "kin_icons": "assets/art/kin_icons.png"
   },
   "output": "build/wildkin.lua",
   "maps": {
