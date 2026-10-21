@@ -14,6 +14,7 @@
     "src/encounter.lua",
     "src/gather.lua",
     "src/facility.lua",
+    "src/day.lua",
     "src/trainer.lua",
     "src/talk.lua",
     "src/kin.lua",

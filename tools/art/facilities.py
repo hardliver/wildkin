@@ -158,11 +158,42 @@ def workbench():
     for k in range(6): px(im, 24 - k // 2, 7 + k, W1)
     return im
 
+def tent():
+    """主角的帳篷：綠色帆布的三角帳篷，門簾捲起來，裡面看得到睡袋；旁邊一盞小油燈"""
+    im = new()
+    # 帳篷側面輪廓：底寬 28、頂點在中間
+    top, bottom = 4, 28
+    for y in range(top, bottom + 1):
+        half = (y - top) * 14 // (bottom - top)
+        x0, x1 = 15 - half, 16 + half
+        for x in range(x0, x1 + 1):
+            c = G2 if x < 16 else G1                    # 左亮右暗
+            if (x + y) % 6 == 0 and x not in (15, 16): c = G3 if x < 16 else (0x3e, 0x89, 0x48)
+            px(im, x, y, c)
+        px(im, x0, y, OUT); px(im, x1, y, OUT)
+    hline(im, 1, 30, bottom, OUT)
+    px(im, 15, top - 1, OUT); px(im, 16, top - 1, OUT)
+    # 門：中間一個深色三角形，裡面一條紅色睡袋
+    for y in range(13, bottom):
+        half = (y - 13) * 6 // (bottom - 13)
+        for x in range(15 - half, 17 + half): px(im, x, y, NAVY)
+    for y in range(22, bottom):
+        for x in range(13, 19):
+            if abs(x - 15.5) <= (y - 13) * 6 / (bottom - 13): px(im, x, y, RED if y > 22 else (0xf2, 0x84, 0x62))
+    # 捲起來的門簾
+    for y in range(13, 20):
+        px(im, 14 - (y - 13) // 3, y, W3); px(im, 17 + (y - 13) // 3, y, W3)
+    # 營繩、木樁
+    px(im, 2, 29, W1); px(im, 29, 29, W1)
+    # 小油燈
+    box(im, 25, 23, 4, 6, YEL); px(im, 26, 25, (0xff, 0xff, 0xff)); hline(im, 25, 28, 22, OUT)
+    return im
+
 if __name__ == "__main__":
-    # 輸出到 assets/art/facilities.png：第 0 格空地、1 伐木場、2 田、3 倉庫、4 採集點、5 工作台（每格 32×32）
+    # 輸出到 assets/art/facilities.png：第 0 格空地、1 伐木場、2 田、3 倉庫、4 採集點、5 工作台、6 帳篷（每格 32×32）
     import os
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../assets/art/facilities.png")
-    FRAMES = (lot, lumber, farm, storage, gather, workbench)
+    FRAMES = (lot, lumber, farm, storage, gather, workbench, tent)
     sheet = Image.new("RGBA", (32 * len(FRAMES), 32), (0, 0, 0, 0))
     for i, f in enumerate(FRAMES):
         sheet.paste(f(), (i * 32, 0))

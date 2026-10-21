@@ -200,6 +200,43 @@ function facility_output(fac)
   return list, total
 end
 
+-- 睡覺過一天時結算（day.lua）：每個設施的產出放進背包。
+-- 每隻派駐的野伴吃 1 份飼料（BAG.feed）；吃不到的那隻只做一半：
+--   產出 = 基本量 × Σ(工作等級 × 2，餓著的 × 1) // 2
+-- 回傳：報告的每一行（「伐木場：木材 +2」）、派駐的野伴總數、餓著的隻數
+function facility_day_end()
+  local keys = {}
+  for k in pairs(FACILITY) do keys[#keys + 1] = k end
+  table.sort(keys)   -- 照固定順序分飼料（pairs 的順序每次可能不同）
+  local report, workers, hungry = {}, 0, 0
+  for _, key in ipairs(keys) do
+    local fac = FACILITY[key]
+    local f = DATA.facilities[fac.kind]
+    local units = 0
+    for _, k in ipairs(fac.workers) do
+      workers = workers + 1
+      local lv = work_level(k, f.work)
+      if (BAG.feed or 0) > 0 then
+        bag_add("feed", -1)
+        units = units + lv * 2
+      else
+        hungry = hungry + 1
+        units = units + lv
+      end
+    end
+    local parts = {}
+    for _, c in ipairs(sorted_cost(f.output)) do
+      local n = c[2] * units // 2
+      if n > 0 then
+        bag_add(c[1], n)
+        parts[#parts + 1] = DATA.items[c[1]].name .. " +" .. n
+      end
+    end
+    if #parts > 0 then report[#report + 1] = f.name .. "：" .. table.concat(parts, "、") end
+  end
+  return report, workers, hungry
+end
+
 -- 一行野伴：小圖示、名字、Lv、工作等級。y 是這一行的上緣
 local function worker_row(k, work, x, y, w, selected)
   if selected then ui_arrow_right(x + 4, y + 5, 0) end
@@ -325,9 +362,9 @@ local function workers_screen(l, fac)
     else
       local parts = {}
       for _, c in ipairs(out) do parts[#parts + 1] = DATA.items[c[1]].name .. " " .. c[2] end
-      text("每天產出：" .. table.concat(parts, "、"), 14, 192, 0)
+      text("每天產出（在帳篷睡一覺）：" .. table.concat(parts, "、"), 14, 192, 0)
     end
-    text("在營地的床上睡一覺，就會收到產出。", 14, 210, 5)
+    text("每隻每天吃 1 份飼料，沒吃到的產量減半。", 14, 210, 5)
   end
   ui_push(screen)
 end

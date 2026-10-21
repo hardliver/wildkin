@@ -13,5 +13,6 @@
   "fiber":    { "name": "纖維", "sort": 106, "kind": "material", "price": 10, "battle": false, "field": false, "desc": "可以搓成繩子。" },
   "mushroom": { "name": "菇",   "sort": 107, "kind": "material", "price": 20, "battle": false, "field": false, "desc": "做萬用藥草的材料。\n不認識的菇不要亂吃。" },
   "metal":    { "name": "金屬", "sort": 108, "kind": "material", "price": 50, "battle": false, "field": false, "desc": "做好球的材料。" },
+  "feed":     { "name": "飼料", "sort": 110, "kind": "material", "price": 10, "battle": false, "field": false, "desc": "派駐的野伴每天吃 1 份。\n沒吃到也會工作，只是做一半。跟人一樣。" },
   "charcoal": { "name": "炭",   "sort": 109, "kind": "material", "price": 30, "battle": false, "field": false, "desc": "做精製球的材料。" }
 }

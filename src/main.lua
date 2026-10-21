@@ -15,6 +15,7 @@ local function enter_map(name)
   npc_load()
   gather_load()
   facility_load()
+  bed_load()
   butterflies_enter()
 end
 
@@ -77,6 +78,11 @@ local function interact()
     local f = facility_at(fx, fy)
     if f then
       facility_interact(f)
+      return
+    end
+    local bed = bed_at(fx, fy)
+    if bed then
+      bed_interact(bed)
       return
     end
     local wb = workbench_at(fx, fy)

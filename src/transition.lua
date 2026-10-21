@@ -6,11 +6,14 @@
 
 local HALF = 16
 local FLASH = 24    -- 遇敵時先閃爍幾幀（白、原本的畫面交替，每 4 幀換一次 → 閃 3 下）
-local trans = nil   -- { t = 經過幾幀, on_middle = 全黑時要做的事, flash = 還要閃幾幀 }
+local trans = nil   -- { t = 經過幾幀, on_middle = 全黑時要做的事, flash = 還要閃幾幀, hold, caption, on_end }
 
 -- flash = true：遇到野伴時用，先閃 3 下再拉百葉窗（GB 的遇敵轉場）
-function transition_start(on_middle, flash)
-  trans = { t = 0, on_middle = on_middle, flash = flash and FLASH or 0 }
+-- opts（可省略）：hold = 全黑之後停幾幀（睡覺）、caption = 停的時候畫面中間的字、on_end = 轉場完全結束後呼叫
+function transition_start(on_middle, flash, opts)
+  opts = opts or {}
+  trans = { t = 0, on_middle = on_middle, flash = flash and FLASH or 0,
+            hold = opts.hold or 0, caption = opts.caption, on_end = opts.on_end }
 end
 
 function transition_active()
@@ -23,9 +26,17 @@ function transition_update()
     trans.flash = trans.flash - 1
     return
   end
+  if trans.t == HALF and trans.hold > 0 then   -- 全黑停一下
+    trans.hold = trans.hold - 1
+    return
+  end
   trans.t = trans.t + 1
   if trans.t == HALF then trans.on_middle() end
-  if trans.t >= HALF * 2 then trans = nil end
+  if trans.t >= HALF * 2 then
+    local done = trans.on_end
+    trans = nil
+    if done then done() end
+  end
 end
 
 function transition_draw()
@@ -41,4 +52,7 @@ function transition_draw()
   if h <= 0 then return end
   camera()
   for y = 0, SCREEN_H - 1, 16 do rect(0, y, SCREEN_W, h, 0) end
+  if trans.t == HALF and trans.caption and trans.hold > 0 then
+    text(trans.caption, (SCREEN_W - textw(trans.caption)) // 2, SCREEN_H // 2 - 7, 7)
+  end
 end
