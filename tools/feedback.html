@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>野伴 試玩回饋</title>
+<style>
+  :root { --bg: #f6f3ec; --card: #fffdf8; --ink: #2b2420; --muted: #7a6f66; --line: #e2d9cc; --accent: #3e8948; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1b1916; --card: #24211d; --ink: #eee6da; --muted: #a39887; --line: #3a352e; --accent: #84c669; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, "PingFang TC", "Noto Sans TC", sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  p.lead { color: var(--muted); margin: 0 0 20px; }
+  label { display: block; margin: 18px 0 6px; font-weight: 600; }
+  .sub { font-weight: 400; color: var(--muted); font-size: 14px; }
+  input, select, textarea { width: 100%; font: inherit; color: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  textarea { min-height: 72px; resize: vertical; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .row label { font-weight: 400; display: inline-flex; align-items: center; gap: 4px; margin: 0; }
+  .row input { width: auto; }
+  button { margin-top: 24px; font: inherit; font-weight: 600; background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 10px 18px; cursor: pointer; }
+  #out { margin-top: 16px; min-height: 200px; display: none; }
+  .ok { color: var(--accent); margin-left: 8px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>野伴 試玩回饋</h1>
+  <p class="lead">謝謝你幫忙玩！不用每一題都填，想到什麼寫什麼就好。填完按最下面的按鈕，把產生的文字複製傳給我。卡住的時候，遊戲頁面的「下載重播」可以存下你的操作，一起傳給我就能看到你遇到什麼。</p>
+
+  <label for="who">怎麼稱呼你 <span class="sub">（可以不填）</span></label>
+  <input id="who">
+
+  <label>用什麼玩</label>
+  <div class="row" id="device">
+    <label><input type="checkbox" value="電腦鍵盤"> 電腦鍵盤</label>
+    <label><input type="checkbox" value="手把"> 手把</label>
+    <label><input type="checkbox" value="手機"> 手機</label>
+  </div>
+
+  <label for="time">大約玩了多久</label>
+  <select id="time"><option>不到 15 分鐘</option><option>15～30 分鐘</option><option>30～60 分鐘</option><option>一小時以上</option></select>
+
+  <label for="reach">玩到哪裡 <span class="sub">（按 Select／Tab 的任務日誌看得到）</span></label>
+  <select id="reach">
+    <option>還在選初始野伴之前</option><option>草原小徑，還沒抓到野伴</option><option>抓到野伴、回營地蓋設施</option>
+    <option>打阿穗（第 1 次）</option><option>苔石村</option><option>砍倒木、進霧林</option>
+    <option>打森之守柏伯</option><option>第 1 章結束</option>
+  </select>
+
+  <label for="stuck">有沒有卡住、不知道下一步要做什麼的地方？</label>
+  <textarea id="stuck" placeholder="例：在苔石村不知道要去哪裡、找不到伐木的野伴……"></textarea>
+
+  <label for="confusing">看不懂的地方（操作、選單、規則）</label>
+  <textarea id="confusing"></textarea>
+
+  <label for="hard">太難或太簡單的戰鬥</label>
+  <textarea id="hard" placeholder="例：阿穗打了三次才贏、柏伯太簡單……"></textarea>
+
+  <label for="fun">最好玩的地方</label>
+  <textarea id="fun"></textarea>
+
+  <label for="boring">最無聊、想跳過的地方</label>
+  <textarea id="boring"></textarea>
+
+  <label for="jokes">中年笑話：好笑？太多？太少？</label>
+  <textarea id="jokes"></textarea>
+
+  <label for="bugs">壞掉的地方（畫面怪怪的、卡住不能動、當掉）</label>
+  <textarea id="bugs"></textarea>
+
+  <label>整體</label>
+  <div class="row" id="score">
+    <label><input type="radio" name="score" value="1"> 1</label>
+    <label><input type="radio" name="score" value="2"> 2</label>
+    <label><input type="radio" name="score" value="3"> 3</label>
+    <label><input type="radio" name="score" value="4"> 4</label>
+    <label><input type="radio" name="score" value="5"> 5</label>
+    <span class="sub">（5 = 想繼續玩下去）</span>
+  </div>
+
+  <button id="make">產生回饋文字</button><span class="ok" id="ok"></span>
+  <textarea id="out" readonly></textarea>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  $("make").addEventListener("click", async () => {
+    const dev = [...document.querySelectorAll("#device input:checked")].map((i) => i.value).join("、") || "（沒填）";
+    const score = (document.querySelector("#score input:checked") || {}).value || "（沒填）";
+    const t = (id) => $(id).value.trim() || "（沒填）";
+    const text = [
+      "【野伴 試玩回饋】",
+      "稱呼：" + t("who"), "裝置：" + dev, "玩了：" + $("time").value, "玩到：" + $("reach").value,
+      "", "卡住：" + t("stuck"), "看不懂：" + t("confusing"), "難度：" + t("hard"),
+      "好玩：" + t("fun"), "無聊：" + t("boring"), "笑話：" + t("jokes"), "壞掉：" + t("bugs"), "整體：" + score,
+    ].join("\n");
+    $("out").style.display = "block";
+    $("out").value = text;
+    try { await navigator.clipboard.writeText(text); $("ok").textContent = "已複製，貼給我就好"; }
+    catch { $("out").select(); $("ok").textContent = "請全選複製下面的文字"; }
+  });
+</script>
+</body>
+</html>

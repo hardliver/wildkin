@@ -2,6 +2,7 @@
 #   make         產生遊戲檔 build/wildkin.lua
 #   make serve   編譯引擎 + 遊戲，瀏覽器開 http://localhost:8421
 #   make check   自動測試：資料檔彼此對得上、遊戲邏輯（tests/*.lua）
+#   make demo    展示版：只有遊玩頁（沒有編輯器）＋試玩回饋表，放在 build/demo/（見 docs/playtest.md）
 #   make clean   清除編譯結果
 #
 # 引擎預設在旁邊的 ../comet；在別的地方的話：make serve ENGINE=/path/to/comet
@@ -34,7 +35,12 @@ check: build/wildkin.lua
 	cat build/wildkin.lua tests/*.lua > build/test.lua
 	$(ENGINE)/build/mac build/test.lua build/test.ppm
 
+# 展示版：引擎編好網頁版之後，tools/demo.mjs 複製遊玩頁需要的檔案、改標題、加回饋表
+demo: build/wildkin.lua
+	$(MAKE) -C $(ENGINE) web
+	node tools/demo.mjs $(ENGINE)
+
 clean:
 	rm -rf build
 
-.PHONY: serve check clean
+.PHONY: serve check demo clean
