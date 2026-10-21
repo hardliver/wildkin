@@ -8,6 +8,8 @@
 #   21 防波堤石塊、22 防波堤石塊（有青苔）、23 繫船柱（在木棧道上）
 #   24/25 燈塔頂（燈）、26/27 燈塔中段（紅白條紋）、28/29 燈塔底（門）、
 #   30/31 小船（左、右）、32 一箱魚、33 浮標（海上）、34 漁網、35 海裡的礁石
+#   （W69 加第 4 列）36 木筏（海上，拖筏渡水）、37 潮池（沙灘上的小水窪）、38 沙灘上的礁岩、39 崖邊的草（海岸北邊）、
+#   40 漂流木、41 籠子（運輸船甲板上，裡面有野伴的影子）
 import os
 from PIL import Image
 
@@ -24,7 +26,7 @@ def h(x, y, s=0):
     v ^= v >> 13
     return (v * 1274126177 >> 16) & 0xffff
 
-sheet = Image.new("RGBA", (12 * 16, 3 * 16), (0, 0, 0, 0))
+sheet = Image.new("RGBA", (12 * 16, 4 * 16), (0, 0, 0, 0))
 
 def tile(n):
     return (n % 12) * 16, (n // 12) * 16
@@ -182,6 +184,54 @@ for y in range(5, 14):
         if (x - 8) ** 2 + (y - 10) ** 2 * 2 < 36:
             put(35, x, y, G_M if x < 9 else G_D)
 for x in range(3, 13): put(35, x, 13, FOAM)
+
+# 36：木筏（海上）
+water(36, 11)
+for y in range(4, 13):
+    for x in range(1, 15):
+        c = WOOD if (x // 3) % 2 == 0 else (200, 120, 82) if False else WOOD
+        if x % 3 == 0: c = WOOD_D
+        if y in (4, 12) or x in (1, 14): c = OUT_
+        put(36, x, y, c)
+for x in (3, 12):
+    for y in range(5, 12): put(36, x, y, DIRT)          # 綁木頭的繩子
+for x in range(1, 15): put(36, x, 13, FOAM if x % 3 else W2)
+
+# 37：潮池（沙灘上的小水窪）
+fill(37, SAND)
+for y in range(3, 13):
+    for x in range(2, 14):
+        if (x - 8) ** 2 + (y - 8) ** 2 * 2 < 34:
+            put(37, x, y, W2 if y < 6 else W1)
+put(37, 6, 9, SALMON); put(37, 9, 7, G_L)              # 小螃蟹、小石頭
+
+# 38：沙灘上的礁岩（擋路）
+fill(38, SAND)
+for y in range(3, 15):
+    for x in range(1, 15):
+        if (x - 8) ** 2 + (y - 10) ** 2 * 2 < 52:
+            put(38, x, y, G_M if x < 9 else G_D)
+            if y < 6 or (x - 8) ** 2 + (y - 10) ** 2 * 2 > 44: put(38, x, y, OUT_ if y > 4 else G_L)
+
+# 39：崖邊（上面是草，下面是土崖）
+fill(39, GRASS)
+for y in range(9, 16):
+    for x in range(16):
+        put(39, x, y, WOOD if y > 10 else OUT_)
+        if y > 11 and (x + y) % 4 == 0: put(39, x, y, WOOD_D)
+
+# 40：漂流木（沙灘上）
+fill(40, SAND)
+for x in range(2, 14):
+    for y in range(7, 11):
+        put(40, x, y, WOOD_D if y == 10 or x in (2, 13) else WOOD)
+
+# 41：籠子（運輸船的甲板上，裡面有野伴的影子）
+fill(41, WOOD)
+for y in range(2, 15):
+    for x in range(2, 14):
+        if x in (2, 13) or y in (2, 14) or x % 3 == 2: put(41, x, y, G_D)
+        elif (x - 8) ** 2 + (y - 9) ** 2 < 10: put(41, x, y, OUT_)
 
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../assets/art/harbor.png")
 sheet.save(out)

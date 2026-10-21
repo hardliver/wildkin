@@ -123,6 +123,7 @@ for (x, y) in ((22, 26), (25, 26)):
     deco[y][x] = BOLLARD; solid[y][x] = 1
 ground[24][31] = BUOY; ground[28][14] = REEF; ground[22][35] = REEF; ground[5][6] = BUOY
 ground[22][26], ground[22][27] = HB(30), HB(31)    # 碼頭旁的小船
+ground[19][8] = HB(36)                               # 往海岸的木筏（W69）
 # 燈塔（2 × 3）：(1, 9)～(2, 11)
 for i, n in enumerate((24, 25, 26, 27, 28, 29)):
     x, y = 1 + i % 2, 9 + i // 2
@@ -148,7 +149,8 @@ objects = [
     {"type": "npc", "x": 3, "y": 11, "name": "reef", "tile": D(100), "talk": "rock_keeper"},
     {"type": "event", "x": 37, "y": 14, "scene": "c2_harbor"},
     {"type": "event", "x": 37, "y": 15, "scene": "c2_harbor"},
-    {"type": "sign", "x": 10, "y": 16, "text": "往海岸\\n（前面是海……要有辦法渡水）"},
+    {"type": "sign", "x": 10, "y": 16, "text": "往海岸\\n（西邊海邊有木筏，要有會游泳的野伴拖）"},
+    {"type": "raft", "x": 8, "y": 19, "to": "coast", "tx": 56, "ty": 9},
     {"type": "gather", "x": 15, "y": 17, "item": "fiber", "amount": 2, "tile": SAND2},
     {"type": "gather", "x": 32, "y": 17, "item": "stone", "amount": 2, "tile": SAND2},
 ]

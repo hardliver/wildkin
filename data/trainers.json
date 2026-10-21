@@ -48,6 +48,27 @@
     "win": "……穩。你跟你的野伴，都很穩。",
     "after": "回去跟小苔說，飯還是要請。"
   },
+  "coast1": {
+    "name": "釣客阿伯", "notice": 1, "sight": 4, "leave": false, "money": 400,
+    "party": [ { "species": "13", "level": 20 }, { "species": "08", "level": 20 } ],
+    "intro": "釣了一整天，只釣到你。\f……好吧，就跟你玩玩。",
+    "win": "今天真的什麼都沒釣到。",
+    "after": "回家要跟老婆說，大的那條跑掉了。"
+  },
+  "coast2": {
+    "name": "衝浪的大哥", "notice": 1, "sight": 4, "leave": false, "money": 450,
+    "party": [ { "species": "08", "level": 21 }, { "species": "11", "level": 21 } ],
+    "intro": "我今年 45，還在衝浪。\n你呢？",
+    "win": "……好啦，我其實今天腰閃到，\n沒下水。",
+    "after": "衝浪最重要的是熱身。\n還有貼布。"
+  },
+  "coast3": {
+    "name": "撿貝殼的姊姊", "notice": 1, "sight": 4, "leave": false, "money": 450,
+    "party": [ { "species": "07", "level": 21 }, { "species": "12", "level": 20 } ],
+    "intro": "我在幫兒子做暑假作業。\n要撿 50 種貝殼……",
+    "win": "輸了。……你可以幫我撿貝殼嗎？",
+    "after": "暑假作業到底是誰的作業啊。"
+  },
   "exec1": {
     "name": "高處長", "notice": 0, "sight": 0, "leave": true, "money": 1500,
     "party": [ { "species": "12", "level": 15 }, { "species": "10", "level": 15 }, { "species": "07", "level": 16 } ],

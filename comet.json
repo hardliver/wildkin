@@ -20,6 +20,7 @@
     "src/clock.lua",
     "src/day.lua",
     "src/campfire.lua",
+    "src/raft.lua",
     "src/season.lua",
     "src/craft.lua",
     "src/savegame.lua",
@@ -33,6 +34,7 @@
     "src/quest.lua",
     "src/village.lua",
     "src/harbor.lua",
+    "src/coast.lua",
     "src/kin.lua",
     "src/shiny.lua",
     "src/battle.lua",
@@ -62,7 +64,8 @@
     "village": "maps/village.json",
     "forest": "maps/forest.json",
     "mine": "maps/mine.json",
-    "harbor": "maps/harbor.json"
+    "harbor": "maps/harbor.json",
+    "coast": "maps/coast.json"
   },
   "data": {
     "types": "data/types.json",

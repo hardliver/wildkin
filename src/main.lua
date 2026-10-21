@@ -17,6 +17,7 @@ local function enter_map(name)
   facility_load()
   bed_load()
   fire_load()        -- 營火（campfire.lua）
+  raft_load()        -- 木筏（raft.lua）
   block_load()
   ambient_enter()   -- 先整理好這張地圖的植物、草（ambient.lua，運算預算）
   butterflies_enter()
@@ -93,6 +94,11 @@ local function interact()
     local bed = bed_at(fx, fy)
     if bed then
       bed_interact(bed)
+      return
+    end
+    local raft = raft_at(fx, fy)
+    if raft then
+      raft_interact(raft)
       return
     end
     local fire = fire_at(fx, fy)

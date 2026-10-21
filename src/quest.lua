@@ -43,6 +43,10 @@ QUESTS = {
     hint = "港灣鎮西邊，防波堤盡頭的燈塔。推薦等級 Lv19～21。\n礁嬤的野伴大多是岩屬性：水和草最有效，火很吃力。\n（碼頭的淺灘有霧傘水母，霧林有菇菇蟹。）" },
   { chapter = "第 2 章", title = "在營地蓋爐", done = function() for _, f in pairs(FACILITY) do if f.kind == "furnace" then return true end end return false end,
     hint = "營地的空地，選「爐」。石頭 15、木材 5。\n派會生火的野伴（搧火蝠、炭毛狸）把礦石燒成金屬。" },
+  { chapter = "第 3 章", title = "渡海到海岸", done = function() return FLAGS.ch3 end,
+    hint = "港灣鎮西邊的海邊有木筏。\n要有會灌溉的野伴拖（霧傘水母、鬚鬚鯰）。" },
+  { chapter = "第 3 章", title = "往火山洞", done = function() return FLAGS.volcano end,
+    hint = "沿著海岸一直往西。推薦等級 Lv20～23。\n漁村的阿婆可以讓你休息。" },
 
 }
 

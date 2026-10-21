@@ -8,6 +8,7 @@ FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc"
 CHAPTERS = [
     ("第 1 章", "霧林的守護者"),
     ("第 2 章", "舊礦坑的燈"),
+    ("第 3 章", "火山的煙"),
 ]
 W, H = 256, 64
 GOLD, WHITE, OUT = (0xfd, 0xbe, 0x53), (0xff, 0xff, 0xff), (0x3f, 0x26, 0x31)
