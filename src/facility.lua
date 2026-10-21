@@ -109,6 +109,7 @@ local function build(l, kind)
   l.dust = tick   -- 從這一刻開始冒煙塵
   ui_clear()
   dialog_open(f.name .. "蓋好了！\n之後可以派野伴來這裡工作。")
+  if not FLAGS.tutorial_sleep then cutscene_start(SCENE.p7_feed) end   -- 序章 P7：老苔來教派野伴、睡覺
 end
 
 -- 選要蓋什麼的畫面：右上是清單，左上是設施的圖（放大 2 倍），下面是說明和材料

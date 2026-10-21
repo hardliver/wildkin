@@ -272,6 +272,12 @@ local function show(e)
       RANCH[#RANCH + 1] = k
       msg("隊伍滿了，" .. kin_name(k) .. "被送到營地的牧場。")
     end
+    -- 序章 P5：第一次抓到
+    if not FLAGS.first_catch then
+      FLAGS.first_catch = k.no
+      msg(PLAYER_NAME .. "：……抓到了。")
+      msg(PLAYER_NAME .. "：25 年了，手感還在。")
+    end
     return
   elseif K == "item_heal" then
     if e.index == S.b.sides[e.side].active then slide_hp(e.side, e.hp) end
@@ -409,6 +415,12 @@ local function begin(foe_party, opts, on_end)
       msg((b.trainer or "對手") .. "派出了" .. kin_name(foe) .. "！")
     end
     msg("上吧！" .. kin_name(battle_active(b, 1)) .. "！")
+    -- 序章 P4：第一場野生戰教怎麼抓（只說一次）
+    if b.wild and not FLAGS.first_wild then
+      FLAGS.first_wild = true
+      msg("先把牠的 HP 打少一點，再丟野伴球，\n比較容易抓到。")
+      msg("睡著、麻痺的野伴也比較好抓。")
+    end
     to_command()
   end)
 end

@@ -18,20 +18,24 @@ TALK.elder_rescue =
   "\f野伴我已經幫你照顧好了。\n倒是你，腰還好吧？" ..
   "\f到了這個年紀，出門前記得先暖身……\n還有，保險要保。"
 
+-- 老苔：看序章進度說下一步該做什麼；教學都做完之後隨機說一句（台詞見 docs/story.md）
+local ELDER_IDLE = {
+  "睡飽了嗎？我每天四點就醒了。",
+  "野伴今天也很努力。",
+  "營地熱鬧起來了，像以前一樣。",
+}
 TALK.elder = function()
-  dialog_ask(
-    "你就是新來的拓荒者吧？我是新芽營地的管理員，大家都叫我老苔。" ..
-    "\f這座雲根島上住著許多野生的生物，\n我們叫牠們「野伴」。" ..
-    "\f牠們會幫忙種田、砍樹，\n也會陪你一起冒險。" ..
-    "\f那麼，你準備好出發了嗎？",
-    { "是", "否" },
-    function(choice)
-      if choice == 1 then
-        dialog_open("很好！先到營地外的草原小徑看看吧。\n小心草叢裡的野伴。")
-      else
-        dialog_open("沒關係，準備好了再來找我。")
-      end
-    end)
+  if not FLAGS.got_balls then
+    dialog_open("老苔：草原小徑在營地的南邊。\n準備好就出發吧。")
+  elseif not FLAGS.first_catch then
+    dialog_open("老苔：在草叢裡遇到野伴，\n先打弱一點再丟野伴球。")
+  elseif not FLAGS.tutorial_sleep then
+    dialog_open("老苔：東邊柵欄裡面是設施空地。\n面對空地按 A，就能蓋設施。")
+  elseif FLAGS.badge_forest then
+    dialog_open("老苔：老柏還活著？那老頭子，\n五十年前就說要退休了。")
+  else
+    dialog_open("老苔：" .. ELDER_IDLE[hash(DAY, frame() // 600) % #ELDER_IDLE + 1])
+  end
 end
 
 -- 草原小徑上的旅人

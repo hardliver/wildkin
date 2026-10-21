@@ -1,27 +1,169 @@
--- scenes.lua：劇本（W52 起）
+-- scenes.lua：劇本（W52 起；台詞見 docs/story.md）
 --
 -- 每段劇情是 SCENE 表格裡的一個函式，用 cutscene.lua 的工具寫：
---   say(文字)、ask(文字, 選項) → 第幾項、wait(幀數)
+--   say(文字)、ask(文字, 選項) → 第幾項、wait(幀數)、narrate(黑畫面上的字)
 --   walk(誰, 方向, 格數)、walk_to(誰, 格x, 格y)、walk_to(誰, 另一個角色)、face(誰, 方向或角色)、place(誰, 格x, 格y)
 --   emote(誰, "!"／"?"／"…"／"♪")、give(道具, 數量)、fight(訓練家) → "win"／"lose"
---   fade(函式)：畫面暗下來時做事；flag(名字)、set_flag(名字)
+--   fade(函式)：畫面暗下來時做事；blackout(true/false)；chapter_card(第幾章)
+--   prop_add(編號, 野伴, 格x, 格y)：暫時放一隻野伴在地圖上；await_screen(開畫面的函式)
+--   flag(名字)、set_flag(名字)
 -- 「誰」：「"player"」或 NPC 的 name。
--- 地圖上的事件格（type = "event"，scene = 這裡的名字）走進去就開始，每段只發生一次。
---
--- 序章、第 1 章的完整劇本在 W53 寫；這裡先放一段示範（W54 序章時會重寫）。
+-- 怎麼開始：地圖的事件格（type = "event"，scene = 名字）、scene_on_enter（進到某張地圖時）、
+--           程式裡 cutscene_start(SCENE.名字)
 
--- 營地南邊出口：第一次要出營地時，老苔追上來給回復藥
+local function P() return PLAYER_NAME end
+
+-- ============================================================
+-- 序章 P0～P2：開場、取名、抵達營地、選初始野伴（新遊戲時 main.lua 開始）
+-- ============================================================
+
+SCENE.prologue = function()
+  -- P0：黑畫面
+  wait(30)
+  narrate("雲根島拓荒計畫　申請表")
+  narrate("年齡欄：39")
+  narrate("承辦人員看了很久。")
+  narrate("「……你確定？限 40 歲以下喔。」")
+  narrate("「確定。今年是最後一年了。」")
+  say("承辦人員：那麼，請寫上你的名字。")
+  PLAYER_NAME = await_screen(function(done) name_entry_open("大志", done) end)
+  say("承辦人員：" .. P() .. "先生，歡迎參加拓荒計畫。")
+  say("承辦人員：船明天一早出發。\n祝你……呃，身體健康。")
+  wait(30)
+
+  -- P1：抵達營地（主角在南口，老苔在前面兩格）
+  place("elder", 19, 25)
+  face("player", "up")
+  blackout(false)
+  wait(20)
+  emote("elder", "!")
+  say("老苔：喔！你就是新來的拓荒者吧？")
+  say("老苔：我是新芽營地的管理員，\n大家都叫我老苔。")
+  say("老苔：我看看申請表……\n" .. P() .. "，39 歲。")
+  say("老苔：年輕人，歡迎！")
+  emote("player", "…", 30)
+  say(P() .. "：（……被叫年輕人了。）")
+  say("老苔：這座雲根島以前很熱鬧，\n大家跟野伴一起種田、蓋房子。")
+  say("老苔：後來人都搬走了，\n營地只剩我一個老頭子。")
+  say("老苔：來，先到我的小屋前面，\n有東西給你看。")
+  set_flag("arrived")
+
+  -- P2：選初始野伴（小屋前的空地，三隻站成一排）
+  fade(function()
+    place("elder", 19, 11)
+    place("player", 19, 15)
+    face("player", "up")
+    prop_add("s1", "01", 18, 13, true)
+    prop_add("s2", "03", 19, 13, true)
+    prop_add("s3", "05", 20, 13, false)
+  end)
+  say("老苔：這三隻是營地的野伴。\n牠們會幫忙工作，也會陪你冒險。")
+  say("老苔：三隻選一隻吧，年輕人。")
+  say(P() .. "：25 年前，我也是這樣選的。")
+  local no = await_screen(starter_pick_open)
+  local k = kin_new(no, 5)
+  party[1] = k
+  dex_caught(no)
+  say(P() .. "得到了" .. kin_name(k) .. "！")
+  say("老苔：好眼光。牠看起來也很喜歡你。")
+  say("老苔：剩下的兩隻就留在營地吧，\n以後你會在野外遇到牠們的同伴。")
+  fade(function()
+    prop_remove("s1"); prop_remove("s2"); prop_remove("s3")
+  end)
+  say("老苔：對了，按 START 可以看隊伍和背包。")
+  say("老苔：野伴累了，就在營地的帳篷睡一覺。\n帳篷在我小屋的左邊。")
+  say("老苔：先到南邊的草原小徑看看吧。")
+  set_flag("starter")
+end
+
+-- ============================================================
+-- 序章 P3：出營地前（營地南口的事件格）
+-- ============================================================
+
 SCENE.camp_exit = function()
+  if not flag("starter") then
+    say("老苔：年輕人，空著手去草叢太危險了！")
+    walk("player", "up", 1)
+    return "again"
+  end
   say("「年輕人——！等一下！」")
   emote("player", "!")
   face("player", "up")
   place("elder", 19, 21)               -- 老苔從遠處跑過來（直接放到路上再走過來，比較快）
   walk_to("elder", "player")
   emote("elder", "…", 30)
-  say("老苔：呼……呼……\f跑這幾步就喘成這樣，\n我也不年輕了。")
-  say("老苔：出門前，帶著這個。")
+  say("老苔：呼……呼……\n跑這幾步就喘成這樣，我也不年輕了。")
+  say("老苔：這個給你。野伴球，\n丟向野生的野伴就有機會抓到。")
+  give("ball", 5)
+  say("老苔：還有回復藥。\n草叢裡的野伴不會手下留情。")
   give("potion", 2)
-  say("老苔：草原小徑的草叢裡有野伴，\n要是受傷了就用它。\f……還有，腰要顧好。")
-  emote("player", "♪")
+  say("老苔：去吧。……腰要顧好。")
   fade(function() place("elder", 19, 11) end)   -- 老苔回小屋前面
+  set_flag("got_balls")
+end
+
+-- ============================================================
+-- 序章 P6、P7：基地教學
+-- ============================================================
+
+-- P6：第一次抓到野伴之後回到營地（還沒蓋過設施）
+SCENE.p6_base = function()
+  place("elder", 19, 23)
+  walk_to("elder", "player")
+  face("player", "elder")
+  say("老苔：喔，抓到新夥伴啦！")
+  say("老苔：野伴不只能戰鬥，\n也能在營地工作。")
+  say("老苔：東邊柵欄裡面是設施空地。\n用材料蓋設施，再派野伴去工作。")
+  say("老苔：先蓋個伐木場吧。這些木材給你。")
+  give("wood", 5)
+  say("老苔：面對空地按 A，就能蓋設施了。")
+  local caught = FLAGS.first_catch
+  local work = caught and DATA.species[caught] and DATA.species[caught].work or {}
+  if caught == "07" then
+    say("老苔：囤囤鼠愛啃木頭，派去伐木場剛好。")
+  elseif not work.lumber then
+    say("老苔：伐木要找會伐木的野伴。\n草原小徑的囤囤鼠就會。")
+  end
+  fade(function() place("elder", 19, 11) end)
+  set_flag("tutorial_base")
+end
+
+-- P7：第一次蓋好設施（facility.lua 蓋好時開始）
+SCENE.p7_feed = function()
+  local px, py = player_cell()
+  place("elder", px - 3, py)
+  walk_to("elder", "player")
+  face("player", "elder")
+  say("老苔：蓋得不錯嘛！")
+  say("老苔：野伴工作要吃飯。這些飼料給你，\n一隻一天吃一份。")
+  give("feed", 3)
+  say("老苔：飼料可以在工作台用莓果和麥做。")
+  say("老苔：派野伴工作之後，到帳篷睡一覺，\n隔天早上就有收成。")
+  say("老苔：我年輕的時候，\n一天工作十六個小時……")
+  wait(20)
+  say("老苔：……那樣不行。\n野伴也是，要吃飽、要睡覺。")
+  fade(function() place("elder", 19, 11) end)
+  set_flag("tutorial_sleep")
+end
+
+-- ============================================================
+-- 序章 P9：到苔石村（第 1 章開始）
+-- ============================================================
+
+SCENE.p9_village = function()
+  wait(10)
+  chapter_card(1)
+  say("村民：喔？生面孔。是拓荒計畫來的？")
+  say("村民：歡迎來到苔石村。\n旅店在西邊，商店在東邊。")
+  say("村民：東邊的霧林……最近不太對勁，\n晚上常有奇怪的聲音。")
+  set_flag("ch1")
+end
+
+-- 進到某張地圖時（cutscene.lua 的 cutscene_enter_map 呼叫）
+function scene_on_enter(map)
+  if map == "camp" and FLAGS.first_catch and not FLAGS.tutorial_base and next(FACILITY) == nil then
+    cutscene_start(SCENE.p6_base)
+  elseif map == "village" and not FLAGS.ch1 then
+    cutscene_start(SCENE.p9_village)
+  end
 end

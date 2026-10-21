@@ -26,16 +26,21 @@ DEBUG_COMMANDS = {
 
 -- 還在標題畫面：直接開一局新遊戲（存在欄位 1），不用一直按
 local function ensure_game()
-  if title_active() then
-    title_close()
-    new_game(1)
-  end
+  if title_active() then dbg_new() end
 end
 
+-- 新遊戲，跳過序章開頭（取名、選初始、老苔給東西）：直接拿芽角羊 Lv5、野伴球 5、回復藥 2
 function dbg_new()
   title_close()
   ui_clear()
   new_game(1)
+  cutscene_skip()
+  cutscene_blackout(false)
+  party[1] = kin_new("01", 5)
+  dex_caught("01")
+  BAG.ball, BAG.potion = 5, 2
+  FLAGS.arrived, FLAGS.starter, FLAGS.got_balls = true, true, true
+  FLAGS.scene_camp_exit = true
 end
 
 -- 背包加東西。kind = "material"（材料）／"item"（材料以外的道具）

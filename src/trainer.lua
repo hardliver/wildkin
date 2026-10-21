@@ -38,6 +38,11 @@ function trainer_party(t)
   return list
 end
 
+-- 台詞裡的 {name} 換成主角的名字
+local function fmt(text)
+  return (text:gsub("{name}", PLAYER_NAME))
+end
+
 -- 訓練家的流程：用劇情腳本的工具寫（cutscene.lua）
 local function run_trainer(n, walk_over)
   local t = DATA.trainers[n.trainer]
@@ -47,12 +52,14 @@ local function run_trainer(n, walk_over)
     walk_to(n, "player")
   end
   face(n, "player")
-  say(t.name .. "：" .. t.intro)
+  say(t.name .. "：" .. fmt(t.intro))
   if fight(n.trainer) == "lose" then
     wiped_out()
     return
   end
-  say(t.name .. "：" .. t.win)
+  say(t.name .. "：" .. fmt(t.win))
+  if t.gift then give(t.gift, 1) end          -- 打贏送的東西（阿穗的便當）
+  if t.bye then say(t.name .. "：" .. fmt(t.bye)) end
   if t.leave then
     -- 走掉：往主角的反方向走 3 格，然後從地圖上消失
     local px, py = player.x16 // 16, player.y16 // 16
@@ -67,7 +74,7 @@ end
 -- 直接跟訓練家說話（main.lua 的 interact）：還沒打過就開打，打過了說 after
 function trainer_talk(n)
   if trainer_defeated(n) then
-    dialog_open(DATA.trainers[n.trainer].name .. "：" .. DATA.trainers[n.trainer].after)
+    dialog_open(DATA.trainers[n.trainer].name .. "：" .. fmt(DATA.trainers[n.trainer].after))
   else
     cutscene_start(function() run_trainer(n, false) end)
   end

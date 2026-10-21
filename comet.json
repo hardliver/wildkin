@@ -21,6 +21,7 @@
     "src/debug.lua",
     "src/cutscene.lua",
     "src/scenes.lua",
+    "src/prologue.lua",
     "src/trainer.lua",
     "src/talk.lua",
     "src/kin.lua",
@@ -37,7 +38,8 @@
     "tallgrass": "assets/art/tallgrass.png",
     "kin_icons": "assets/art/kin_icons.png",
     "facilities": { "file": "assets/art/facilities.png", "tile": 32 },
-    "logo": "assets/art/logo.png"
+    "logo": "assets/art/logo.png",
+    "chapters": "assets/art/chapters.png"
   },
   "output": "build/wildkin.lua",
   "maps": {

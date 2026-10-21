@@ -98,18 +98,18 @@ end
 function new_game(slot)
   SAVE_SLOT = slot
   PLAYER_NAME = "大志"
-  -- 隊伍（暫時）：序章選初始野伴（W54）之前，先直接給一隻 Lv5 芽角羊
-  party = { kin_new("01", 5) }
-  BAG = { potion = 3, ball = 5 }   -- 暫時：一開始有 3 瓶回復藥、5 顆野伴球（W54 序章、W55 商店之後改）
-  RANCH = {}                        -- 隊伍滿 6 隻之後抓到的，送到營地的牧場（W45 派駐時可以選）
+  party, BAG, RANCH = {}, {}, {}   -- 隊伍、背包都是空的：序章裡老苔給（scenes.lua 的 P2、P3）
   DEX = { seen = {}, caught = {} }
   FLAGS, FACILITY, GATHERED = {}, {}, {}
   DAY, PLAY_FRAMES = 1, 0
-  for _, k in ipairs(party) do dex_caught(k.no) end   -- 一開始的隊伍也算抓過
   enter_map("camp")
-  player_init(19 * TILE, 15 * TILE)   -- 營地空地的中間
+  player_init(19 * TILE, 27 * TILE)   -- 營地南口（船靠岸之後走上來）
+  player.dir_x, player.dir_y = 0, -1
   after_place()
   world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)
+  -- 序章：黑畫面的開場、取名、老苔、選初始野伴（scenes.lua）
+  cutscene_blackout(true)
+  cutscene_start(SCENE.prologue)
 end
 
 -- 讀檔：s 是 game_read 讀回來的表格（savegame.lua）
@@ -186,6 +186,7 @@ local function draw_actors()
   for i, n in ipairs(npcs) do list[#list + 1] = { y = n.y, order = i, npc = n } end
   list[#list + 1] = { y = player.y16 // 16, order = 1000 }
   facility_actors(list)   -- 在設施工作的野伴（facility.lua）
+  cutscene_actors(list)   -- 劇情裡暫時放的野伴（cutscene.lua）
   for i, e in ipairs(list) do e.order = e.order or i end
   table.sort(list, function(a, b)
     if a.y ~= b.y then return a.y < b.y end
@@ -212,6 +213,7 @@ function _draw()
   end
 
   camera()           -- 介面固定在畫面上
+  if not title_active() and not battle_scene_active() then cutscene_overlay_draw() end   -- 劇情的黑畫面、章節標題
   if not battle_scene_active() then ui_draw() end   -- 戰鬥中由戰鬥畫面自己畫
   dialog_draw()
   transition_draw()  -- 轉場蓋在最上面

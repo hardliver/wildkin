@@ -150,6 +150,8 @@ for (const [id, t] of Object.entries(trainers)) {
     if (p.species !== "rival" && !(p.species in species)) err(`${at}：野伴「${p.species}」不在 species.json（"rival" = 剋制主角初始野伴的那一隻）`);
     if (!isInt(p.level) || p.level < 1 || p.level > 50) err(`${at}：等級要 1–50`);
   }
+  if (t.gift !== undefined && !(t.gift in items)) err(`${at}：gift「${t.gift}」不在 items.json`);
+  if (t.bye !== undefined && typeof t.bye !== "string") err(`${at}：bye 要是台詞`);
 }
 
 // 道具

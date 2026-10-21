@@ -318,6 +318,10 @@ end
 
 -- on_switch(第幾隻)：戰鬥中選了「換上場」；active = 現在在場上的是第幾隻
 function party_open(where, on_switch, active)
+  if #party == 0 then
+    dialog_open("還沒有野伴。")
+    return
+  end
   local base = (where == "battle") and "要換哪一隻上場？" or "要看哪一隻？"
   party_pick(base, function(i, picker)
     -- 換順序的第二步：選要和誰交換
