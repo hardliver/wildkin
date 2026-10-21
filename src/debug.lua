@@ -13,6 +13,9 @@ DEBUG_VIEW = {
 
 DEBUG_COMMANDS = {
   { "新遊戲（跳過標題）", "dbg_new()" },
+  { "跳到第 1 章開頭（苔石村）", "dbg_chapter(1)" },
+  { "跳到第 2 章開頭（舊礦坑前）", "dbg_chapter(2)" },
+  { "跳到第 3 章開頭（港灣鎮的木筏）", "dbg_chapter(3)" },
   { "材料各 20", "dbg_give('material', 20)" },
   { "道具各 10", "dbg_give('item', 10)" },
   { "錢 +10000", "MONEY = MONEY + 10000" },
@@ -46,6 +49,48 @@ function dbg_new()
   BAG.ball, BAG.potion = 5, 2
   FLAGS.arrived, FLAGS.starter, FLAGS.got_balls = true, true, true
   FLAGS.scene_camp_exit = true
+end
+
+-- 跳到第 n 章的開頭（測試用，不用每次從序章玩起）：前面章節的旗標、徽記、營火都設好，
+-- 隊伍是那一章的推薦等級，然後傳送到那一章的起點。選哪一隻初始野伴：starter（"01"／"03"／"05"，預設芽角羊）
+local CH_FLAGS = {
+  [1] = { "arrived", "starter", "got_balls", "scene_camp_exit", "first_wild", "first_catch", "tutorial_base", "tutorial_sleep",
+          "slept", "tip_heal", "trainer_rival1", "ch1" },
+  [2] = { "inn_first", "heard_forest", "cut:village:38:14", "cut:village:38:15", "saw_ironwheel", "scene_c1_ironwheel",
+          "moth_rescued", "scene_c1_moth", "trainer_rival2", "badge_forest", "ch1_done", "fire:village", "fire:forest" },
+  [3] = { "ch2", "mine_entered", "scene_c2_foreman", "mine_dark", "scene_c2_dark", "mine_rock1", "cut:mine:16:14", "cut:mine:16:15",
+          "mine_kin_seen", "scene_c2_carts", "trainer_exec1", "scene_c2_exec", "mine_done", "harbor", "scene_c2_harbor",
+          "saw_office", "harbor_inn", "trainer_rival3", "badge_rock", "ch2_done", "fire:mine", "fire:harbor" },
+}
+local CH_PARTY = {      -- 第一隻是初始野伴（等級到了會用進化後的樣子）
+  [1] = { 9, { "07", 7 } },
+  [2] = { 15, { "11", 13 }, { "07", 13 } },
+  [3] = { 21, { "11", 19 }, { "12", 19 }, { "13", 19 } },
+}
+local CH_START = { [1] = { "village", 19, 3 }, [2] = { "village", 2, 14 }, [3] = { "harbor", 9, 19 } }
+
+function dbg_chapter(n, starter)
+  dbg_new()
+  starter = starter or "01"
+  FLAGS.starter_no = starter
+  for c = 1, n do
+    for _, f in ipairs(CH_FLAGS[c]) do FLAGS[f] = true end
+  end
+  local p = CH_PARTY[n]
+  local no = starter
+  local ev = DATA.species[no].evolve
+  if ev and p[1] >= ev.level then no = ev.to end
+  party = { kin_new(no, p[1]) }
+  dex_caught(starter)
+  for i = 2, #p do
+    party[i] = kin_new(p[i][1], p[i][2])
+    dex_caught(p[i][1])
+  end
+  BAG.ball, BAG.goodball, BAG.potion, BAG.superpotion, BAG.feed = 10, (n >= 2) and 5 or nil, 5, (n >= 2) and 3 or nil, 10
+  MONEY = 3000 + n * 3000
+  DAY = 1 + (n - 1) * 3
+  local s = CH_START[n]
+  warp(s[1], s[2], s[3])
 end
 
 -- 背包加東西。kind = "material"（材料）／"item"（材料以外的道具）
