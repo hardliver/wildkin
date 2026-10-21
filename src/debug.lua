@@ -120,6 +120,20 @@ local function chapter1_table()
                           { { st, lv }, { "11", lv - 2 }, { "12", lv - 2 } }, exec, false }
     end
   end
+  -- 第 2 章：阿穗第 3 戰、礁嬤（W68）。主角是進化後的樣子；草、水帶搧火蝠，火帶霧傘水母
+  local EVO = { ["01"] = "02", ["03"] = "04", ["05"] = "06" }
+  local mate2 = { ["01"] = "11", ["03"] = "13", ["05"] = "11" }
+  for _, st in ipairs({ "01", "03", "05" }) do
+    local foe = {}
+    for i, p in ipairs(DATA.trainers.rival3.party) do foe[i] = { p.species == "rival" and rival[st] or p.species, p.level } end
+    rows[#rows + 1] = { "阿穗第 3 戰：" .. DATA.species[EVO[st]].name .. " Lv17＋" .. DATA.species[mate2[st]].name .. "、礫殼犰狳 Lv15",
+                        { { EVO[st], 17 }, { mate2[st], 15 }, { "12", 15 } }, foe, false }
+    local keeper2 = {}
+    for i, p in ipairs(DATA.trainers.rock_keeper.party) do keeper2[i] = { p.species, p.level } end
+    local third = (st == "03") and "09" or "13"
+    rows[#rows + 1] = { "礁嬤：" .. DATA.species[EVO[st]].name .. " Lv20＋" .. DATA.species[mate2[st]].name .. "、" .. DATA.species[third].name .. " Lv18",
+                        { { EVO[st], 20 }, { mate2[st], 18 }, { third, 18 } }, keeper2, false }
+  end
   local out = {}
   for _, r in ipairs(rows) do
     out[#out + 1] = r[1]

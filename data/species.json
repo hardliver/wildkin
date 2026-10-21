@@ -97,5 +97,13 @@
     "work": { "mine": 1 },
     "learn": [ [1, "tackle"], [1, "harden"], [6, "rockthrow"], [11, "bite"], [18, "rockslide"] ],
     "desc": "殼是一顆顆碎石拼成的。累了就捲成一顆球，誰叫都不醒。這招中年人也很想學。"
+  },
+  "13": {
+    "name": "霧傘水母", "type": "water", "sprite": 12,
+    "base": { "hp": 55, "atk": 40, "def": 50, "spd": 50 },
+    "catch": 120, "exp": 70,
+    "work": { "water": 1, "carry": 1 },
+    "learn": [ [1, "splash"], [1, "mist"], [8, "bubblenet"], [13, "absorb"], [17, "mudshot"] ],
+    "desc": "傘蓋像一把撐開的小雨傘。下雨天會飄到岸邊，幫忘記帶傘的人遮雨。"
   }
 }

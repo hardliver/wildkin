@@ -97,7 +97,9 @@ mat_sorted, mat_text, mat_missing = sorted_cost, cost_text, missing   -- 材料�
 -- 能蓋的設施，依 sort 排好
 local function buildable()
   local keys = {}
-  for k, f in pairs(DATA.facilities) do keys[#keys + 1] = k end
+  for k, f in pairs(DATA.facilities) do
+    if not f.unlock or FLAGS[f.unlock] then keys[#keys + 1] = k end   -- unlock：要拿到徽記才能蓋（爐，W68）
+  end
   table.sort(keys, function(a, b) return DATA.facilities[a].sort < DATA.facilities[b].sort end)
   return keys
 end
@@ -248,8 +250,14 @@ function facility_hour()
       for _, c in ipairs(sorted_cost(f.output)) do
         local acc = (fac.acc[c[1]] or 0) + c[2] * units
         local n = acc // 48
+        -- input：做一個要用掉的材料（爐：礦石 1 → 金屬 1，W68）。材料不夠就只做得出夠的那幾個，
+        -- 沒做的那些先留在 acc 裡（等有材料再做，不會白白浪費工作量）
+        if n > 0 and f.input then
+          for item, per in pairs(f.input) do n = math.min(n, (BAG[item] or 0) // per) end
+          for item, per in pairs(f.input) do if n > 0 then bag_add(item, -per * n) end end
+        end
         if n > 0 then bag_add(c[1], n) end
-        fac.acc[c[1]] = acc % 48
+        fac.acc[c[1]] = math.min(acc - n * 48, 48 * 4)    -- 最多存 4 個的量（材料一直沒有時不要無限累積）
       end
     end
   end
@@ -382,7 +390,16 @@ local function workers_screen(l, fac)
       for _, c in ipairs(out) do parts[#parts + 1] = DATA.items[c[1]].name .. " " .. c[2] end
       text("每天產出（每小時慢慢進背包）：" .. table.concat(parts, "、"), 14, 192, 0)
     end
-    text("每隻每天半夜吃 1 份飼料，沒吃到的那天產量減半。", 14, 210, 5)
+    if f.input then
+      -- 要用材料的設施（爐）：寫出每做一個要用掉什麼、背包裡還有多少
+      local parts = {}
+      for _, c in ipairs(sorted_cost(f.input)) do
+        parts[#parts + 1] = DATA.items[c[1]].name .. " " .. c[2] .. "（有 " .. (BAG[c[1]] or 0) .. "）"
+      end
+      text("每做一個要用掉：" .. table.concat(parts, "、"), 14, 210, 5)
+    else
+      text("每隻每天半夜吃 1 份飼料，沒吃到的那天產量減半。", 14, 210, 5)
+    end
   end
   ui_push(screen)
 end

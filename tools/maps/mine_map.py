@@ -84,6 +84,8 @@ for y in (14, 15):
 objects = [
     {"type": "door", "x": 43, "y": 14, "to": "village", "tx": 1, "ty": 14},
     {"type": "door", "x": 43, "y": 15, "to": "village", "tx": 1, "ty": 15},
+    {"type": "door", "x": 0, "y": 14, "to": "harbor", "tx": 38, "ty": 14},
+    {"type": "door", "x": 0, "y": 15, "to": "harbor", "tx": 38, "ty": 15},
     {"type": "event", "x": 39, "y": 14, "scene": "c2_foreman"},
     {"type": "event", "x": 39, "y": 15, "scene": "c2_foreman"},
     {"type": "npc", "x": 35, "y": 14, "name": "foreman", "tile": D(87), "talk": "mine_foreman", "look": "right"},
@@ -107,6 +109,10 @@ objects = [
 for o in objects:
     if o["type"] in ("gather",):
         glayer[o["y"]][o["x"]] = 0
+
+for o in objects:          # 告示牌：地圖上也要放告示牌的圖（Tiny Town 第 84 格），會擋路
+    if o["type"] == "sign":
+        deco[o["y"]][o["x"]] = 84; solid[o["y"]][o["x"]] = 1
 
 def rows(a):
     return ",\n".join("      " + json.dumps(r, separators=(",", ":")) for r in a)

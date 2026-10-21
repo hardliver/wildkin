@@ -9,15 +9,22 @@
 
 local last_cx, last_cy = nil, nil
 local has_grass = false   -- 這張地圖有沒有 grass 圖層
+local has_shore = false   -- 有沒有 shore 圖層（W68 港灣鎮的淺灘：會遇敵，但不畫草叢）
 
 -- 進入地圖時呼叫：主角站的那一格先記起來，不然一進地圖就站在草叢裡會馬上遇敵
 function encounter_enter()
   has_grass = pcall(mget, world.map, "grass", 0, 0)
+  has_shore = pcall(mget, world.map, "shore", 0, 0)
   last_cx, last_cy = player_cell()
 end
 
 function in_grass(cx, cy)
   return has_grass and mget(world.map, "grass", cx, cy) ~= 0
+end
+
+-- 會遇敵的格子：草叢，或淺灘
+local function in_wild(cx, cy)
+  return in_grass(cx, cy) or (has_shore and mget(world.map, "shore", cx, cy) ~= 0)
 end
 
 -- 這一筆現在的權重（W64c）：
@@ -58,7 +65,7 @@ function encounter_check()
   local cx, cy = player_cell()
   if cx == last_cx and cy == last_cy then return end
   last_cx, last_cy = cx, cy
-  if not in_grass(cx, cy) then return end
+  if not in_wild(cx, cy) then return end
   local t = DATA.encounters[world.name]
   if not t or not party_alive() then return end
   if rnd(256) >= t.rate then return end

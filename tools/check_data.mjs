@@ -126,6 +126,12 @@ for (const [key, f] of Object.entries(facilities)) {
     }
   }
   if (f.cost && Object.keys(f.cost).length === 0) err(`${at}：cost 至少要一樣材料`);
+  // W68：input（每做一個要用掉的材料，可以省略）、unlock（要哪個旗標才能蓋，可以省略）
+  for (const [item, n] of Object.entries(f.input || {})) {
+    if (!(item in items)) err(`${at}：input 的「${item}」不在 items.json`);
+    if (!isInt(n) || n < 1) err(`${at}：input.${item} 要是正整數`);
+  }
+  if (f.unlock !== undefined && typeof f.unlock !== "string") err(`${at}：unlock 要是旗標名稱（字串）`);
 }
 
 // 配方（W47）

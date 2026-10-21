@@ -24,5 +24,14 @@
       { "species": "10", "min": 12, "max": 14, "weight": 20 },
       { "species": "07", "min": 13, "max": 15, "weight": 20 }
     ]
+  },
+  "harbor": {
+    "rate": 22,
+    "list": [
+      { "species": "13", "min": 15, "max": 18, "weight": 40 },
+      { "species": "08", "min": 15, "max": 17, "weight": 30 },
+      { "species": "07", "min": 15, "max": 17, "weight": 20 },
+      { "species": "12", "min": 15, "max": 17, "weight": 10 }
+    ]
   }
 }

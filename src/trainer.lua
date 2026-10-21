@@ -17,6 +17,7 @@ FLAGS = FLAGS or {}   -- 劇情旗標：打贏過的訓練家、之後的劇情�
 
 local DIR = { up = { 0, -1 }, down = { 0, 1 }, left = { -1, 0 }, right = { 1, 0 } }
 local COUNTER = { ["01"] = "03", ["03"] = "05", ["05"] = "01" }   -- 剋制主角初始野伴的那一隻
+STARTER_OF = { ["02"] = "01", ["04"] = "03", ["06"] = "05" }      -- 進化後 → 進化前
 
 function trainer_defeated(n)
   return FLAGS["trainer_" .. n.trainer] == true
@@ -32,7 +33,14 @@ function trainer_party(t)
   local list = {}
   for _, p in ipairs(t.party) do
     local no = p.species
-    if no == "rival" then no = COUNTER[party[1].no] or "03" end
+    if no == "rival" then
+      -- 剋制主角選的初始野伴（W68 修正：主角的野伴進化後編號會變，所以看 FLAGS.starter_no；舊存檔看進化前的編號）
+      local st = FLAGS.starter_no or STARTER_OF[party[1].no] or party[1].no
+      no = COUNTER[st] or "03"
+    end
+    -- 等級到了就是進化後的樣子（阿穗第 3 戰 Lv18：炭毛狸 → 爐火狸）
+    local ev = DATA.species[no].evolve
+    if ev and p.level >= ev.level then no = ev.to end
     list[#list + 1] = kin_new(no, p.level)
   end
   return list

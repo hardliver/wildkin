@@ -31,6 +31,7 @@
     "src/talk.lua",
     "src/quest.lua",
     "src/village.lua",
+    "src/harbor.lua",
     "src/kin.lua",
     "src/shiny.lua",
     "src/battle.lua",
@@ -49,7 +50,8 @@
     "facilities": { "file": "assets/art/facilities.png", "tile": 32 },
     "logo": "assets/art/logo.png",
     "chapters": "assets/art/chapters.png",
-    "fog": "assets/art/fog.png"
+    "fog": "assets/art/fog.png",
+    "harbor": "assets/art/harbor.png"
   },
   "output": "build/wildkin.lua",
   "maps": {
@@ -57,7 +59,8 @@
     "route1": "maps/route1.json",
     "village": "maps/village.json",
     "forest": "maps/forest.json",
-    "mine": "maps/mine.json"
+    "mine": "maps/mine.json",
+    "harbor": "maps/harbor.json"
   },
   "data": {
     "types": "data/types.json",

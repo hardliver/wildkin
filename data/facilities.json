@@ -4,5 +4,8 @@
   "farm":   { "name": "田", "sort": 2, "work": "farm", "sprite": 2, "cost": { "wood": 6 }, "output": { "berry": 1, "wheat": 1 },
               "desc": "派會種田的野伴來照顧，每天收成莓果和麥。" },
   "gather": { "name": "採集點", "sort": 3, "work": "gather", "sprite": 4, "cost": { "wood": 10, "stone": 5 }, "output": { "fiber": 1, "mushroom": 1 },
-              "desc": "派會採集的野伴去附近找，每天帶回纖維和菇。" }
+              "desc": "派會採集的野伴去附近找，每天帶回纖維和菇。" },
+  "furnace": { "name": "爐", "sort": 4, "work": "fire", "sprite": 7, "cost": { "stone": 15, "wood": 5 }, "input": { "ore": 1 }, "output": { "metal": 1 },
+               "unlock": "badge_rock",
+               "desc": "派會生火的野伴顧火，把礦石燒成金屬。\n每燒出一個金屬，要用掉一個礦石。" }
 }

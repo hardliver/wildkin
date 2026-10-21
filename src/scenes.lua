@@ -63,10 +63,11 @@ SCENE.prologue = function()
   local no = await_screen(starter_pick_open)
   local k = kin_new(no, 5)
   party[1] = k
+  FLAGS.starter_no = no         -- 選了哪一隻（阿穗用來挑剋制的野伴；進化之後編號會變，所以另外記）
   dex_caught(no)
   say(P() .. "得到了" .. kin_name(k) .. "！")
   say("老苔：好眼光。牠看起來也很喜歡你。")
-  say("老苔：剩下的兩隻就留在營地吧，\n以後你會在野外遇到牠們的同伴。")
+  say("老苔：剩下的兩隻就留在營地陪我吧。\n牠們的同伴，野外可是很少見的。")
   fade(function()
     prop_remove("s1"); prop_remove("s2"); prop_remove("s3")
   end)
@@ -267,6 +268,14 @@ function village_fence_open()
   end
 end
 
+-- 舊礦坑西邊的鐵門（往港灣鎮）：打贏高處長之後打開
+function mine_gate_open()
+  for _, y in ipairs({ 14, 15 }) do
+    mset(world.map, "deco", 0, y, 0)
+    mset(world.map, "solid", 0, y, 0)
+  end
+end
+
 -- 舊礦坑：工頭走了就不在；礦車旁的野伴（劇情的小圖示，一直都在推車）
 local function mine_enter()
   for i = #npcs, 1, -1 do
@@ -275,6 +284,7 @@ local function mine_enter()
       npc_remove(n)
     end
   end
+  if FLAGS.mine_done then mine_gate_open() end
   prop_add("w1", "12", 7, 11, true)
   prop_add("w2", "12", 10, 11, true)
   prop_add("w3", "12", 13, 11, true)
@@ -390,7 +400,8 @@ SCENE.c2_exec = function()
   walk("exec", "left", 5)
   npc_remove(npc_named("exec"))
   wait(20)
-  say("（高處長從西邊的鐵門走了。\n遠遠可以聞到海的味道。）")
+  mine_gate_open()
+  say("（高處長從西邊的鐵門走了。門沒有關。\n遠遠可以聞到海的味道。）")
   set_flag("mine_done")
 end
 

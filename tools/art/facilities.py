@@ -189,11 +189,40 @@ def tent():
     box(im, 25, 23, 4, 6, YEL); px(im, 26, 25, (0xff, 0xff, 0xff)); hline(im, 25, 28, 22, OUT)
     return im
 
+def furnace():
+    """爐（W68）：石塊砌的圓頂窯，前面一個拱門透出火光，後面一根煙囪冒煙"""
+    im = new()
+    # 煙囪（後面）
+    box(im, 21, 3, 6, 12, S2)
+    hline(im, 21, 26, 3, OUT)
+    for (x, y) in ((23, 1), (24, 0), (25, 1), (22, 0)): px(im, x, y, S3)       # 煙
+    # 圓頂：一圈一圈的石塊
+    for y in range(8, 30):
+        half = int(13 * (1 - ((y - 22) / 14.0) ** 2) ** 0.5) if y < 22 else 13
+        for x in range(16 - half, 16 + half):
+            edge = x in (16 - half, 16 + half - 1) or y == 8
+            c = OUT if edge else (S2 if ((x // 4 + y // 3) % 2) else S3)
+            if not edge and y % 3 == 0: c = S1                               # 石塊之間的縫
+            px(im, x, y, c)
+    hline(im, 3, 28, 29, OUT)
+    # 拱門：透出火光
+    for y in range(18, 29):
+        w = 5 if y > 20 else (4 if y > 18 else 2)
+        for x in range(16 - w, 16 + w):
+            c = YEL if (x + y) % 3 else RED
+            if x in (16 - w, 16 + w - 1): c = OUT
+            px(im, x, y, c)
+    hline(im, 11, 20, 28, OUT)
+    # 前面的柴
+    for x0 in (6, 22):
+        box(im, x0, 26, 5, 3, W2)
+    return im
+
 if __name__ == "__main__":
-    # 輸出到 assets/art/facilities.png：第 0 格空地、1 伐木場、2 田、3 倉庫、4 採集點、5 工作台、6 帳篷（每格 32×32）
+    # 輸出到 assets/art/facilities.png：第 0 格空地、1 伐木場、2 田、3 倉庫、4 採集點、5 工作台、6 帳篷、7 爐（每格 32×32）
     import os
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../assets/art/facilities.png")
-    FRAMES = (lot, lumber, farm, storage, gather, workbench, tent)
+    FRAMES = (lot, lumber, farm, storage, gather, workbench, tent, furnace)
     sheet = Image.new("RGBA", (32 * len(FRAMES), 32), (0, 0, 0, 0))
     for i, f in enumerate(FRAMES):
         sheet.paste(f(), (i * 32, 0))

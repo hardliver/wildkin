@@ -141,8 +141,52 @@ class StoneArmadillo(Pal):
             x2, y2 = project(info, H + (-2.4, -0.6, -3.8))
             eye_round(im, x2, y2, 1, 1, (40, 30, 30), big_hi=1)
 
-ALL3 = [FanBat(), StoneArmadillo()]
-NAMES3 = ["11 搧火蝠", "12 礫殼犰狳"]
+# ============================================================
+# 13 霧傘水母：傘蓋像一把撐開的小雨傘（扇形一片片、邊緣波浪、傘骨），飄在空中；
+# 下面一根捲起來的「傘柄」觸手，旁邊幾條短觸手；傘頂一個小尖。眼睛在傘蓋前面
+# ============================================================
+class MistJelly(Pal):
+    BELL = Mat([(92, 120, 176), (128, 160, 210), (170, 200, 236), (214, 232, 250)], line=(82, 106, 160))
+    BELL2 = Mat([(110, 104, 170), (148, 140, 204), (186, 180, 230), (222, 218, 248)], line=(96, 90, 152))
+    RIB = Mat([(60, 70, 110), (90, 104, 146)])
+    UNDER = Mat([(150, 176, 214), (196, 214, 238), (230, 240, 252)])
+    TENT = Mat([(120, 150, 200), (166, 194, 230), (210, 228, 248)], line=(96, 122, 172))
+    HANDLE = Mat([(150, 104, 74), (190, 140, 100), (220, 178, 132)], line=(120, 82, 60))
+    HEAD = V(-6, -6, 0)
+    scale_f, off_f = 1.1, (32, 34)
+
+    def model(self):
+        m = Model()
+        # 傘蓋：8 片扇形，兩種顏色交錯，往下垂一點（邊緣的波浪）
+        for i in range(8):
+            a = deg(i * 45 + 22)
+            d = V(np.cos(a), 0, np.sin(a))
+            mat = self.BELL if i % 2 == 0 else self.BELL2
+            # 每一片往外往下斜（像撐開的傘面），邊緣比中間低
+            m.ell(V(0, -8, 0) + d * 6.0 + V(0, 2.2, 0), (6.4, 1.6, 4.2), mat, rot_y(-a) @ rot_z(deg(-24)), tag=f"bell{i}")
+            m.tube([V(0, -11.5, 0), V(0, -8, 0) + d * 11 + V(0, 5.0, 0)], [0.6, 0.4], self.RIB, tag=f"rib{i}")  # 傘骨
+        m.ell((0, -9.5, 0), (4.5, 2.6, 4.5), self.BELL, tag="top")
+        m.ell((0, -12.5, 0), (1.2, 1.8, 1.2), self.RIB, tag="tip")       # 傘頂的小尖
+        m.ell((0, -4.2, 0), (7.5, 2.4, 7.5), self.UNDER, tag="under")     # 傘的內側（眼睛畫在這裡）
+        # 傘柄：一根捲起來的觸手（J 字形）
+        pts = [V(0, -3, 0), V(0, 4, 0), V(0, 10, 0), V(-1.5, 13.5, 0), V(-4.5, 14, 0), V(-5.5, 11.5, 0)]
+        m.tube(pts, [1.6, 1.5, 1.4, 1.3, 1.2, 1.1], self.HANDLE, tag="handle")
+        # 短觸手：圍一圈
+        for i in range(6):
+            a = deg(i * 60 + 30)
+            b = V(np.cos(a) * 5, -2.5, np.sin(a) * 5)
+            m.tube([b, b + V(np.cos(a) * 0.8, 4.5, np.sin(a) * 0.8), b + V(np.cos(a) * 0.2, 8, np.sin(a) * 0.2)],
+                   [0.9, 0.7, 0.5], self.TENT, tag=f"tent{i}")
+        return m
+
+    def paint_front(self, im, info):
+        # 眼睛：傘蓋的內側、面向鏡頭的那一面，兩隻都看得到
+        for p in (V(-6.5, -3.2, 0.5), V(-4.6, -3.2, 4.6)):
+            x, y = project(info, p)
+            eye_round(im, x, y, 1, 2, (40, 36, 70), big_hi=1)
+
+ALL3 = [FanBat(), StoneArmadillo(), MistJelly()]
+NAMES3 = ["11 搧火蝠", "12 礫殼犰狳", "13 霧傘水母"]
 
 if __name__ == "__main__":
     fs = [p.front() for p in ALL3]; bs = [p.back() for p in ALL3]

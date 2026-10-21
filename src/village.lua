@@ -20,18 +20,29 @@ local MOM_CALL = {
   "媽媽：好啦，不吵你，記得穿外套。",
 }
 
+-- 第 2 章（港灣旅店，W68）
+local MOM_CALL2 = {
+  "媽媽：喂？你到港灣鎮了喔？",
+  "媽媽：那邊的魚很便宜，記得寄一點回來。",
+  "媽媽：……還有，你表弟下個月要結婚了。",
+  "{name}：……好。",
+  "媽媽：他比你小 12 歲喔。",
+  "{name}：媽，我知道。",
+}
+
 local function name_fmt(s) return (s:gsub("{name}", PLAYER_NAME)) end
 
-local function mom_call()
+-- 聽傳音石：港灣旅店是第 2 章的台詞，苔石旅店是第 1 章
+local function mom_call(lines)
   cutscene_start(function()
     say("（傳音石亮了起來。）")
-    for _, line in ipairs(MOM_CALL) do say(name_fmt(line)) end
+    for _, line in ipairs(lines or MOM_CALL) do say(name_fmt(line)) end
   end)
 end
 
-local function inn_stay()
+local function inn_stay(host)
   cutscene_start(function()
-    say("老闆娘：好好休息喔。")
+    say((host or "老闆娘") .. "：好好休息喔。")
     fade(function()
       for _, k in ipairs(party) do kin_heal(k) end
     end)
@@ -59,17 +70,36 @@ TALK.village_innkeeper = function()
   end)
 end
 
+-- 港灣旅店（W68）：和苔石旅店一樣，傳音石是媽媽第 2 章的台詞（story.md C2-9）
+TALK.harbor_innkeeper = function()
+  if not FLAGS.harbor_inn then
+    FLAGS.harbor_inn = true
+    cutscene_start(function()
+      say("老闆：歡迎！苔石旅店的老闆娘說你會來，\n傳音石有你的訊息。")
+      say("（傳音石亮了起來。）")
+      for _, line in ipairs(MOM_CALL2) do say(name_fmt(line)) end
+    end)
+    return
+  end
+  dialog_ask("老闆：港灣旅店，住一晚不用錢。\n要住嗎？", { "住一晚", "聽傳音石", "不用了" }, function(c)
+    if c == 1 then inn_stay("老闆")
+    elseif c == 2 then mom_call(MOM_CALL2)
+    else dialog_open("老闆：出海小心。") end
+  end)
+end
+
 -- ============================================================
 -- 商店
 -- ============================================================
 
-SHOP_STOCK = { "ball", "potion", "superpotion", "feed" }   -- 苔石商店賣的東西（之後的商店可以另外列）
+SHOP_STOCK = { "ball", "potion", "superpotion", "feed" }   -- 苔石商店賣的東西
+HARBOR_STOCK = { "ball", "goodball", "potion", "superpotion", "goodpotion", "feed" }   -- 港灣商店（W68）
 
 local function sell_price(key) return (DATA.items[key].price or 0) // 2 end
 
-local function shop_buy()
+local function shop_buy(stock)
   local items = {}
-  for i, key in ipairs(SHOP_STOCK) do
+  for i, key in ipairs(stock) do
     local it = DATA.items[key]
     items[i] = it.name
   end
@@ -82,7 +112,7 @@ local function shop_buy()
     local r = menu_update(self.menu)
     if r == 0 or r == #items then ui_pop() return end
     if not r then return end
-    local key = SHOP_STOCK[r]
+    local key = stock[r]
     local it = DATA.items[key]
     local most = math.min(99, MONEY // it.price)
     if most < 1 then
@@ -102,11 +132,11 @@ local function shop_buy()
     money_box_draw(8)
     menu_draw(self.menu)
     -- 價錢：清單右邊
-    for i, key in ipairs(SHOP_STOCK) do
+    for i, key in ipairs(stock) do
       local p = money_text(DATA.items[key].price)
       text(p, self.menu.x + self.menu.w - 12 - textw(p), self.menu.y + 9 + (i - 1) * 16, 0)
     end
-    local key = SHOP_STOCK[self.menu.index]
+    local key = stock[self.menu.index]
     ui_box(4, 184, 312, 52)
     if key then
       local lines = wrap_text(DATA.items[key].desc, 220)
@@ -167,12 +197,17 @@ local function shop_sell()
   ui_push(screen)
 end
 
-TALK.village_shopkeeper = function()
-  dialog_ask("老闆：這裡是苔石商店。\n要買什麼？", { "買", "賣", "離開" }, function(c)
-    if c == 1 then shop_buy()
+-- 商店（苔石村、港灣鎮共用）：greeting = 老闆的第一句話，stock = 賣的東西
+function shop_open(greeting, stock)
+  dialog_ask(greeting .. "\n要買什麼？", { "買", "賣", "離開" }, function(c)
+    if c == 1 then shop_buy(stock)
     elseif c == 2 then shop_sell()
     else dialog_open("老闆：歡迎再來！") end
   end)
+end
+
+TALK.village_shopkeeper = function()
+  shop_open("老闆：這裡是苔石商店。", SHOP_STOCK)
 end
 
 -- ============================================================

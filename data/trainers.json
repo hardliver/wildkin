@@ -31,6 +31,23 @@
     "win": "……好。你的野伴很信任你。",
     "after": "回去跟小苔說，下次換他來找我下棋。"
   },
+  "rival3": {
+    "name": "阿穗", "notice": 2, "sight": 4, "leave": true, "money": 900,
+    "party": [ { "species": "rival", "level": 15 }, { "species": "08", "level": 15 }, { "species": "13", "level": 14 } ],
+    "intro": "{name}！你也來港灣鎮？\f我帶老婆來吃海鮮。她在那邊排隊。\f我兒子說我釣魚只會釣到垃圾。\n……他說對了。",
+    "intro2": "來！這次我練過了！",
+    "win": "……又輸了。\f燈塔那邊有「岩之守」。\n我老婆說她年輕時是港口最有名的石匠。\f拿去，我老婆的便當。\n她說你看起來沒在吃飯。",
+    "gift": "bento",
+    "bye": "我去幫老婆排隊了。",
+    "after": "下次見面，我一定贏！……大概。"
+  },
+  "rock_keeper": {
+    "name": "礁嬤", "notice": 0, "sight": 0, "leave": false, "money": 2000,
+    "party": [ { "species": "07", "level": 18 }, { "species": "12", "level": 18 }, { "species": "12", "level": 19 } ],
+    "intro": "讓我看看，你是不是急性子！",
+    "win": "……穩。你跟你的野伴，都很穩。",
+    "after": "回去跟小苔說，飯還是要請。"
+  },
   "exec1": {
     "name": "高處長", "notice": 0, "sight": 0, "leave": true, "money": 1500,
     "party": [ { "species": "12", "level": 15 }, { "species": "10", "level": 15 }, { "species": "07", "level": 16 } ],

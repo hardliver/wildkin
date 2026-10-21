@@ -37,6 +37,12 @@ QUESTS = {
     hint = "暗的地方：有會發電的野伴（燈蛾）就會亮。\n落石：要找會採礦的野伴，礦坑口右下的碎石洞裡有。" },
   { chapter = "第 2 章", title = "找到鐵輪公司的負責人", done = function() return FLAGS.trainer_exec1 end,
     hint = "礦坑最深處，西邊的大廳。推薦等級 Lv15～17。\n礫殼犰狳怕水和草。" },
+  { chapter = "第 2 章", title = "到港灣鎮", done = function() return FLAGS.harbor end,
+    hint = "舊礦坑西邊的鐵門，高處長走的時候沒關。" },
+  { chapter = "第 2 章", title = "找到岩之守", done = function() return FLAGS.badge_rock end,
+    hint = "港灣鎮西邊，防波堤盡頭的燈塔。推薦等級 Lv19～21。\n礁嬤的野伴大多是岩屬性：水和草最有效，火很吃力。\n（碼頭的淺灘有霧傘水母，霧林有菇菇蟹。）" },
+  { chapter = "第 2 章", title = "在營地蓋爐", done = function() for _, f in pairs(FACILITY) do if f.kind == "furnace" then return true end end return false end,
+    hint = "營地的空地，選「爐」。石頭 15、木材 5。\n派會生火的野伴（搧火蝠、炭毛狸）把礦石燒成金屬。" },
 
 }
 

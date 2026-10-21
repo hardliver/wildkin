@@ -32,6 +32,8 @@ TALK.elder = function()
     dialog_open("老苔：在草叢裡遇到野伴，\n先打弱一點再丟野伴球。")
   elseif not FLAGS.tutorial_sleep then
     dialog_open("老苔：東邊柵欄裡面是設施空地。\n面對空地按 A，就能蓋設施。")
+  elseif FLAGS.badge_rock then
+    dialog_open("老苔：……阿礁還記得我？\f老苔：她說飯還是要請？\n……嗯。我會請的。")
   elseif FLAGS.badge_forest then
     dialog_open("老苔：老柏還活著？那老頭子，\n五十年前就說要退休了。")
   else

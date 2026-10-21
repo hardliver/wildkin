@@ -32,28 +32,28 @@ end
 -- 畫一格地圖格子編號 v 的圖（NPC 的 tile 用的是地圖格子編號）。
 -- 地圖的格子編號把這張地圖用的圖接在一起，從 1 開始數：
 --   1～132：town（Tiny Town，12 × 11 格）的第 0～131 格
---   133～ ：dungeon（Tiny Dungeon）的第 0 格開始
--- （營地、草原小徑都是 tilesets = ["town", "dungeon"]）
-local TOWN_TILES = 132
-
-function world_spr(v, x, y, flip)
-  if v <= TOWN_TILES then
-    spr(IMG.town, v - 1, x, y, flip)
-  else
-    spr(IMG.dungeon, v - TOWN_TILES - 1, x, y, flip)
-  end
-end
+--   133～264：dungeon（Tiny Dungeon，12 × 11 格）
+--   265～：harbor（港灣圖塊，W68 自己畫的，12 × 3 格）
+-- 所有地圖的 tilesets 都照這個順序（["town", "dungeon"] 或 ["town", "dungeon", "harbor"]），
+-- 所以同一個編號在每張地圖都是同一格。每張圖都是一列 12 格。
+local TOWN_TILES, DUNGEON_TILES = 132, 132
 
 -- 格子編號 v 在哪張圖的第幾格（先算好，之後直接 spr，省 Lua 指令）
 function world_tile_image(v)
   if v <= TOWN_TILES then return IMG.town, v - 1 end
-  return IMG.dungeon, v - TOWN_TILES - 1
+  v = v - TOWN_TILES
+  if v <= DUNGEON_TILES then return IMG.dungeon, v - 1 end
+  return IMG.harbor, v - DUNGEON_TILES - 1
+end
+
+function world_spr(v, x, y, flip)
+  local img, n = world_tile_image(v)
+  spr(img, n, x, y, flip)
 end
 
 -- 畫格子編號 v 的圖的一部分（sx, sy, sw, sh：格子裡的範圍），左上角放在 (x, y)
 function world_sspr(v, sx, sy, sw, sh, x, y)
-  local img, n = IMG.town, v - 1
-  if v > TOWN_TILES then img, n = IMG.dungeon, v - TOWN_TILES - 1 end
+  local img, n = world_tile_image(v)
   sspr(img, (n % 12) * 16 + sx, (n // 12) * 16 + sy, sw, sh, x, y)
 end
 

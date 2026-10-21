@@ -19,6 +19,16 @@ do
   assert(FACILITY["camp:1:1"].workers[1].hungry, "沒吃到飼料會記下來")
   clock_add_minutes(24 * 60)          -- 第 3 天餓著 → 只有一半
   assert(BAG.wood == 5, "餓著的那一天只有一半（木材 +1），得到 " .. tostring(BAG.wood))
+  -- 爐（W68）：搧火蝠（生火 1）一天燒 1 個金屬，要用掉 1 個礦石；沒礦石就不燒
+  BAG, FACILITY = { feed = 9, ore = 1 }, {}
+  FACILITY["camp:5:5"] = { kind = "furnace", workers = { kin_new("11", 9) } }
+  clock_add_minutes(24 * 60)
+  assert(BAG.metal == 1 and (BAG.ore or 0) == 0, "爐：礦石 1 → 金屬 1，得到金屬 " .. tostring(BAG.metal))
+  clock_add_minutes(24 * 60)
+  assert(BAG.metal == 1, "沒有礦石就燒不出金屬")
+  BAG.ore = 5
+  clock_add_minutes(60)
+  assert(BAG.metal == 2 and BAG.ore == 4, "補了礦石，先前存的工作量馬上燒出來（最多 4 個）")
   TIME = 22 * 60
   assert(minutes_until(6) == 8 * 60, "22:00 睡到 06:00 是 8 小時")
   local r, g, b = tint_at(23 * 60)
