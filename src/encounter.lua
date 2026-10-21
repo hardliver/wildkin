@@ -50,7 +50,7 @@ function encounter_check()
   if rnd(256) >= t.rate then return end
   local e = pick(t.list)
   local level = e.min + rnd(e.max - e.min + 1)
-  battle_scene_start({ kin_new(e.species, level) }, { wild = true, flash = true }, function(result)
+  battle_scene_start({ shiny_roll(kin_new(e.species, level)) }, { wild = true, flash = true }, function(result)
     if result == "lose" then wiped_out() end
   end)
 end

@@ -268,8 +268,11 @@ function summary_open(index)
     ui_box(4, 4, 312, 232)
     -- 左上：正面圖、名字、等級、屬性
     rect(14, 14, 68, 68, 6)
+    kin_dpal(k)
     spr(IMG.kin_front, sp.sprite, 16, 16)
+    dpal()
     text(sp.name, 92, 14, 0)
+    if k.shiny then shiny_mark(92 + textw(sp.name) + 4, 18) end   -- 異色
     text("Lv" .. k.level, 92, 32, 0)
     local tname = DATA.types.names[sp.type]
     rect(92, 51, textw(tname) + 8, 15, TYPE_COLOR[sp.type] or 13)
@@ -436,7 +439,9 @@ function dex_open()
       if i == self.index then ui_arrow_right(x + 10, ry + 4, 0) end
       if DEX.caught[no] then fx_disc(x + 24, ry + 7, 3, 9) end   -- 抓過：橘色圓點
       text(no, x + 32, ry, 0)
-      text(DEX.seen[no] and DATA.species[no].name or "？？？", x + 58, ry, DEX.seen[no] and 0 or 5)
+      local name = DEX.seen[no] and DATA.species[no].name or "？？？"
+      text(name, x + 58, ry, DEX.seen[no] and 0 or 5)
+      if DEX.shiny and DEX.shiny[no] then shiny_mark(x + 64 + textw(name), ry + 4) end   -- 抓過異色
     end
   end
   ui_push(screen)

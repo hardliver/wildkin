@@ -29,6 +29,7 @@
     "src/quest.lua",
     "src/village.lua",
     "src/kin.lua",
+    "src/shiny.lua",
     "src/battle.lua",
     "src/sim.lua",
     "src/battle_fx.lua",

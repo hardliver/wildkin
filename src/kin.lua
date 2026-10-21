@@ -159,12 +159,15 @@ local ICON_STEP = 6
 local WALK = { { 1, 0 }, { 0, -1 }, { 2, 0 }, { 0, -1 } }   -- { 第幾格, 往上幾像素 }
 
 -- no：種類編號；walking：在走嗎；t：計時（幀）；face_right：面向右（圖是面向左畫的，往右就翻轉）
-function kin_icon_draw(no, x, y, walking, t, face_right)
+-- shiny：異色（W65）
+function kin_icon_draw(no, x, y, walking, t, face_right, shiny)
   local base = DATA.species[no].sprite * 3
+  if shiny then dpal(shiny_map(no)) end
   if not walking then
     spr(IMG.kin_icons, base, x, y, face_right)
-    return
+  else
+    local w = WALK[(t // ICON_STEP) % 4 + 1]
+    spr(IMG.kin_icons, base + w[1], x, y + w[2], face_right)
   end
-  local w = WALK[(t // ICON_STEP) % 4 + 1]
-  spr(IMG.kin_icons, base + w[1], x, y + w[2], face_right)
+  if shiny then dpal() end
 end

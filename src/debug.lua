@@ -23,6 +23,7 @@ DEBUG_COMMANDS = {
   { "→ 草原小徑", "dbg_warp('route1', 9, 3)" },
   { "→ 苔石村", "dbg_warp('village', 19, 3)" },
   { "清除旗標", "FLAGS = {}" },
+  { "下一隻野生是異色", "DEBUG_NEXT_SHINY = true" },
 }
 
 -- 還在標題畫面：直接開一局新遊戲（存在欄位 1），不用一直按

@@ -244,7 +244,7 @@ end
 -- 一行野伴：小圖示、名字、Lv、工作等級。y 是這一行的上緣
 local function worker_row(k, work, x, y, w, selected)
   if selected then ui_arrow_right(x + 4, y + 5, 0) end
-  kin_icon_draw(k.no, x + 14, y + 1, false, 0, true)
+  kin_icon_draw(k.no, x + 14, y + 1, false, 0, true, k.shiny)
   text(kin_name(k), x + 36, y + 1, 0)
   local lv = "Lv" .. k.level
   text(lv, x + 120, y + 1, 5)
@@ -501,12 +501,12 @@ function facility_actors(list)
         local moving = walker_step(l, w, i)
         local x, y = l.x + w.x, l.y + w.y
         if moving then
-          list[#list + 1] = { y = y, draw = function() kin_icon_draw(k.no, x, y, true, w.step, w.right) end }
+          list[#list + 1] = { y = y, draw = function() kin_icon_draw(k.no, x, y, true, w.step, w.right, k.shiny) end }
         else
           -- 工作中：面向設施，每 24 幀跳一下
           local right = (w.spot == 3) or (w.spot ~= 4 and w.right)
           local hop = (tick + i * 8) % 24 < 4 and 1 or 0
-          list[#list + 1] = { y = y, draw = function() kin_icon_draw(k.no, x, y - hop, false, 0, right) end }
+          list[#list + 1] = { y = y, draw = function() kin_icon_draw(k.no, x, y - hop, false, 0, right, k.shiny) end }
         end
       end
     end

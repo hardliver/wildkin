@@ -191,7 +191,8 @@ end
 
 local function evolve_scene(k, to)
   local from_name = kin_name(k)
-  S.evo = { from = kin_species(k).sprite, to = DATA.species[to].sprite, show_new = false, glow = 0 }
+  S.evo = { from = kin_species(k).sprite, to = DATA.species[to].sprite, show_new = false, glow = 0,
+            shiny = k.shiny, from_no = k.no, to_no = to }
   S.mode = "evolve"
   msg("咦？" .. from_name .. "的樣子……！")
   -- 交替：一開始每 24 幀換一次，越來越快，最後每 2 幀換一次
@@ -265,6 +266,7 @@ local function show(e)
     -- 加入隊伍（滿 6 隻送到營地的牧場，W44 之後在基地看得到）
     local k = battle_active(S.b, 2)
     dex_caught(k.no)
+    if k.shiny then DEX.shiny = DEX.shiny or {}; DEX.shiny[k.no] = true end   -- 手冊標記抓過異色
     if #party < 6 then
       party[#party + 1] = k
       msg(kin_name(k) .. "加入了隊伍！")
@@ -410,7 +412,9 @@ local function begin(foe_party, opts, on_end)
     -- 進場：對手從左邊、自己從右邊滑進來（GB 的開場）
     tween(240, 0, 40, function(x) S.fx[2].dx = -x; S.fx[1].dx = x end)
     if b.wild then
+      if foe.shiny then fx_shiny_sparkle(ctx) end    -- 異色：閃一下星星
       msg("野生的" .. kin_name(foe) .. "出現了！")
+      if foe.shiny then msg("……咦？這隻的顏色好像不太一樣！") end
     else
       msg((b.trainer or "對手") .. "要和你對戰！")
       msg((b.trainer or "對手") .. "派出了" .. kin_name(foe) .. "！")
@@ -587,7 +591,7 @@ local function draw_foe()
   local v, fx = S.view[2], S.fx[2]
   if fx.hidden or fx.sink >= 64 then return end
   local n = kin_species(v.kin).sprite
-  if fx.white then dpal(HIT_MAP) end
+  if fx.white then dpal(HIT_MAP) else kin_dpal(v.kin) end
   sspr(IMG.kin_front, n * 64, 0, 64, 64 - fx.sink, 224 + fx.dx + fx.ox, 18 + fx.sink + fx.oy)
   dpal()
 end
@@ -597,7 +601,7 @@ local function draw_mine()
   if fx.hidden or fx.sink >= 64 then return end
   local n = kin_species(v.kin).sprite
   local h = (64 - fx.sink) // 2                                          -- 原圖要畫幾列（放大 2 倍前）
-  if fx.white then dpal(HIT_MAP) end
+  if fx.white then dpal(HIT_MAP) else kin_dpal(v.kin) end
   sspr(IMG.kin_back, n * 32, 0, 32, h, 40 + fx.dx + fx.ox, 120 + 64 - h * 2 + fx.oy, 64, h * 2)   -- 背面圖放大 2 倍
   dpal()
 end
@@ -611,7 +615,7 @@ local function draw_evolution()
     if E.glow > 0 then fx_ring(160, 88, r + 10, (k % 2 == 0) and 7 or 10) end
   end
   local n = E.show_new and E.to or E.from
-  if E.glow > 0 then dpal(WHITE_MAP) end                     -- 變化中：只看得到白色的輪廓（新舊兩個形狀交替）
+  if E.glow > 0 then dpal(WHITE_MAP) elseif E.shiny then dpal(shiny_map(E.show_new and E.to_no or E.from_no)) end   -- 變化中：只看得到白色的輪廓
   sspr(IMG.kin_front, n * 64, 0, 64, 64, 112, 40, 96, 96)   -- 放大 1.5 倍
   dpal()
   if E.flash then rect(0, 0, SCREEN_W, 184, 7) end

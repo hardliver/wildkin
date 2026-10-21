@@ -572,6 +572,26 @@ function fx_levelup(ctx, side)
   end)
 end
 
+-- 異色（W65）：野伴身邊一顆一顆冒出四角星，閃亮後縮小（GB 的「閃光」）
+local SPARK = { { -22, -18 }, { 20, -24 }, { 26, 8 }, { -26, 14 }, { 0, -30 }, { 8, 22 } }
+function fx_shiny_sparkle(ctx)
+  local x0, y0 = ctx.pos(2)
+  play(ctx, 48, function(i)
+    for k, p in ipairs(SPARK) do
+      local t = i - (k - 1) * 5                       -- 一顆接一顆出現
+      if t >= 0 and t < 18 then
+        local r = (t < 9) and t // 2 + 1 or (18 - t) // 2   -- 變大再變小
+        local x, y = x0 + p[1], y0 + p[2]
+        rect(x - r - 1, y - 1, r * 2 + 3, 3, 9)         -- 橘色外框（米色背景上黃色太淡）
+        rect(x - 1, y - r - 1, 3, r * 2 + 3, 9)
+        rect(x - r, y, r * 2 + 1, 1, 10)                -- 黃色的橫、直
+        rect(x, y - r, 1, r * 2 + 1, 10)
+        if r >= 3 then rect(x - 1, y - 1, 3, 3, 10); pset(x, y, 7) end   -- 中間亮
+      end
+    end
+  end)
+end
+
 -- ============================================================
 -- 野伴球（W34）
 -- ============================================================

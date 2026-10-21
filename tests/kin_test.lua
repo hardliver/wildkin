@@ -100,3 +100,24 @@ do
   assert(kin_can_evolve(k) == nil, "林角羊不會再進化")
   print("ok: 進化")
 end
+
+-- 異色（W65）：換色表有換到顏色、每次算出來一樣；能力不變
+do
+  local m = shiny_map("01")
+  local n = 0
+  for from, to in pairs(m) do
+    n = n + 1
+    local ok = false
+    for _, img in pairs(IMG) do
+      for _, c in ipairs(imgcolors(img)) do if c == to then ok = true end end
+    end
+    assert(ok, "換成的顏色要是圖片裡已經有的")
+  end
+  assert(n >= 3, "芽角羊的異色至少換 3 個顏色")
+  DEBUG_NEXT_SHINY = true
+  local a = shiny_roll(kin_new("01", 5))
+  local b = kin_new("01", 5)
+  assert(a.shiny and not b.shiny and DEBUG_NEXT_SHINY == nil, "除錯旗標只讓下一隻變異色")
+  assert(kin_stat(a, "atk") == kin_stat(b, "atk") and kin_max_hp(a) == kin_max_hp(b), "異色能力一樣")
+  print("ok: 異色")
+end
