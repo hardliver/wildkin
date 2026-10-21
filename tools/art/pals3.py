@@ -88,8 +88,61 @@ class FanBat(Pal):
     def paint_back(self, im, info):
         pass
 
-ALL3 = [FanBat()]
-NAMES3 = ["11 搧火蝠"]
+# ============================================================
+# 12 礫殼犰狳：四腳、背上一圈一圈的殼帶，每一圈都是碎石拼的，嵌著小石子；
+# 尖鼻子、小圓耳；淺色的肚子毛；尾巴也是一節一節的石頭。站著，頭微微低下來嗅地面
+# ============================================================
+class StoneArmadillo(Pal):
+    STONE = Mat([(92, 86, 90), (130, 122, 122), (168, 160, 156), (204, 198, 190)], line=(70, 64, 70))
+    STONE2 = Mat([(112, 86, 66), (150, 116, 86), (184, 148, 110), (214, 182, 140)], line=(90, 68, 54))
+    SKIN = Mat([(150, 112, 96), (190, 148, 124), (222, 184, 156), (242, 214, 188)], line=(150, 112, 96))
+    BELLY = Mat([(196, 170, 140), (226, 204, 172), (244, 230, 204)], line=(190, 164, 136))
+    STONE3 = Mat([(70, 70, 82), (98, 98, 112), (130, 130, 144), (164, 164, 176)], line=(64, 64, 76))
+    GROUT = Mat([(40, 34, 36), (58, 50, 50)])
+    CLAW = Mat([(54, 44, 44), (86, 70, 66)])
+    NOSE = Mat([(60, 40, 44), (100, 70, 72)], gloss=0.05)
+    HEAD = V(-14, -1, 0)
+    scale_f, off_f = 1.15, (34, 36)
+
+    def model(self):
+        m = Model(); H = self.HEAD
+        # 肚子、身體的底
+        m.ell((1, 2, 0), (11, 6.5, 7.5), self.BELLY, tag="belly")
+        # 殼帶：從前到後 5 圈，中間的最高。每一圈是一顆顆石頭排成的拱，石頭之間露出深色的縫
+        for i, (x, ry) in enumerate(((-7, 6.2), (-2.5, 7.8), (2, 8.4), (6.5, 7.8), (10.5, 6.2))):
+            m.ell((x, -1.0, 0), (3.0, ry - 1.2, 8.0), self.GROUT, tag=f"band{i}")
+            n = 7
+            for j in range(n):
+                a = deg(-80 + 160 * j / (n - 1))
+                pos = (x + (0.5 if j % 2 else -0.5), -1.0 - np.cos(a) * (ry - 0.6), np.sin(a) * 8.2)
+                mat = (self.STONE, self.STONE2, self.STONE3)[(i * 2 + j) % 3]
+                m.sph(pos, 2.5 if j % 2 else 2.8, mat, tag=f"st{i}{j}")
+        # 尾巴：一節一節變細
+        for i in range(4):
+            m.sph((14 + i * 2.6, 0.5 + i * 1.6, 0), 2.6 - i * 0.45, self.STONE if i % 2 == 0 else self.STONE2, tag=f"tail{i}")
+        # 腳：短而粗，有爪
+        for (x, z) in ((-6, 5), (-6, -5), (7, 5), (7, -5)):
+            m.tube([(x, 4, z), (x - 0.3, 8.5, z)], [2.6, 2.3], self.SKIN, tag=f"leg{x}{z}")
+            m.ell((x - 1.0, 9.6, z), (2.4, 1.2, 2.2), self.CLAW, tag=f"leg{x}{z}")
+        # 頭：前面的頭盔（石頭）＋尖尖的鼻子
+        m.ell(H, (4.6, 4.2, 4.4), self.SKIN, tag="head")
+        m.ell(H + (0.8, -2.4, 0), (3.6, 2.4, 4.0), self.STONE, tag="helm")
+        m.tube([H + (-3, 1, 0), H + (-8, 2.6, 0)], [2.4, 1.2], self.SKIN, tag="snout")
+        m.ell(H + (-8.4, 2.6, 0), (0.9, 0.9, 1.0), self.NOSE, tag="nose")
+        for s in (1, -1):
+            m.ell(H + (1.8, -3.4, 3.4 * s), (1.6, 2.2, 1.0), self.SKIN, rot_x(deg(-25 * s)), tag=f"ear{s}")
+        return m
+
+    def paint_front(self, im, info):
+        H = self.HEAD
+        x, y = project(info, H + (-2.4, -0.6, 3.8))
+        eye_round(im, x, y, 1, 1, (40, 30, 30), big_hi=1)
+        if visible(info, H + (-2.4, -0.6, -3.8), 3):
+            x2, y2 = project(info, H + (-2.4, -0.6, -3.8))
+            eye_round(im, x2, y2, 1, 1, (40, 30, 30), big_hi=1)
+
+ALL3 = [FanBat(), StoneArmadillo()]
+NAMES3 = ["11 搧火蝠", "12 礫殼犰狳"]
 
 if __name__ == "__main__":
     fs = [p.front() for p in ALL3]; bs = [p.back() for p in ALL3]

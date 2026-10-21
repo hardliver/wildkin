@@ -112,6 +112,7 @@ local FALL = {
 }
 
 function season_weather_draw()
+  if indoor_map() then return end      -- 礦坑裡不下雪（dark.lua）
   local f = FALL[season()]
   if not f then return end
   local t = frame()

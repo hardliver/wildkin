@@ -15,5 +15,14 @@
       { "species": "08", "min": 9, "max": 10, "weight": 15 },
       { "species": "11", "min": 8, "max": 10, "weight": 8, "times": { "evening": 20, "night": 35 } }
     ]
+  },
+  "mine": {
+    "rate": 22,
+    "list": [
+      { "species": "12", "min": 12, "max": 15, "weight": 35 },
+      { "species": "11", "min": 13, "max": 16, "weight": 25 },
+      { "species": "10", "min": 12, "max": 14, "weight": 20 },
+      { "species": "07", "min": 13, "max": 15, "weight": 20 }
+    ]
   }
 }

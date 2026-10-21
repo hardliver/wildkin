@@ -31,6 +31,13 @@ QUESTS = {
     hint = "穿過霧林，到最東邊的森之祠。推薦等級 Lv12～14。\n柏伯的野伴大多是草屬性，帶一隻火屬性的會輕鬆很多。\n（霧林傍晚、晚上常有搧火蝠出沒。）" },
   { chapter = "第 1 章", title = "回苔石村", done = function() return FLAGS.ch1_done end,
     hint = "把霧林的事告訴村民。" },
+  { chapter = "第 2 章", title = "去舊礦坑", done = function() return FLAGS.mine_entered end,
+    hint = "苔石村的西口，鐵輪公司的柵欄打開了。" },
+  { chapter = "第 2 章", title = "穿過礦坑深處", done = function() return FLAGS.mine_rock1 end,
+    hint = "暗的地方：有會發電的野伴（燈蛾）就會亮。\n落石：要找會採礦的野伴，礦坑口右下的碎石洞裡有。" },
+  { chapter = "第 2 章", title = "找到鐵輪公司的負責人", done = function() return FLAGS.trainer_exec1 end,
+    hint = "礦坑最深處，西邊的大廳。推薦等級 Lv15～17。\n礫殼犰狳怕水和草。" },
+
 }
 
 local function current()

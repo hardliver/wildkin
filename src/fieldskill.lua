@@ -12,7 +12,7 @@ local blocks = {}
 -- 擋路物的動作說明：要用什麼字
 local ACT = {
   lumber = { verb = "砍開", doing = "喀滋喀滋地啃了起來……", done = "被砍開了！", gift = { "wood", 3 } },
-  mine   = { verb = "敲碎", doing = "用力敲了下去……", done = "被敲碎了！", gift = { "stone", 3 } },
+  mine   = { verb = "撞碎", doing = "把身體捲成球，撞了上去……", done = "被撞碎了！", gift = { "stone", 3 } },
 }
 
 local function work_key(need)
@@ -79,10 +79,14 @@ end
 
 function block_interact(b)
   local work = DATA.work[b.need] or b.need
-  local what = (b.need == "lumber") and "一棵很大的倒木。" or "擋住路的東西。"
+  local what = (b.need == "lumber") and "一棵很大的倒木。" or (b.need == "mine" and "大石頭擋住了路。" or "擋住路的東西。")
   local k = field_skill_kin(b.need)
   if not k then
-    dialog_open(what .. "\n要找會" .. work .. "的野伴。")
+    if b.need == "mine" then   -- W67 舊礦坑：提示去哪裡找（礫殼犰狳住在礦坑前段）
+      dialog_open(what .. "\n要找會" .. work .. "的野伴。\f（礦坑裡好像有背著石頭殼的野伴，\n說不定撞得開……）")
+    else
+      dialog_open(what .. "\n要找會" .. work .. "的野伴。")
+    end
     return
   end
   local act = ACT[b.need] or { verb = "打開", doing = "努力了一下……", done = "被打開了！" }
@@ -98,7 +102,8 @@ function block_interact(b)
           if y == x then table.remove(blocks, i) break end
         end
       end
-      say((b.need == "lumber" and "倒木" or "擋路的東西") .. act.done)
+      say((b.need == "lumber" and "倒木" or (b.need == "mine" and "大石頭" or "擋路的東西")) .. act.done)
+      if b.need == "mine" then set_flag("mine_rock1") end
       if act.gift then give(act.gift[1], act.gift[2]) end
       if world.name == "village" and b.need == "lumber" then
         say("守衛：哇，比找伐木工人快多了。\n也比較便宜。")

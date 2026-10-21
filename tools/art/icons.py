@@ -23,7 +23,7 @@ EYES = {
     "Sheep": V(-2.8, -1.2, 4.8), "Tanuki": V(-6.6, -2, 6.6), "Catfish": V(-6, -3.5, 6),
     "Hamster": V(-5, -2.5, 5.2), "Bird": V(-2, -1.2, 4.6), "ForestRam": V(-3, -1.5, 5),
     "StoveTanuki": V(-5.5, -2, 5.6), "RiverLord": V(-5, -3.5, 6.5), "MushroomCrab": None, "LampMoth": None,
-    "FanBat": V(-3, -1, 4),
+    "FanBat": V(-3, -1, 4), "StoneArmadillo": V(-2.4, -0.6, 3.8),
 }
 
 def kind(tag):
@@ -105,6 +105,11 @@ if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
     art = os.path.join(here, "..", "..", "assets", "art")
     s = snap_to(sheet_image(), [os.path.join(art, "kin_front.png"), os.path.join(art, "kin_back.png")])
+    # W67：前面 FROZEN 隻的圖示凍結不動（和 build.py 一樣）。調色盤多了顏色時，舊圖示重新對色可能會變
+    import build_frozen
+    old = Image.open(os.path.join(art, "kin_icons.png")).convert("RGBA")
+    n = min(build_frozen.FROZEN * 48, old.width)
+    s.paste(old.crop((0, 0, n, 16)), (0, 0))
     s.save(os.path.join(here, "..", "..", "assets", "art", "kin_icons.png"))
     # 預覽：每隻的走路循環 1 → 0（上 1）→ 2 → 0（上 1）
     bg = Image.new("RGBA", (4 * 20 + 4, len(ALL) * 20), (132, 198, 105, 255))

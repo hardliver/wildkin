@@ -24,6 +24,7 @@ end
 -- 換地圖、放好主角之後呼叫（遇敵要知道主角一開始站在哪一格）
 local function after_place()
   encounter_enter()
+  dark_enter()       -- 暗處（dark.lua）
   cutscene_enter_map()
 end
 
@@ -213,7 +214,7 @@ end
 
 function _draw()
   -- 晝夜的顏色（clock.lua）：標題、戰鬥、會畫野伴圖的畫面用原色（那些圖也用同一組顏色，不然會跟著變暗）
-  clock_tint(title_active() or battle_scene_active() or ui_draws_art() or cutscene_overlay_art())
+  clock_tint(title_active() or battle_scene_active() or ui_draws_art() or cutscene_overlay_art() or indoor_map())
   if title_active() then
     title_draw()
   elseif battle_scene_active() then
@@ -231,7 +232,10 @@ function _draw()
   end
 
   camera()           -- 介面固定在畫面上
-  if not title_active() and not battle_scene_active() then season_weather_draw() end   -- 花瓣、落葉、雪（season.lua）
+  if not title_active() and not battle_scene_active() then
+    dark_draw()            -- 礦坑的暗處：圓以外塗黑（dark.lua）
+    season_weather_draw()  -- 花瓣、落葉、雪（season.lua）
+  end
   if not title_active() and not battle_scene_active() then cutscene_overlay_draw() end   -- 劇情的黑畫面、章節標題
   if not battle_scene_active() then ui_draw() end   -- 戰鬥中由戰鬥畫面自己畫
   dialog_draw()

@@ -252,12 +252,41 @@ SCENE.c1_end = function()
   say("村民：說是要在舊礦坑蓋新工廠。")
   blackout(true)
   narrate("第 1 章　完")
-  blackout(false)
   set_flag("ch1_done")
+  village_fence_open()          -- 西口的鐵輪柵欄打開（往舊礦坑，第 2 章）
+  blackout(false)
+  say("（村子西邊傳來敲敲打打的聲音。\n鐵輪公司的柵欄好像打開了。）")
+end
+
+-- 苔石村西口的鐵輪柵欄（3, 14）（3, 15）：第 1 章結束才打開（W67）
+function village_fence_open()
+  if not FLAGS.ch1_done then return end
+  for _, y in ipairs({ 14, 15 }) do
+    mset(world.map, "deco", 3, y, 0)
+    mset(world.map, "solid", 3, y, 0)
+  end
+end
+
+-- 舊礦坑：工頭走了就不在；礦車旁的野伴（劇情的小圖示，一直都在推車）
+local function mine_enter()
+  for i = #npcs, 1, -1 do
+    local n = npcs[i]
+    if (n.name == "foreman" and FLAGS.mine_entered) or (n.name == "exec" and FLAGS.trainer_exec1) then
+      npc_remove(n)
+    end
+  end
+  prop_add("w1", "12", 7, 11, true)
+  prop_add("w2", "12", 10, 11, true)
+  prop_add("w3", "12", 13, 11, true)
 end
 
 -- 進到某張地圖時（cutscene.lua 的 cutscene_enter_map 呼叫）
 function scene_on_enter(map)
+  if map == "village" then village_fence_open() end
+  if map == "mine" then
+    mine_enter()
+    if not FLAGS.ch2 then cutscene_start(SCENE.c2_start) return end
+  end
   if map == "camp" and FLAGS.first_catch and not FLAGS.tutorial_base and next(FACILITY) == nil then
     cutscene_start(SCENE.p6_base)
   elseif map == "village" and not FLAGS.ch1 then
@@ -267,4 +296,104 @@ function scene_on_enter(map)
   elseif map == "forest" and not FLAGS.scene_c1_moth then
     prop_add("moth", "10", 20, 5, false)   -- 躺在路邊的燈蛾（C1-5 之後就不在了）
   end
+end
+
+-- ============================================================
+-- 第 2 章：舊礦坑（W67；劇本見 docs/story.md「第 2 章　舊礦坑的燈」）
+-- ============================================================
+
+local function npc_named(name)
+  for _, n in ipairs(npcs) do
+    if n.name == name then return n end
+  end
+  return nil
+end
+
+-- C2-0：第一次走進舊礦坑（從苔石村西口）
+SCENE.c2_start = function()
+  wait(10)
+  chapter_card(2)
+  set_flag("ch2")
+end
+
+-- C2-1：礦坑口的工頭（事件格，或直接跟他說話）
+SCENE.c2_foreman = function()
+  if not npc_named("foreman") then return end
+  face("foreman", "player")
+  emote("foreman", "!")
+  say("工頭：喂，那邊那個大叔！\n礦坑在施工，閒人勿進！")
+  say("工頭：……還是你是來應徵的？")
+  say("工頭：我們只收 35 歲以下喔。")
+  say(P() .. "：……我只是路過。")
+  wait(20)
+  say("（噹——噹——午休的鐘聲響了。）")
+  say("工頭：午休了午休了。\n你自己小心，裡面很暗。")
+  walk("foreman", "up", 5)
+  npc_remove(npc_named("foreman"))
+  set_flag("mine_entered")
+end
+
+TALK.mine_foreman = function()
+  cutscene_start(SCENE.c2_foreman)
+end
+
+-- C2-2：第一次走進暗處
+SCENE.c2_dark = function()
+  say("好暗……" .. P() .. "的夜間視力\n也不如從前了。")
+  local k = field_skill_kin("power")
+  if k then
+    say(kin_name(k) .. "的翅膀亮了起來！\n四周看得清楚了。")
+  else
+    say("（要是有會發光的野伴就好了。\n霧林的燈蛾好像會……）")
+  end
+  set_flag("mine_dark")
+end
+
+-- C2-4：礦車旁的野伴
+SCENE.c2_carts = function()
+  wait(10)
+  say("（一排礦車，每台旁邊一隻礫殼犰狳在推。\n身上掛著牌子：「鐵輪公司　編號 0388」）")
+  emote("player", "…")
+  say(P() .. "：……這些野伴，看起來好累。")
+  say(P() .. "：跟我以前加班的樣子\n一模一樣。")
+  set_flag("mine_kin_seen")
+end
+
+-- C2-5：鐵輪幹部 高處長（礦坑最深處，事件格）
+SCENE.c2_exec = function()
+  if flag("trainer_exec1") or not npc_named("exec") then return end
+  face("exec", "left")
+  say("高處長：這條礦脈挖完，\n港灣鎮的新工廠就能……")
+  wait(20)
+  face("exec", "player")
+  emote("exec", "!")
+  say("高處長：……咦？")
+  say("高處長：大志？\n你不是被優化了嗎？")
+  say(P() .. "：……好久不見，阿高。")
+  say("高處長：叫我高處長。\n我現在是處長了。")
+  say("高處長：你知道嗎？你走了之後，\n你的位子是我接的。績效很好喔。")
+  say(P() .. "：那這些野伴呢？")
+  say("高處長：野伴？牠們是「設備」。\n設備不用睡覺。")
+  wait(30)
+  say("高處長：……跟我們以前一樣。")
+  say("高處長：既然你擋路，\n就照公司的規矩來吧。")
+  if fight("exec1") == "lose" then
+    wiped_out("老苔：你跟以前的同事打架？\n……年輕真好。")
+    return "again"              -- 下次走進來還會再遇到
+  end
+  local t = DATA.trainers.exec1
+  say("高處長：……你還是一樣，\n做事不看 KPI。")
+  MONEY = MONEY + t.money
+  say(P() .. "拿到了 " .. money_text(t.money) .. "獎金。")
+  say("高處長：港灣鎮的工廠，社長很重視。\n你最好別再管了。")
+  say("高處長：我先走了。\n……腰，記得顧。")
+  walk("exec", "left", 5)
+  npc_remove(npc_named("exec"))
+  wait(20)
+  say("（高處長從西邊的鐵門走了。\n遠遠可以聞到海的味道。）")
+  set_flag("mine_done")
+end
+
+TALK.exec1 = function()
+  cutscene_start(SCENE.c2_exec)
 end

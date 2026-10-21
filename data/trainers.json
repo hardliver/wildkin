@@ -30,5 +30,12 @@
     "intro": "讓我看看你和野伴的默契！",
     "win": "……好。你的野伴很信任你。",
     "after": "回去跟小苔說，下次換他來找我下棋。"
+  },
+  "exec1": {
+    "name": "高處長", "notice": 0, "sight": 0, "leave": true, "money": 1500,
+    "party": [ { "species": "12", "level": 15 }, { "species": "10", "level": 15 }, { "species": "07", "level": 16 } ],
+    "intro": "既然你擋路，就照公司的規矩來吧。",
+    "win": "……你還是一樣，做事不看 KPI。",
+    "after": "……"
   }
 }

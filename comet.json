@@ -9,6 +9,7 @@
     "src/world.lua",
     "src/ambient.lua",
     "src/fog.lua",
+    "src/dark.lua",
     "src/transition.lua",
     "src/player.lua",
     "src/npc.lua",
@@ -55,7 +56,8 @@
     "camp": "maps/camp.json",
     "route1": "maps/route1.json",
     "village": "maps/village.json",
-    "forest": "maps/forest.json"
+    "forest": "maps/forest.json",
+    "mine": "maps/mine.json"
   },
   "data": {
     "types": "data/types.json",

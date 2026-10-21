@@ -155,6 +155,7 @@ local butterflies = {}
 
 function butterflies_enter()
   butterflies = {}
+  if indoor_map() then return end   -- 礦坑裡沒有蝴蝶（dark.lua）
   local m = world.map
   local w, h = mapw(m), maph(m)
   local want = w * h // 150      -- 大約每 150 格一隻

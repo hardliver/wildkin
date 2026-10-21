@@ -17,5 +17,8 @@
   "bite":      { "name": "咬住",     "type": "normal",   "power": 60, "accuracy": 100, "pp": 25, "desc": "用力咬住對方。" },
   "spark":     { "name": "電火花",   "type": "electric", "power": 40, "accuracy": 100, "pp": 30, "desc": "放出小小的電火花。有時會讓對方麻痺。", "effect": { "kind": "status", "status": "paralyze", "chance": 10 } },
   "powder":    { "name": "麻痺鱗粉", "type": "electric", "power": 0,  "accuracy": 75,  "pp": 30, "desc": "灑出帶電的鱗粉，讓對方麻痺。", "effect": { "kind": "status", "status": "paralyze", "chance": 100 } },
-  "shell":     { "name": "縮殼",     "type": "normal",   "power": 0,  "accuracy": 0,   "pp": 30, "desc": "縮進殼裡，讓自己的防禦上升。", "effect": { "kind": "stat", "target": "self", "stat": "def", "stages": 1 } }
+  "shell":     { "name": "縮殼",     "type": "normal",   "power": 0,  "accuracy": 0,   "pp": 30, "desc": "縮進殼裡，讓自己的防禦上升。", "effect": { "kind": "stat", "target": "self", "stat": "def", "stages": 1 } },
+  "rockthrow": { "name": "擲石",     "type": "rock",     "power": 50, "accuracy": 90,  "pp": 20, "desc": "撿起石頭丟向對方。" },
+  "harden":    { "name": "硬殼",     "type": "rock",     "power": 0,  "accuracy": 0,   "pp": 20, "desc": "把殼上的石頭擠緊，讓自己的防禦上升。", "effect": { "kind": "stat", "target": "self", "stat": "def", "stages": 1 } },
+  "rockslide": { "name": "崩岩",     "type": "rock",     "power": 85, "accuracy": 85,  "pp": 10, "desc": "讓大石頭從上面崩下來。" }
 }

@@ -111,6 +111,15 @@ local function chapter1_table()
                           { { st, lv }, { mate[st], lv - 2 }, { "07", lv - 2 } }, keeper, false }
     end
   end
+  -- 第 2 章：高處長（W67）。隊伍：初始＋搧火蝠、礫殼犰狳（低 2 級）
+  local exec = {}
+  for i, p in ipairs(DATA.trainers.exec1.party) do exec[i] = { p.species, p.level } end
+  for _, st in ipairs({ "01", "03", "05" }) do
+    for _, lv in ipairs({ 15, 17 }) do
+      rows[#rows + 1] = { "高處長：" .. DATA.species[st].name .. " Lv" .. lv .. "＋搧火蝠、礫殼犰狳 Lv" .. (lv - 2),
+                          { { st, lv }, { "11", lv - 2 }, { "12", lv - 2 } }, exec, false }
+    end
+  end
   local out = {}
   for _, r in ipairs(rows) do
     out[#out + 1] = r[1]
@@ -131,5 +140,5 @@ DEBUG_TOOLS = {
       return sim_damage_text(a.me, a.me_lv, a.foe, a.foe_lv) .. "\n\n自動對戰 " .. a.n .. " 場（我方選最好的招，對手是訓練家）：\n" ..
              sim_battles_text({ { a.me, a.me_lv } }, { { a.foe, a.foe_lv } }, false, a.n)
     end },
-  { name = "第 1 章平衡表", fields = {}, run = chapter1_table },
+  { name = "第 1、2 章平衡表", fields = {}, run = chapter1_table },
 }

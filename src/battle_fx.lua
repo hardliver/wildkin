@@ -477,9 +477,51 @@ MOVE_ANIM.shell = function(ctx, u, t)
 end
 
 -- 屬性預設（moves.json 加了新招、還沒寫動畫時用）
+-- 擲石：三顆石頭從使用者拋向對方，落地一顆一顆彈起灰塵（W67）
+local function stone(x, y, r)
+  fx_disc(x, y, r, 5)
+  fx_disc(x - 1, y - 1, r - 1, 6)
+  pset(x - r // 2, y - r // 2, 7)
+end
+MOVE_ANIM.rockthrow = function(ctx, u, t)
+  local ux, uy = ctx.pos(u)
+  local tx, ty = ctx.pos(t)
+  wiggle(ctx, u, 6, 1)
+  play(ctx, 28, function(i)
+    for k = 0, 2 do
+      local s = i - k * 5
+      if s >= 1 and s <= 16 then
+        local x, y = arc(ux, uy - 10, tx + (k - 1) * 12, ty + (k % 2) * 4, s, 16, 30)
+        stone(x, y, 4)
+      elseif s > 16 and s < 24 then
+        burst(tx + (k - 1) * 12, ty + (k % 2) * 4, 4 + (s - 16), 6, 7)
+      end
+    end
+  end)
+  ctx.shake(2, 0); ctx.wait(2); ctx.shake(-2, 0); ctx.wait(2); ctx.shake(0, 0)
+end
+
+-- 崩岩：大石頭從畫面上方一顆顆掉在對方身上，畫面晃
+MOVE_ANIM.rockslide = function(ctx, u, t)
+  local tx, ty = ctx.pos(t)
+  play(ctx, 36, function(i)
+    for k = 0, 3 do
+      local s = i - k * 6
+      if s >= 1 and s <= 12 then
+        stone(tx + (k - 2) * 12 + 6, ty - 70 + s * 6, 6)
+      elseif s > 12 and s < 20 then
+        burst(tx + (k - 2) * 12 + 6, ty + 2, 4 + (s - 12), 5, 6)
+      end
+    end
+    if i % 6 == 0 then ctx.shake((i // 6) % 2 == 0 and 3 or -3, 0) end
+  end)
+  ctx.shake(0, 0)
+end
+MOVE_ANIM.harden = function(ctx, u, t) MOVE_ANIM.shell(ctx, u, t) end
+
 local TYPE_ANIM = {
   normal = MOVE_ANIM.tackle, grass = MOVE_ANIM.leaf, fire = MOVE_ANIM.ember,
-  water = MOVE_ANIM.splash, electric = MOVE_ANIM.spark, rock = MOVE_ANIM.tackle,
+  water = MOVE_ANIM.splash, electric = MOVE_ANIM.spark, rock = MOVE_ANIM.rockthrow,
 }
 
 function fx_move(ctx, key, u, t)

@@ -89,5 +89,13 @@
     "work": { "fire": 1 },
     "learn": [ [1, "scratch"], [1, "growl"], [6, "ember"], [10, "quick"], [14, "bite"] ],
     "desc": "翅膀像風箱，搧一搧炭火就旺起來。烤肉攤老闆最想要的員工，可惜牠只上夜班。"
+  },
+  "12": {
+    "name": "礫殼犰狳", "type": "rock", "sprite": 11,
+    "base": { "hp": 50, "atk": 60, "def": 80, "spd": 30 },
+    "catch": 120, "exp": 72,
+    "work": { "mine": 1 },
+    "learn": [ [1, "tackle"], [1, "harden"], [6, "rockthrow"], [11, "bite"], [18, "rockslide"] ],
+    "desc": "殼是一顆顆碎石拼成的。累了就捲成一顆球，誰叫都不醒。這招中年人也很想學。"
   }
 }

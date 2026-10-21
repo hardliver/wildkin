@@ -16,9 +16,9 @@ BUILD = os.path.join(HERE, "..", "..", "build")
 ALL = pals.ALL + pals2.ALL2 + pals3.ALL3   # 順序 = species.json 的 sprite（0～4 第一批、5～9 第二批、10～ 第三批 W66）
 # W66：已經畫好的野伴「凍結」——直接沿用 assets 裡的圖，不重新減色（不然舊的野伴顏色會跟著偏移）。
 # 只有新加的（第 FROZEN 隻以後）才算圖、減色：先減成 NEW_COLORS 色，跟舊顏色很接近的就直接用舊顏色。
-FROZEN = 10
+from build_frozen import FROZEN
 NEW_COLORS = 24
-NEAR = 14 * 14 * 3          # 顏色距離平方小於這個就算「很接近」
+NEAR = 6 * 6 * 3            # 顏色距離平方小於這個就算「很接近」（W67：原本 14，礫殼犰狳的石頭灰被換成灰綠）
 N = len(ALL)
 oldF = Image.open(os.path.join(OUT, "kin_front.png")).convert("RGBA")
 oldB = Image.open(os.path.join(OUT, "kin_back.png")).convert("RGBA")

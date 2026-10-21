@@ -105,7 +105,7 @@ local function build_grass_rows()
 end
 
 function tallgrass_draw()
-  if not has_grass then return end
+  if not has_grass or indoor_map() then return end   -- 礦坑：遇敵的地方本來就是碎石地面，不畫草
   if grass_rows.map ~= world.map then build_grass_rows(); grass_rows.map = world.map end
   local cx0, cy0 = world.cam_x // TILE, world.cam_y // TILE
   local cx1 = cx0 + SCREEN_W // TILE
@@ -134,7 +134,7 @@ local function cover_feet(x, y)
 end
 
 function tallgrass_front()
-  if not has_grass then return end
+  if not has_grass or indoor_map() then return end
   cover_feet(player.x16 // 16, player.y16 // 16)
   for _, n in ipairs(npcs) do cover_feet(n.x, n.y) end
 end
@@ -144,8 +144,9 @@ end
 -- ============================================================
 -- 戰鬥畫面全黑的那一刻呼叫：回到營地老苔的小屋前，隊伍全部補滿，老苔說一句話。
 -- GB 會扣一半的錢；這個遊戲還沒有錢（W55 商店），先不扣。
-function wiped_out()
+-- extra：老苔多說的一句（打輸特定對手時，例如高處長）
+function wiped_out(extra)
   for _, k in ipairs(party) do kin_heal(k) end
   warp("camp", 19, 13, 0, -1)          -- 老苔（19, 11）的前面，面向他
-  dialog_open(TALK.elder_rescue)
+  dialog_open(TALK.elder_rescue .. (extra and ("\f" .. extra) or ""))
 end
