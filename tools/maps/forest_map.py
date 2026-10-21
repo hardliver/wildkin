@@ -93,6 +93,7 @@ for (x, top, bottom) in ((53, 4, 16), (50, 5, 17), (56, 5, 17)):
     solid[9][x] = solid[10][x] = 1
 
 objects = [
+    {"type": "fire", "x": 49, "y": 15},   # 營火（W71）
     {"type": "sign", "x": 5, "y": 13, "text": "鐵輪公司　土地測量中\n閒人勿近"},
     {"type": "event", "x": 3, "y": 14, "scene": "c1_ironwheel"},
     {"type": "event", "x": 3, "y": 15, "scene": "c1_ironwheel"},

@@ -19,6 +19,7 @@
     "src/facility.lua",
     "src/clock.lua",
     "src/day.lua",
+    "src/campfire.lua",
     "src/season.lua",
     "src/craft.lua",
     "src/savegame.lua",
@@ -51,7 +52,8 @@
     "logo": "assets/art/logo.png",
     "chapters": "assets/art/chapters.png",
     "fog": "assets/art/fog.png",
-    "harbor": "assets/art/harbor.png"
+    "harbor": "assets/art/harbor.png",
+    "campfire": "assets/art/campfire.png"
   },
   "output": "build/wildkin.lua",
   "maps": {

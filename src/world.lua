@@ -153,6 +153,7 @@ function world_draw()
   season_dpal(false) -- 設施、帳篷不換色
   facility_draw()    -- 設施、設施空地、工作台（facility.lua）
   bed_draw()         -- 主角的帳篷（day.lua）
+  fire_draw()        -- 營火（campfire.lua）
   season_dpal(true)
   map(world.map, "deco")
   plants_draw()

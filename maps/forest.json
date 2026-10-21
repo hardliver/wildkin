@@ -25,7 +25,8 @@
     {"type":"gather","x":41,"y":17,"item":"fiber","amount":1,"tile":18},
     {"type":"gather","x":47,"y":13,"item":"ore","amount":1,"tile":44},
     {"type":"door","x":0,"y":14,"to":"village","tx":38,"ty":14},
-    {"type":"door","x":0,"y":15,"to":"village","tx":38,"ty":15}
+    {"type":"door","x":0,"y":15,"to":"village","tx":38,"ty":15},
+    {"type":"fire","x":49,"y":15}
   ],
   "layers": {
     "ground": [

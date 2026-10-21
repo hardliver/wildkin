@@ -129,6 +129,7 @@ for i, n in enumerate((24, 25, 26, 27, 28, 29)):
     deco[y][x] = HB(n); solid[y][x] = 1
 
 objects = [
+    {"type": "fire", "x": 20, "y": 12},   # 營火（W71）
     {"type": "door", "x": 39, "y": 14, "to": "mine", "tx": 1, "ty": 14},
     {"type": "door", "x": 39, "y": 15, "to": "mine", "tx": 1, "ty": 15},
     {"type": "sign", "x": 37, "y": 13, "text": "港灣鎮"},

@@ -20,7 +20,8 @@
     {"type":"door","x":20,"y":0,"to":"route1","tx":10,"ty":42},
     {"type":"door","x":0,"y":14,"to":"mine","tx":42,"ty":14},
     {"type":"door","x":0,"y":15,"to":"mine","tx":42,"ty":15},
-    {"type":"sign","x":5,"y":16,"text":"往舊礦坑\n鐵輪公司　施工中"}
+    {"type":"sign","x":5,"y":16,"text":"往舊礦坑\n鐵輪公司　施工中"},
+    {"type":"fire","x":18,"y":17}
   ],
   "layers": {
     "ground": [

@@ -23,7 +23,8 @@
     {"type":"event","x":37,"y":15,"scene":"c2_harbor"},
     {"type":"sign","x":10,"y":16,"text":"往海岸\\n（前面是海……要有辦法渡水）"},
     {"type":"gather","x":15,"y":17,"item":"fiber","amount":2,"tile":282},
-    {"type":"gather","x":32,"y":17,"item":"stone","amount":2,"tile":282}
+    {"type":"gather","x":32,"y":17,"item":"stone","amount":2,"tile":282},
+    {"type":"fire","x":20,"y":12}
   ],
   "layers": {
     "ground": [

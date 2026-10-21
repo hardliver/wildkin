@@ -25,7 +25,8 @@
     {"type":"gather","x":32,"y":21,"item":"stone","amount":2,"tile":145},
     {"type":"gather","x":27,"y":6,"item":"ore","amount":2,"tile":157},
     {"type":"gather","x":19,"y":9,"item":"stone","amount":2,"tile":145},
-    {"type":"gather","x":4,"y":20,"item":"ore","amount":3,"tile":157}
+    {"type":"gather","x":4,"y":20,"item":"ore","amount":3,"tile":157},
+    {"type":"fire","x":36,"y":11}
   ],
   "layers": {
     "ground": [

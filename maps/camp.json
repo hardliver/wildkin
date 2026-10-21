@@ -23,7 +23,8 @@
     {"type":"gather","x":8,"y":22,"item":"stone","amount":2,"tile":44},
     {"type":"gather","x":33,"y":24,"item":"wood","amount":2,"tile":107},
     {"type":"gather","x":30,"y":3,"item":"fiber","amount":1,"tile":18},
-    {"type":"gather","x":5,"y":13,"item":"wood","amount":2,"tile":107}
+    {"type":"gather","x":5,"y":13,"item":"wood","amount":2,"tile":107},
+    {"type":"fire","x":16,"y":10}
   ],
   "layers": {
     "ground": [
