@@ -44,6 +44,12 @@ function world_spr(v, x, y, flip)
   end
 end
 
+-- 格子編號 v 在哪張圖的第幾格（先算好，之後直接 spr，省 Lua 指令）
+function world_tile_image(v)
+  if v <= TOWN_TILES then return IMG.town, v - 1 end
+  return IMG.dungeon, v - TOWN_TILES - 1
+end
+
 -- 畫格子編號 v 的圖的一部分（sx, sy, sw, sh：格子裡的範圍），左上角放在 (x, y)
 function world_sspr(v, sx, sy, sw, sh, x, y)
   local img, n = IMG.town, v - 1

@@ -17,6 +17,7 @@ local function enter_map(name)
   facility_load()
   bed_load()
   block_load()
+  ambient_enter()   -- 先整理好這張地圖的植物、草（ambient.lua，運算預算）
   butterflies_enter()
 end
 
@@ -211,7 +212,7 @@ function _draw()
   elseif battle_scene_active() then
     battle_scene_draw()
   else
-    cls(0)
+    -- 不用 cls：地圖一定比畫面大，地面那一層會蓋滿整個畫面（省一次全畫面的清除，運算預算 W62）
     world_draw()   -- 設定相機，畫地面和裝飾
     draw_actors()  -- 世界座標
     tallgrass_front()    -- 草叢蓋住主角的腳

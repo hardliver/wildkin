@@ -509,9 +509,18 @@ local function isqrt(n)
   return r
 end
 
+-- 每一列的半寬只跟 rx、ry 有關：算一次存起來（每幀重算平方根很花 Lua 指令，運算預算 W62）
+local ellipse_rows = {}
 local function ellipse(cx, cy, rx, ry, c)
+  local k = rx * 1000 + ry
+  local rows = ellipse_rows[k]
+  if not rows then
+    rows = {}
+    for dy = -ry, ry do rows[dy + ry + 1] = isqrt(rx * rx * (ry * ry - dy * dy) // (ry * ry)) end
+    ellipse_rows[k] = rows
+  end
   for dy = -ry, ry do
-    local hw = isqrt(rx * rx * (ry * ry - dy * dy) // (ry * ry))
+    local hw = rows[dy + ry + 1]
     rect(cx - hw, cy + dy, hw * 2 + 1, 1, c)
   end
 end

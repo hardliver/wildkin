@@ -74,13 +74,33 @@ local function grass_frame(cx, cy)
 end
 
 -- 地面之後、角色之前畫
+-- 草叢的格子先整理好（每一列有哪幾格），每幀只看可見的列（運算預算 W62）
+local grass_rows = {}
+local function build_grass_rows()
+  grass_rows = {}
+  if not has_grass then return end
+  local m = world.map
+  for cy = 0, maph(m) - 1 do
+    local row = {}
+    for cx = 0, mapw(m) - 1 do
+      if mget(m, "grass", cx, cy) ~= 0 then row[#row + 1] = cx end
+    end
+    if #row > 0 then grass_rows[cy] = row end
+  end
+end
+
 function tallgrass_draw()
   if not has_grass then return end
+  if grass_rows.map ~= world.map then build_grass_rows(); grass_rows.map = world.map end
   local cx0, cy0 = world.cam_x // TILE, world.cam_y // TILE
+  local cx1 = cx0 + SCREEN_W // TILE
   for cy = cy0, cy0 + SCREEN_H // TILE do
-    for cx = cx0, cx0 + SCREEN_W // TILE do
-      if in_grass(cx, cy) then
-        spr(IMG.tallgrass, grass_frame(cx, cy), cx * TILE, cy * TILE)
+    local row = grass_rows[cy]
+    if row then
+      for _, cx in ipairs(row) do
+        if cx >= cx0 and cx <= cx1 then
+          spr(IMG.tallgrass, grass_frame(cx, cy), cx * TILE, cy * TILE)
+        end
       end
     end
   end

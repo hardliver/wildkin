@@ -50,8 +50,7 @@ end
 
 -- 第 (cx, cy) 格的東西這一幀要不要歪：回傳 0 或 1。
 -- 門檻 1～8：門檻低的比較容易被吹動。節奏 50～89 幀晃一次，其中一半的時間歪著
-local function sways(cx, cy)
-  local h = hash(cx, cy, 1)
+local function sways_h(h)
   if h % 8 + 1 > wind then return 0 end
   local period = 50 + h % 40
   return (frame() + h) % period < period // 2 and 1 or 0
@@ -64,45 +63,81 @@ end
 --   一般的樹：上面 10 列（樹冠）往右移 1 像素，下面 6 列（樹幹）不動
 --   兩格高的樹的上半格（town 第 3、4 格）：整格一起移；用下面那一格的位置判斷，上下才會一起動
 -- 只畫畫面看得到的格子（大約 21 × 16 格）
+--
+-- 運算預算（W62）：每幀對每一格 mget、hash 太花 Lua 指令（霧林一幀 3 萬多個）。
+-- 改成進地圖時先整理好：每一列有哪些植物、各自的 hash（ambient_enter），每幀只看可見的那幾列
 
 local TALL_TOP = { [4] = true, [5] = true }   -- 地圖編號（town 第 3、4 格）
+local GRASS = { [2] = true, [3] = true }      -- 會翻動的地面（town 第 1、2 格：草叢、小花）
+
+local plant_rows = {}   -- plant_rows[cy] = { cx, 圖, 第幾格, hash, 兩格高嗎, … }（攤平，每 5 個一組，少建表格）
+local flip_rows = {}    -- 會翻動的草：flip_rows[cy] = { cx1, v1, h1, … }
+
+function ambient_enter()
+  plant_rows, flip_rows = {}, {}
+  local m = world.map
+  local w, h = mapw(m), maph(m)
+  for cy = 0, h - 1 do
+    local pr, fr = {}, {}
+    for cx = 0, w - 1 do
+      local v = world.has_plants and mget(m, "plants", cx, cy) or 0
+      if v ~= 0 then
+        local img, n = world_tile_image(v)   -- 先算好是哪張圖的第幾格，畫的時候直接 spr
+        pr[#pr + 1] = cx; pr[#pr + 1] = img; pr[#pr + 1] = n
+        pr[#pr + 1] = hash(cx, TALL_TOP[v] and cy + 1 or cy, 1)   -- 兩格高的樹用下面那格的 hash
+        pr[#pr + 1] = TALL_TOP[v] or false
+      end
+      local g = mget(m, "ground", cx, cy)
+      if GRASS[g] then
+        fr[#fr + 1] = cx; fr[#fr + 1] = g; fr[#fr + 1] = hash(cx, cy, 2)
+      end
+    end
+    plant_rows[cy], flip_rows[cy] = pr, fr
+  end
+end
 
 function plants_draw()
-  local m = world.map
   local cx0, cy0 = world.cam_x // TILE, world.cam_y // TILE
+  local cx1 = cx0 + SCREEN_W // TILE
   for cy = cy0, cy0 + SCREEN_H // TILE do
-    for cx = cx0, cx0 + SCREEN_W // TILE do
-      local v = mget(m, "plants", cx, cy)
-      if v ~= 0 then
-        local x, y = cx * TILE, cy * TILE
-        if TALL_TOP[v] then
-          world_spr(v, x + sways(cx, cy + 1), y)
-        elseif sways(cx, cy) == 0 then
-          world_spr(v, x, y)
-        else
-          world_sspr(v, 0, 0, 16, 10, x + 1, y)
-          world_sspr(v, 0, 10, 16, 6, x, y + 10)
+    local row = plant_rows[cy]
+    if row then
+      local y = cy * TILE
+      for i = 1, #row, 5 do
+        local cx = row[i]
+        if cx >= cx0 and cx <= cx1 then
+          local img, n, x = row[i + 1], row[i + 2], cx * TILE
+          local s = sways_h(row[i + 3])
+          if row[i + 4] then
+            spr(img, n, x + s, y)
+          elseif s == 0 then
+            spr(img, n, x, y)
+          else
+            local sx, sy = (n % 12) * 16, (n // 12) * 16   -- town、dungeon 都是一列 12 格
+            sspr(img, sx, sy, 16, 10, x + 1, y)
+            sspr(img, sx, sy + 10, 16, 6, x, y + 10)
+          end
         end
       end
     end
   end
 end
 
--- 草叢翻動：有草的地面（town 第 1、2 格）左右翻過來畫一下，零星幾格、一次 8 幀。
+-- 草叢翻動：有草的地面左右翻過來畫一下，零星幾格、一次 8 幀。
 -- 地面是 map() 畫的，這裡直接蓋在上面（地面格子不透明，蓋上去就換掉了）
-local GRASS = { [2] = true, [3] = true }   -- 地圖編號（town 第 1、2 格：草叢、小花）
-
 function grass_draw()
-  local m = world.map
+  if wind < 3 then return end   -- 門檻最低是 3：風太小就整個跳過
   local cx0, cy0 = world.cam_x // TILE, world.cam_y // TILE
+  local cx1 = cx0 + SCREEN_W // TILE
+  local f = frame()
   for cy = cy0, cy0 + SCREEN_H // TILE do
-    for cx = cx0, cx0 + SCREEN_W // TILE do
-      local v = mget(m, "ground", cx, cy)
-      if GRASS[v] then
-        local h = hash(cx, cy, 2)
+    local row = flip_rows[cy]
+    if row then
+      for i = 1, #row, 3 do
+        local cx, h = row[i], row[i + 2]
         -- 比樹難吹動（門檻 3～10），每 60～109 幀翻一次
-        if h % 8 + 3 <= wind and (frame() + h) % (60 + h % 50) < 8 then
-          world_spr(v, cx * TILE, cy * TILE, true)
+        if cx >= cx0 and cx <= cx1 and h % 8 + 3 <= wind and (f + h) % (60 + h % 50) < 8 then
+          world_spr(row[i + 1], cx * TILE, cy * TILE, true)
         end
       end
     end

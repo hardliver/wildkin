@@ -159,10 +159,18 @@ function dialog_update(no_input)
 end
 
 -- 畫框：GB 風格的白底、黑色雙線框
+-- 只畫三圈框線＋裡面填一次（原本是四個實心矩形疊起來，同一個點畫了四次；運算預算 W62）
+local function frame_line(x, y, w, h, c)
+  rect(x, y, w, 1, c)
+  rect(x, y + h - 1, w, 1, c)
+  rect(x, y + 1, 1, h - 2, c)
+  rect(x + w - 1, y + 1, 1, h - 2, c)
+end
+
 function ui_box(x, y, w, h)
-  rect(x, y, w, h, 0)
-  rect(x + 1, y + 1, w - 2, h - 2, 7)
-  rect(x + 2, y + 2, w - 4, h - 4, 0)
+  frame_line(x, y, w, h, 0)
+  frame_line(x + 1, y + 1, w - 2, h - 2, 7)
+  frame_line(x + 2, y + 2, w - 4, h - 4, 0)
   rect(x + 3, y + 3, w - 6, h - 6, 7)
 end
 
