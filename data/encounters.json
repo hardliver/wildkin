@@ -3,10 +3,7 @@
     "rate": 20,
     "list": [
       { "species": "07", "min": 2, "max": 4, "weight": 50, "times": { "evening": 70, "night": 70 } },
-      { "species": "08", "min": 2, "max": 4, "weight": 40, "times": { "morning": 60 } },
-      { "species": "01", "min": 3, "max": 3, "weight": 5 },
-      { "species": "05", "min": 3, "max": 3, "weight": 5 },
-      { "species": "03", "min": 3, "max": 3, "weight": 5 }
+      { "species": "08", "min": 2, "max": 4, "weight": 40, "times": { "morning": 60 } }
     ]
   },
   "forest": {
