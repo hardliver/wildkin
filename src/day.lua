@@ -43,6 +43,7 @@ local function day_end()
   end
   GATHERED = {}   -- 過了一天，全部都能再撿（順便讓存檔不要越存越大）
   DAY = DAY + 1
+  FLAGS.slept = true   -- 任務日誌：睡過一覺
   for _, k in ipairs(party) do kin_heal(k) end
   for _, fac in pairs(FACILITY) do
     for _, k in ipairs(fac.workers) do kin_heal(k) end

@@ -181,6 +181,7 @@ function _update()
   for _, n in ipairs(npcs) do npc_update(n) end
   if pressed(A) then interact() end
   if pressed(START) then field_menu_open() return end
+  if pressed(SELECT) then quest_open() return end   -- 任務日誌（quest.lua）
   check_door()
   if not transition_active() and not cutscene_check() and not trainer_check() then encounter_check() end
   world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)   -- 跟著主角的中心點
