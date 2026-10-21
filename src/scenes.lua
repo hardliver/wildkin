@@ -72,6 +72,7 @@ SCENE.prologue = function()
   end)
   say("老苔：對了，按 START 可以看隊伍和背包。")
   say("老苔：野伴累了，就在營地的帳篷睡一覺。\n帳篷在我小屋的左邊。")
+  say("老苔：什麼時候去睡都行，\n睡一下，野伴就全好了。")
   say("老苔：先到南邊的草原小徑看看吧。")
   set_flag("starter")
 end

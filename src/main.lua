@@ -179,6 +179,8 @@ function _update()
     return
   end
 
+  heal_tip_check() -- 第一次受傷：提示帳篷可以回血（day.lua）
+  if dialog_active() then return end
   clock_tick()     -- 遊戲時鐘只在這裡走：上面那些（戰鬥、選單、對話、劇情、轉場）進行中都停住
   player_update()
   for _, n in ipairs(npcs) do npc_update(n) end
@@ -221,6 +223,7 @@ function _draw()
     draw_actors()  -- 世界座標
     tallgrass_front()    -- 草叢蓋住主角的腳
     facility_draw_top()  -- 剛蓋好的設施冒出的煙塵
+    bed_draw_top()       -- 隊伍受傷時帳篷上的愛心（day.lua）
     fog_draw()           -- 霧林的霧（fog.lua）
     butterflies_draw()   -- 飛在大家上面
     cutscene_draw()      -- 劇情裡頭上的氣泡（！？…♪）

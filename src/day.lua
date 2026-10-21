@@ -34,6 +34,47 @@ function bed_draw()
   for _, b in ipairs(beds) do spr(IMG.facilities, BED_SPRITE, b.x, b.y) end
 end
 
+-- 隊伍裡有沒有受傷的（HP 沒滿、倒下）
+function party_hurt()
+  for _, k in ipairs(party) do
+    if k.hp < kin_max_hp(k) then return true end
+  end
+  return false
+end
+
+-- 帳篷上的愛心氣泡：隊伍有受傷的就冒出來，上下輕輕跳，告訴玩家「來這裡休息」
+-- （Neil 回饋：不知道帳篷可以回血；很多玩家不喜歡全滅的感覺）
+local HEART = { ".##.##.", "#######", "#######", ".#####.", "..###..", "...#..." }
+function bed_draw_top()
+  if #beds == 0 or not party_hurt() then return end
+  local bob = (frame() // 20) % 2
+  for _, b in ipairs(beds) do
+    local x, y = b.x + 9, b.y - 14 - bob
+    rect(x - 1, y - 1, 15, 12, 0)          -- 氣泡：黑框、白底
+    rect(x, y, 13, 10, 7)
+    rect(x + 5, y + 10, 3, 2, 0)          -- 氣泡的小尾巴
+    pset(x + 6, y + 10, 7)
+    for r, row in ipairs(HEART) do
+      for c = 1, #row do
+        if row:sub(c, c) == "#" then pset(x + 2 + c, y + 1 + r, 8) end
+      end
+    end
+  end
+end
+
+-- 第一次受傷到一半以下時提示一次：帳篷可以回血（main.lua 在主角能自由走動時呼叫）
+function heal_tip_check()
+  if FLAGS.tip_heal or not FLAGS.starter then return end
+  for _, k in ipairs(party) do
+    if k.hp * 2 < kin_max_hp(k) then
+      FLAGS.tip_heal = true
+      dialog_open("（野伴受傷了。\n回新芽營地的帳篷休息，隨時都能全部回滿。）" ..
+        "\f（帳篷上冒出愛心，就是野伴需要休息的意思。\n苔石村的旅店也可以休息。）")
+      return
+    end
+  end
+end
+
 -- 換日（clock.lua 走到半夜 24:00 時呼叫；不用睡覺也會換日，照幻獸帕魯）
 --   1. DAY + 1：野外的採集點重新長出來
 --   2. 派駐的野伴吃飼料（facility_feed），結果記在 LAST_FEED，睡醒時報告
