@@ -159,11 +159,53 @@ SCENE.p9_village = function()
   set_flag("ch1")
 end
 
+-- ============================================================
+-- 第 1 章：霧林（C1-4、C1-5）
+-- ============================================================
+
+-- C1-4：霧林入口，鐵輪公司的木樁
+SCENE.c1_ironwheel = function()
+  say("（路邊插著幾根漆成紅色的木樁，\n還有一塊新的告示牌。）")
+  say("告示牌：「鐵輪公司　土地測量中\n閒人勿近」")
+  emote("player", "?")
+  say(P() .. "：鐵輪公司……？")
+  say(P() .. "：這個 logo 好像在哪裡看過。")
+  set_flag("saw_ironwheel")
+end
+
+-- C1-5：過勞的燈蛾（霧林中段，路邊）
+SCENE.c1_moth = function()
+  face("player", "right")
+  emote("player", "!")
+  say("（路邊有一隻燈蛾躺在地上，\n翅膀的光一閃一閃，很微弱。）")
+  say("燈蛾的牌子上寫著：\n「鐵輪公司　照明用　編號 0217」")
+  say("燈蛾看起來很累，翅膀幾乎不亮了。")
+  local yes = ask("要給牠回復藥嗎？", { "給", "不給" }) == 1
+  if yes and (BAG.potion or 0) == 0 then
+    say("……背包裡沒有回復藥。")
+    yes = false
+  end
+  if yes then
+    bag_add("potion", -1)
+    say("燈蛾的翅膀慢慢亮起來了。")
+    say("燈蛾繞著" .. P() .. "飛了一圈，\n往森林深處飛走了。")
+    fade(function() prop_remove("moth") end)
+    say(P() .. "：……編號 0217。")
+    say(P() .. "：我在公司的員工編號也是四碼。")
+    set_flag("moth_rescued")
+  else
+    say("燈蛾自己慢慢飛走了。")
+    fade(function() prop_remove("moth") end)
+  end
+end
+
 -- 進到某張地圖時（cutscene.lua 的 cutscene_enter_map 呼叫）
 function scene_on_enter(map)
   if map == "camp" and FLAGS.first_catch and not FLAGS.tutorial_base and next(FACILITY) == nil then
     cutscene_start(SCENE.p6_base)
   elseif map == "village" and not FLAGS.ch1 then
     cutscene_start(SCENE.p9_village)
+  elseif map == "forest" and not FLAGS.scene_c1_moth then
+    prop_add("moth", "10", 20, 5, false)   -- 躺在路邊的燈蛾（C1-5 之後就不在了）
   end
 end

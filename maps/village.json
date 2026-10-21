@@ -14,6 +14,8 @@
     {"type":"npc","x":37,"y":14,"name":"guard","tile":230,"talk":"village_guard"},
     {"type":"block","x":38,"y":14,"tile":107,"need":"lumber"},
     {"type":"block","x":38,"y":15,"tile":107,"need":"lumber"},
+    {"type":"door","x":39,"y":14,"to":"forest","tx":1,"ty":14},
+    {"type":"door","x":39,"y":15,"to":"forest","tx":1,"ty":15},
     {"type":"door","x":19,"y":0,"to":"route1","tx":9,"ty":42},
     {"type":"door","x":20,"y":0,"to":"route1","tx":10,"ty":42}
   ],

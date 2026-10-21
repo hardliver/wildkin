@@ -8,6 +8,7 @@
     "src/screens.lua",
     "src/world.lua",
     "src/ambient.lua",
+    "src/fog.lua",
     "src/transition.lua",
     "src/player.lua",
     "src/npc.lua",
@@ -41,13 +42,15 @@
     "kin_icons": "assets/art/kin_icons.png",
     "facilities": { "file": "assets/art/facilities.png", "tile": 32 },
     "logo": "assets/art/logo.png",
-    "chapters": "assets/art/chapters.png"
+    "chapters": "assets/art/chapters.png",
+    "fog": "assets/art/fog.png"
   },
   "output": "build/wildkin.lua",
   "maps": {
     "camp": "maps/camp.json",
     "route1": "maps/route1.json",
-    "village": "maps/village.json"
+    "village": "maps/village.json",
+    "forest": "maps/forest.json"
   },
   "data": {
     "types": "data/types.json",

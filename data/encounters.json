@@ -5,8 +5,16 @@
       { "species": "07", "min": 2, "max": 4, "weight": 50 },
       { "species": "08", "min": 2, "max": 4, "weight": 40 },
       { "species": "01", "min": 3, "max": 3, "weight": 5 },
-      { "species": "05", "min": 3, "max": 3, "weight": 5 },
-      { "species": "09", "min": 3, "max": 3, "weight": 5 }
+      { "species": "05", "min": 3, "max": 3, "weight": 5 }
+    ]
+  },
+  "forest": {
+    "rate": 24,
+    "list": [
+      { "species": "09", "min": 8, "max": 11, "weight": 35 },
+      { "species": "10", "min": 8, "max": 11, "weight": 30 },
+      { "species": "07", "min": 8, "max": 10, "weight": 20 },
+      { "species": "08", "min": 9, "max": 10, "weight": 15 }
     ]
   }
 }

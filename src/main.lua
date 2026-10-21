@@ -215,6 +215,7 @@ function _draw()
     draw_actors()  -- 世界座標
     tallgrass_front()    -- 草叢蓋住主角的腳
     facility_draw_top()  -- 剛蓋好的設施冒出的煙塵
+    fog_draw()           -- 霧林的霧（fog.lua）
     butterflies_draw()   -- 飛在大家上面
     cutscene_draw()      -- 劇情裡頭上的氣泡（！？…♪）
   end
