@@ -98,7 +98,7 @@ function bag_open(where, on_use, opts)
     if not key then return end
     local it = DATA.items[key]
     if it.kind == "material" then
-      dialog_open("做東西用的材料。可以在營地的工作台使用。")
+      dialog_open("做東西用的材料。在營地的工作台使用。")
       return
     end
     if it.kind == "ball" then

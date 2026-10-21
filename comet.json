@@ -15,6 +15,7 @@
     "src/gather.lua",
     "src/facility.lua",
     "src/day.lua",
+    "src/craft.lua",
     "src/trainer.lua",
     "src/talk.lua",
     "src/kin.lua",
@@ -46,6 +47,7 @@
     "work": "data/work.json",
     "trainers": "data/trainers.json",
     "items": "data/items.json",
-    "facilities": "data/facilities.json"
+    "facilities": "data/facilities.json",
+    "recipes": "data/recipes.json"
   }
 }

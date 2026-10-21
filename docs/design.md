@@ -143,6 +143,7 @@ Game Boy 時期寶可夢式的**回合制**：每回合雙方各選一個動作�
 | `items.json` | 道具：名稱、種類（heal／ball）、效果量、價錢、能在哪裡用、說明 | `DATA.items.potion` |
 | `trainers.json` | 訓練家：名字、隊伍、視線、台詞（地圖 NPC 的 `trainer` 欄位指到這裡） | `DATA.trainers.rival1` |
 | `facilities.json` | 設施：名稱、工作特性、圖（facilities.png 第幾格）、建造材料、每天每 1 工作等級的產出、說明 | `DATA.facilities.lumber` |
+| `recipes.json` | 工作台的配方：做出什麼（items 的編號）、一次幾個、材料 | `DATA.recipes.ball` |
 
 約定（全部整數，沒有小數）：
 - **相剋倍率用「× 2 的整數」**：4 = 效果絕佳（×2）、2 = 一般、1 = 效果不好（×½）、0 = 沒有效果；表裡沒寫的組合都是 2。傷害計算時 `× 倍率 // 2`

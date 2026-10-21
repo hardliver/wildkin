@@ -10,7 +10,7 @@
 -- 派駐的野伴在設施旁邊走來走去：在 4 個定點（前面左右、兩側）之間走，停下來時一跳一跳地工作
 -- 設施的圖：assets/art/facilities.png，每格 32×32；第 0 格是空地，其他是 facilities.json 的 sprite，第 5 格是工作台
 --
--- 工作台：地圖物件 type = "workbench"，也是 2×2 格、擋路；面對它按 A 開製作（W47）
+-- 工作台：地圖物件 type = "workbench"，也是 2×2 格、擋路；面對它按 A 開製作（craft.lua）
 
 FACILITY = FACILITY or {}
 
@@ -53,7 +53,7 @@ function workbench_at(px, py)
 end
 
 function workbench_interact(b)
-  dialog_open("工作台：用材料做道具的地方。\n鋸子和鐵鎚都準備好了，做法還在研究中。")
+  craft_open()   -- craft.lua
 end
 
 -- 世界座標 (px, py) 這一點上的空地／設施
@@ -90,6 +90,9 @@ local function missing(cost)
   if #parts == 0 then return nil end
   return table.concat(parts, "、")
 end
+
+-- 給製作（craft.lua）共用
+mat_sorted, mat_text, mat_missing = sorted_cost, cost_text, missing   -- 材料清單排序、「木材 5、石頭 2」、還差什麼
 
 -- 能蓋的設施，依 sort 排好
 local function buildable()

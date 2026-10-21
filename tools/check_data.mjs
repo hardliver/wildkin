@@ -11,7 +11,7 @@ import fs from "fs";
 const read = (name) => JSON.parse(fs.readFileSync(`data/${name}.json`, "utf8"));
 const types = read("types"), moves = read("moves"), species = read("species");
 const trainers = read("trainers"), items = read("items");
-const encounters = read("encounters"), work = read("work"), facilities = read("facilities");
+const encounters = read("encounters"), work = read("work"), facilities = read("facilities"), recipes = read("recipes");
 const errors = [];
 const err = (msg) => errors.push(msg);
 const isInt = (v) => Number.isInteger(v);
@@ -119,6 +119,20 @@ for (const [key, f] of Object.entries(facilities)) {
   if (f.cost && Object.keys(f.cost).length === 0) err(`${at}：cost 至少要一樣材料`);
 }
 
+// 配方（W47）
+for (const [key, r] of Object.entries(recipes)) {
+  const at = `recipes.json 的 ${key}`;
+  if (!(r.item in items)) err(`${at}：做出來的「${r.item}」不在 items.json`);
+  if (!isInt(r.amount) || r.amount < 1) err(`${at}：amount 要是正整數`);
+  if (!isInt(r.sort)) err(`${at}：sort 要是整數`);
+  if (!r.cost || Object.keys(r.cost).length === 0) err(`${at}：cost 至少要一樣材料`);
+  for (const [item, n] of Object.entries(r.cost || {})) {
+    if (!(item in items)) err(`${at}：材料「${item}」不在 items.json`);
+    if (!isInt(n) || n < 1) err(`${at}：cost.${item} 要是正整數`);
+    if (item === r.item) err(`${at}：材料不能是自己`);
+  }
+}
+
 if (errors.length) {
   console.log(`資料檔有 ${errors.length} 個問題：`);
   for (const e of errors) console.log("  ✗ " + e);
@@ -151,4 +165,4 @@ for (const [id, it] of Object.entries(items)) {
   else if (sorts[it.sort]) err(`${at}：sort ${it.sort} 和 ${sorts[it.sort]} 重複`); else sorts[it.sort] = id;
 }
 
-console.log(`✓ 資料檔：${Object.keys(species).length} 種野伴、${Object.keys(moves).length} 招、${Object.keys(encounters).length} 張遭遇表、${Object.keys(trainers).length} 位訓練家、${Object.keys(items).length} 種道具、${Object.keys(facilities).length} 種設施，彼此都對得上`);
+console.log(`✓ 資料檔：${Object.keys(species).length} 種野伴、${Object.keys(moves).length} 招、${Object.keys(encounters).length} 張遭遇表、${Object.keys(trainers).length} 位訓練家、${Object.keys(items).length} 種道具、${Object.keys(facilities).length} 種設施、${Object.keys(recipes).length} 個配方，彼此都對得上`);

@@ -1,0 +1,5 @@
+{
+  "ball":   { "item": "ball",   "amount": 1, "sort": 1, "cost": { "wood": 2, "stone": 1 } },
+  "potion": { "item": "potion", "amount": 1, "sort": 2, "cost": { "berry": 2 } },
+  "feed":   { "item": "feed",   "amount": 3, "sort": 3, "cost": { "berry": 1, "wheat": 1 } }
+}
