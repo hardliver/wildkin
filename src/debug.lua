@@ -7,7 +7,7 @@
 -- 指令列也可以直接打：dbg_warp("route1", 9, 20)、dbg_kin("09", 12)、BAG.ball = 30
 
 DEBUG_VIEW = {
-  "SAVE_SLOT", "DAY", "world.name", "{ player_cell() }",
+  "SAVE_SLOT", "DAY", "MONEY", "world.name", "{ player_cell() }",
   "BAG", "party", "RANCH", "FACILITY", "FLAGS", "DEX.caught", "GATHERED",
 }
 
@@ -15,6 +15,7 @@ DEBUG_COMMANDS = {
   { "新遊戲（跳過標題）", "dbg_new()" },
   { "材料各 20", "dbg_give('material', 20)" },
   { "道具各 10", "dbg_give('item', 10)" },
+  { "錢 +10000", "MONEY = MONEY + 10000" },
   { "隊伍回復", "for _, k in ipairs(party) do kin_heal(k) end" },
   { "過一天", "dbg_next_day()" },
   { "Lv10 囤囤鼠", "dbg_kin('07', 10)" },

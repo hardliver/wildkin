@@ -58,6 +58,10 @@ local function run_trainer(n, walk_over)
     return
   end
   say(t.name .. "：" .. fmt(t.win))
+  if t.money then                              -- 獎金
+    MONEY = MONEY + t.money
+    say(PLAYER_NAME .. "拿到了 " .. money_text(t.money) .. "獎金。")
+  end
   if t.gift then give(t.gift, 1) end          -- 打贏送的東西（阿穗的便當）
   if t.bye then say(t.name .. "：" .. fmt(t.bye)) end
   if t.leave then

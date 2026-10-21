@@ -102,6 +102,7 @@ function new_game(slot)
   DEX = { seen = {}, caught = {} }
   FLAGS, FACILITY, GATHERED = {}, {}, {}
   DAY, PLAY_FRAMES = 1, 0
+  MONEY = 3000                      -- 優退金剩下的（商店 W55）
   enter_map("camp")
   player_init(19 * TILE, 27 * TILE)   -- 營地南口（船靠岸之後走上來）
   player.dir_x, player.dir_y = 0, -1

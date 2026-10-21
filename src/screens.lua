@@ -443,6 +443,65 @@ function dex_open()
 end
 
 -- ============================================================
+-- 錢（W55）
+-- ============================================================
+
+MONEY = MONEY or 0   -- 手上的錢（元）；W49 存檔一起存
+
+-- 「1,250 元」
+function money_text(n)
+  local s = tostring(n)
+  while true do
+    local t = s:gsub("^(%d+)(%d%d%d)", "%1,%2")
+    if t == s then break end
+    s = t
+  end
+  return s .. " 元"
+end
+
+-- 右上角的小框：「錢　1,250 元」
+function money_box_draw(y)
+  local s = money_text(MONEY)
+  local w = textw("錢") + textw(s) + 32
+  ui_box(4, y or 8, w, 30)
+  text("錢", 14, (y or 8) + 7, 5)
+  text(s, w - 6 - textw(s), (y or 8) + 7, 0)
+end
+
+-- ============================================================
+-- 選數量（製作、商店共用）
+-- ============================================================
+-- title：「要做幾次？」；most：最多幾個；line(n)：選 n 個時下面那一行的說明（「用掉：木材 4」）；
+-- label(n)：中間大字（「野伴球 × 3」）；on_done(n)：按 A。按 B 取消
+function amount_pick(title, most, label, line, on_done, verb)
+  local screen = { n = 1 }
+  function screen.update(self)
+    if pressed_repeat(RIGHT) then self.n = self.n % most + 1 end
+    if pressed_repeat(LEFT) then self.n = (self.n - 2) % most + 1 end
+    if pressed_repeat(UP) then self.n = math.min(most, self.n + 10) end
+    if pressed_repeat(DOWN) then self.n = math.max(1, self.n - 10) end
+    if pressed(B) then ui_pop() return end
+    if pressed(A) then
+      ui_pop()
+      on_done(self.n)
+    end
+  end
+  function screen.draw(self)
+    ui_box(4, 128, 312, 108)
+    text(title, 14, 138, 0)
+    local s = label(self.n)
+    local w = textw(s)
+    local cx = 160
+    text(s, cx - w // 2, 162, 0)
+    ui_arrow_right(cx + w // 2 + 8, 165, 0)
+    for i = 0, 3 do rect(cx - w // 2 - 12 + i, 168 - i, 1, 1 + i * 2, 0) end   -- 往左的小三角形
+    text(line(self.n), 14, 190, 5)
+    text("左右 ±1　上下 ±10（最多 " .. most .. "）　A " .. (verb or "確定"), 14, 212, 5)
+  end
+  ui_push(screen)
+end
+
+-- ============================================================
 -- START 選單（地圖上）
 -- ============================================================
 
@@ -471,6 +530,9 @@ function field_menu_open()
       end)
     end
   end
-  function screen.draw(self) menu_draw(self.menu) end
+  function screen.draw(self)
+    money_box_draw(8)   -- 左上角：手上的錢（後面打開的畫面會蓋在上面）
+    menu_draw(self.menu)
+  end
   ui_push(screen)
 end

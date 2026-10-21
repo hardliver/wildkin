@@ -152,6 +152,7 @@ for (const [id, t] of Object.entries(trainers)) {
   }
   if (t.gift !== undefined && !(t.gift in items)) err(`${at}：gift「${t.gift}」不在 items.json`);
   if (t.bye !== undefined && typeof t.bye !== "string") err(`${at}：bye 要是台詞`);
+  if (t.money !== undefined && (!isInt(t.money) || t.money < 0)) err(`${at}：money 要是 0 以上的整數`);
 }
 
 // 道具

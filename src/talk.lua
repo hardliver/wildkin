@@ -44,27 +44,23 @@ TALK.route1_traveler =
   "\f這速度……跟我還房貸差不多。"
 
 -- ==================== 苔石村 ====================
--- 旅店、商店、招式回想的功能在 W55 才做，先讓他們說明一下
+-- 旅店、商店、招式回想在 village.lua（W55）
 
-TALK.village_innkeeper =
-  "歡迎來到苔石旅店。\n住一晚，野伴就能恢復精神喔。" ..
-  "\f……不過我們正在整修，\n過幾天再來吧。"
+TALK.village_uncle = function()
+  if FLAGS.ch1_done then
+    dialog_open("聽說鐵輪公司在找工人，月薪很高。\f……我這個年紀他們不要。")
+  else
+    dialog_open("年輕時，我也想走遍全島抓野伴。\f現在我每年唯一的冒險，\n是去做健康檢查。")
+  end
+end
 
-TALK.village_shopkeeper =
-  "這裡是苔石商店。\n野伴球、回復藥，應有盡有……" ..
-  "\f咦？今天的貨還沒送到。\n下次再來吧！"
-
-TALK.village_recall =
-  "我是招式回想師。\n野伴忘掉的招式，我都能幫牠想起來。" ..
-  "\f等你的野伴學會更多招式，再來找我吧。"
-
-TALK.village_uncle =
-  "年輕時，我也想走遍全島抓野伴。" ..
-  "\f現在我每年唯一的冒險，\n是去做健康檢查。"
-
-TALK.village_kid =
-  "大叔，你也是來抓野伴的嗎？" ..
-  "\f……什麼？你說你是大哥哥？"
+TALK.village_kid = function()
+  if FLAGS.trainer_rival2 then
+    dialog_open("剛剛有個大叔被打敗，\n他兒子在旁邊笑。")
+  else
+    dialog_open("大叔，你也是來抓野伴的嗎？\f……什麼？你說你是大哥哥？")
+  end
+end
 
 TALK.village_guard =
   "往東是霧林。\n最近霧太濃了，誰都不准進去。" ..

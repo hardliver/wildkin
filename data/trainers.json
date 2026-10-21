@@ -1,6 +1,6 @@
 {
   "rival1": {
-    "name": "阿穗", "notice": 2, "sight": 5, "leave": true,
+    "name": "阿穗", "notice": 2, "sight": 5, "leave": true, "money": 300,
     "party": [ { "species": "rival", "level": 5 } ],
     "intro": "{name}！真的是你！\f抱歉遲到了，送小孩去才藝班。\f我們 25 年前同一天出發的，記得嗎？\f聽說你也來島上拓荒了？\n來，讓我看看你的野伴！",
     "win": "輸給你也好，\n回去可以跟兒子說爸爸讓你的。\f我在村子租了房子，\n週末帶家人來島上玩。\f這是我老婆做的便當，分你一半。",
@@ -9,7 +9,7 @@
     "after": "下次見面，我的野伴會更強喔！"
   },
   "route1_guard": {
-    "name": "退休保全阿伯", "notice": 0, "sight": 3, "leave": false,
+    "name": "退休保全阿伯", "notice": 0, "sight": 3, "leave": false, "money": 150,
     "party": [ { "species": "07", "level": 3 }, { "species": "08", "level": 3 } ],
     "intro": "站住！……啊，抱歉，職業病。\f退休前當了三十年保全，\n看到人就想盤查。來比一場吧！",
     "win": "……身手不錯。\n我年輕的時候也是這樣。",

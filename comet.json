@@ -24,6 +24,7 @@
     "src/prologue.lua",
     "src/trainer.lua",
     "src/talk.lua",
+    "src/village.lua",
     "src/kin.lua",
     "src/battle.lua",
     "src/battle_fx.lua",

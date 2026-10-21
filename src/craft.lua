@@ -40,34 +40,12 @@ local function make(r, times)
   dialog_open("叩、叩、叩……\n做好了" .. DATA.items[r.item].name .. " ×" .. got .. "！")
 end
 
--- 選數量：框在配方清單下面，「野伴球 × 3　用掉：木材 6、石頭 3」
+-- 選數量（screens.lua 的 amount_pick）：「野伴球 × 3」「用掉：木材 6、石頭 3」
 local function amount_screen(r)
-  local most = max_times(r)
-  local screen = { n = 1 }
-  function screen.update(self)
-    if pressed_repeat(RIGHT) then self.n = self.n % most + 1 end
-    if pressed_repeat(LEFT) then self.n = (self.n - 2) % most + 1 end
-    if pressed_repeat(UP) then self.n = math.min(most, self.n + 10) end
-    if pressed_repeat(DOWN) then self.n = math.max(1, self.n - 10) end
-    if pressed(B) then ui_pop() return end
-    if pressed(A) then
-      ui_pop()
-      make(r, self.n)
-    end
-  end
-  function screen.draw(self)
-    ui_box(4, 128, 312, 108)
-    text("要做幾次？", 14, 138, 0)
-    local s = DATA.items[r.item].name .. " × " .. (r.amount * self.n)
-    local w = textw(s)
-    local cx = 160
-    text(s, cx - w // 2, 162, 0)
-    ui_arrow_right(cx + w // 2 + 8, 165, 0)
-    for i = 0, 3 do rect(cx - w // 2 - 12 + i, 168 - i, 1, 1 + i * 2, 0) end   -- 往左的小三角形
-    text("用掉：" .. mat_text(times_cost(r.cost, self.n)), 14, 190, 5)
-    text("左右 ±1　上下 ±10（最多 " .. most .. " 次）　A 製作", 14, 212, 5)
-  end
-  ui_push(screen)
+  amount_pick("要做幾次？", max_times(r),
+    function(n) return DATA.items[r.item].name .. " × " .. (r.amount * n) end,
+    function(n) return "用掉：" .. mat_text(times_cost(r.cost, n)) end,
+    function(n) make(r, n) end, "製作")
 end
 
 function craft_open()

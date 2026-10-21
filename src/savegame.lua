@@ -21,7 +21,7 @@ function game_save()
     party = party, ranch = RANCH, bag = BAG,
     dex = DEX, flags = FLAGS,
     facility = FACILITY, gathered = GATHERED, day = DAY,
-    frames = PLAY_FRAMES,
+    frames = PLAY_FRAMES, money = MONEY,
   })
 end
 
@@ -44,6 +44,7 @@ function game_apply(s)
   GATHERED = s.gathered or {}
   DAY = s.day or 1
   PLAY_FRAMES = s.frames or 0
+  MONEY = s.money or 0
 end
 
 -- 「1:05」：遊玩幾小時幾分
