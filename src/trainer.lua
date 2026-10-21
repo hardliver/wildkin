@@ -53,6 +53,8 @@ local function run_trainer(n, walk_over)
   end
   face(n, "player")
   say(t.name .. "：" .. fmt(t.intro))
+  if t.reply then say(PLAYER_NAME .. "：" .. fmt(t.reply)) end   -- 主角回一句（阿穗第 2 戰）
+  if t.intro2 then say(t.name .. "：" .. fmt(t.intro2)) end
   if fight(n.trainer) == "lose" then
     wiped_out()
     return

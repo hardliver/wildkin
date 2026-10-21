@@ -99,6 +99,8 @@ objects = [
     {"type": "event", "x": 18, "y": 6, "scene": "c1_moth"},
     {"type": "event", "x": 18, "y": 7, "scene": "c1_moth"},
     {"type": "sign", "x": 49, "y": 13, "text": "森之祠"},
+    {"type": "npc", "x": 47, "y": 14, "name": "asui", "tile": 221, "talk": "rival", "trainer": "rival2", "look": "left"},
+    {"type": "npc", "x": 53, "y": 12, "name": "keeper", "tile": 219, "talk": "forest_keeper"},
     {"type": "block", "x": 15, "y": 5, "tile": 29, "need": "lumber"},
     {"type": "block", "x": 35, "y": 24, "tile": 29, "need": "lumber"},
     {"type": "gather", "x": 14, "y": 2, "item": "ore", "amount": 2, "tile": 44},

@@ -3,12 +3,14 @@
 -- 配方在 data/recipes.json：做出什麼（item）、一次做幾個（amount）、材料（cost）。
 -- 流程：工作台按 A → 配方清單（右上）＋說明、材料「木材 2（有 5）」（下方）→ 選一個 →
 --       選數量（左右 ±1、上下 ±10，最多做到材料用完）→ 扣材料、放進背包
--- 之後的配方要「解鎖」（第 1 章的好球、繩索……）：配方加 unlock 欄位、這裡跳過還沒解鎖的（W58）
+-- 要解鎖的配方加 unlock 欄位（劇情旗標的名字），旗標還沒有就不列出來（好球：badge_forest）
 
 -- 依 sort 排好的配方編號
 local function recipe_keys()
   local keys = {}
-  for k in pairs(DATA.recipes) do keys[#keys + 1] = k end
+  for k, r in pairs(DATA.recipes) do
+    if not r.unlock or FLAGS[r.unlock] then keys[#keys + 1] = k end   -- 還沒解鎖的不列（好球要森之徽記）
+  end
   table.sort(keys, function(a, b) return DATA.recipes[a].sort < DATA.recipes[b].sort end)
   return keys
 end

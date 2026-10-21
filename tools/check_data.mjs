@@ -131,6 +131,7 @@ for (const [key, r] of Object.entries(recipes)) {
     if (!isInt(n) || n < 1) err(`${at}：cost.${item} 要是正整數`);
     if (item === r.item) err(`${at}：材料不能是自己`);
   }
+  if (r.unlock !== undefined && typeof r.unlock !== "string") err(`${at}：unlock 要是劇情旗標的名字`);
 }
 
 if (errors.length) {
@@ -152,6 +153,7 @@ for (const [id, t] of Object.entries(trainers)) {
   }
   if (t.gift !== undefined && !(t.gift in items)) err(`${at}：gift「${t.gift}」不在 items.json`);
   if (t.bye !== undefined && typeof t.bye !== "string") err(`${at}：bye 要是台詞`);
+  for (const k of ["reply", "intro2"]) if (t[k] !== undefined && typeof t[k] !== "string") err(`${at}：${k} 要是台詞`);
   if (t.money !== undefined && (!isInt(t.money) || t.money < 0)) err(`${at}：money 要是 0 以上的整數`);
 }
 

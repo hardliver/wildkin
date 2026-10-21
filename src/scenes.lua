@@ -199,12 +199,69 @@ SCENE.c1_moth = function()
   end
 end
 
+-- C1-7：森之守柏伯（跟他說話）
+SCENE.c1_keeper = function()
+  face("keeper", "player")
+  say("柏伯：……有人來了。")
+  say("柏伯：你就是小苔說的那個新來的？")
+  emote("player", "?")
+  say(P() .. "：小苔……？")
+  say("柏伯：老苔啦。\n我認識他的時候他才二十歲。")
+  say("柏伯：我是這片霧林的守護者。\n島上的人叫我「森之守」。")
+  say("柏伯：這片森林的野伴，\n是跟人一起長大的。")
+  say("柏伯：最近有人在森林裡打木樁，\n把野伴抓去工廠……")
+  say("柏伯：我得確定，你跟他們不一樣。")
+  if flag("moth_rescued") then
+    say("柏伯：……那隻燈蛾回來了，\n說有個人救了牠。")
+    say("柏伯：是你吧。")
+  end
+  say("柏伯：讓我看看你和野伴的默契！")
+  if fight("forest_keeper") == "lose" then
+    say("柏伯：還不夠。多跟野伴相處吧。")
+    wiped_out()
+    return
+  end
+  MONEY = MONEY + DATA.trainers.forest_keeper.money
+  say("柏伯：……好。你的野伴很信任你。")
+  say("柏伯：這是「森之徽記」。")
+  say(P() .. "得到了森之徽記！")
+  set_flag("badge_forest")
+  say("柏伯：有了徽記，\n工作台就能做「好球」了。我也教你做法。")
+  say(P() .. "學會了好球的做法！\n（木材 2、礦石 1）")
+  say(P() .. "拿到了 " .. money_text(DATA.trainers.forest_keeper.money) .. "謝禮。")
+  say("柏伯：鐵輪公司的事……小心點。\n他們不是只來砍樹的。")
+  say("柏伯：回去跟小苔說，\n下次換他來找我下棋。")
+end
+
+TALK = TALK or {}
+TALK.forest_keeper = function()
+  if FLAGS.badge_forest then
+    dialog_open("柏伯：" .. DATA.trainers.forest_keeper.after)
+  else
+    cutscene_start(SCENE.c1_keeper)
+  end
+end
+
+-- C1-8：拿到徽記後回到苔石村（第 1 章結束）
+SCENE.c1_end = function()
+  wait(10)
+  say("村民：霧林的聲音變小了！\n是你去找森之守嗎？")
+  say("村民：……不過，港灣鎮那邊\n來了好多鐵輪公司的人。")
+  say("村民：說是要在舊礦坑蓋新工廠。")
+  blackout(true)
+  narrate("第 1 章　完")
+  blackout(false)
+  set_flag("ch1_done")
+end
+
 -- 進到某張地圖時（cutscene.lua 的 cutscene_enter_map 呼叫）
 function scene_on_enter(map)
   if map == "camp" and FLAGS.first_catch and not FLAGS.tutorial_base and next(FACILITY) == nil then
     cutscene_start(SCENE.p6_base)
   elseif map == "village" and not FLAGS.ch1 then
     cutscene_start(SCENE.p9_village)
+  elseif map == "village" and FLAGS.badge_forest and not FLAGS.ch1_done then
+    cutscene_start(SCENE.c1_end)
   elseif map == "forest" and not FLAGS.scene_c1_moth then
     prop_add("moth", "10", 20, 5, false)   -- 躺在路邊的燈蛾（C1-5 之後就不在了）
   end
