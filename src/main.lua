@@ -22,6 +22,7 @@ end
 -- 換地圖、放好主角之後呼叫（遇敵要知道主角一開始站在哪一格）
 local function after_place()
   encounter_enter()
+  cutscene_enter_map()
 end
 
 -- 直接把主角放到某張地圖的第 (cx, cy) 格，面向 (dx, dy)（全滅回營地、之後的營火傳送用）。
@@ -151,10 +152,9 @@ function _update()
     return
   end
 
-  -- 訓練家的流程（走過來、說話、開戰）：自己處理對話框
-  if trainer_running() then
-    trainer_update()
-    for _, n in ipairs(npcs) do npc_update(n) end
+  -- 劇情（cutscene.lua；訓練家走過來、說話、開戰也是劇情）：自己處理對話框
+  if cutscene_active() then
+    cutscene_update()
     return
   end
 
@@ -175,7 +175,7 @@ function _update()
   if pressed(A) then interact() end
   if pressed(START) then field_menu_open() return end
   check_door()
-  if not transition_active() and not trainer_check() then encounter_check() end
+  if not transition_active() and not cutscene_check() and not trainer_check() then encounter_check() end
   world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)   -- 跟著主角的中心點
 end
 
@@ -208,7 +208,7 @@ function _draw()
     tallgrass_front()    -- 草叢蓋住主角的腳
     facility_draw_top()  -- 剛蓋好的設施冒出的煙塵
     butterflies_draw()   -- 飛在大家上面
-    trainer_draw()       -- 訓練家頭上的「！」
+    cutscene_draw()      -- 劇情裡頭上的氣泡（！？…♪）
   end
 
   camera()           -- 介面固定在畫面上

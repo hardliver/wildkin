@@ -15,6 +15,8 @@
     {"type":"lot","x":31,"y":15},
     {"type":"lot","x":34,"y":15},
     {"type":"sign","x":18,"y":25,"text":"新芽營地\n往南：草原小徑"},
+    {"type":"event","x":19,"y":28,"scene":"camp_exit"},
+    {"type":"event","x":20,"y":28,"scene":"camp_exit"},
     {"type":"door","x":19,"y":29,"to":"route1","tx":9,"ty":2},
     {"type":"door","x":20,"y":29,"to":"route1","tx":10,"ty":2},
     {"type":"gather","x":4,"y":6,"item":"berry","amount":2,"tile":6},
