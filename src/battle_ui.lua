@@ -118,6 +118,7 @@ local ctx = {
   pos = function(side) return CENTER[side][1], CENTER[side][2] end,
   offset = function(side, x, y) S.fx[side].ox, S.fx[side].oy = x, y end,
   hide = function(side, h) S.fx[side].hidden = h end,
+  white = function(side, w) S.fx[side].white = w end,
   shake = function(x, y) S.sx, S.sy = x, y end,
   overlay = function(fn) S.overlay = fn end,
 }
@@ -576,11 +577,19 @@ local function bracket(x1, x2, y_top, y_bottom, side_x)
 end
 
 -- 野伴的圖：閃爍時不畫；倒下時往下沉（只畫上面的部分、往下移，看起來像沉進草地）
+-- 剪影（W64 的 dpal：把每個顏色都換成同一色）
+--   被打到的那一下：整隻變成深色（戰鬥背景是淺米色，白色剪影看不出來）
+--   進化中：背景變暗，野伴變成白色的輪廓
+WHITE_MAP, HIT_MAP = {}, {}
+for i = 1, 255 do WHITE_MAP[i] = 7; HIT_MAP[i] = 1 end
+
 local function draw_foe()
   local v, fx = S.view[2], S.fx[2]
   if fx.hidden or fx.sink >= 64 then return end
   local n = kin_species(v.kin).sprite
+  if fx.white then dpal(HIT_MAP) end
   sspr(IMG.kin_front, n * 64, 0, 64, 64 - fx.sink, 224 + fx.dx + fx.ox, 18 + fx.sink + fx.oy)
+  dpal()
 end
 
 local function draw_mine()
@@ -588,19 +597,23 @@ local function draw_mine()
   if fx.hidden or fx.sink >= 64 then return end
   local n = kin_species(v.kin).sprite
   local h = (64 - fx.sink) // 2                                          -- 原圖要畫幾列（放大 2 倍前）
+  if fx.white then dpal(HIT_MAP) end
   sspr(IMG.kin_back, n * 32, 0, 32, h, 40 + fx.dx + fx.ox, 120 + 64 - h * 2 + fx.oy, 64, h * 2)   -- 背面圖放大 2 倍
+  dpal()
 end
 
 local function draw_evolution()
   local E = S.evo
-  cls(C_SKY)
+  cls(E.glow > 0 and 1 or C_SKY)   -- 變化中背景變暗（深藍），白色的輪廓才看得清楚
   -- 背後的光：一圈一圈往外擴散
   for k = 0, 3 do
     local r = (E.glow * 2 + k * 18) % 72
     if E.glow > 0 then fx_ring(160, 88, r + 10, (k % 2 == 0) and 7 or 10) end
   end
   local n = E.show_new and E.to or E.from
+  if E.glow > 0 then dpal(WHITE_MAP) end                     -- 變化中：只看得到白色的輪廓（新舊兩個形狀交替）
   sspr(IMG.kin_front, n * 64, 0, 64, 64, 112, 40, 96, 96)   -- 放大 1.5 倍
+  dpal()
   if E.flash then rect(0, 0, SCREEN_W, 184, 7) end
   if not dialog_active() then
     ui_box(4, 184, 312, 52)

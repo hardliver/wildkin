@@ -5,6 +5,7 @@
 --   ctx.pos(side)            這一邊野伴的中心點（畫面座標）
 --   ctx.offset(side, x, y)   把這一邊的野伴圖片移動 (x, y)（撞過去、往後退）
 --   ctx.hide(side, bool)     藏起來／出現（閃爍）
+--   ctx.white(side, bool)    整隻畫成深色剪影（被打到的那一下）
 --   ctx.shake(x, y)          畫面（不含下方訊息框）晃動的位移
 --   ctx.overlay(fn)          每幀在野伴上面多畫 fn()；nil = 不畫
 --
@@ -492,7 +493,7 @@ end
 -- 受擊、能力變化、狀態
 -- ============================================================
 
--- 被打到：往後退一下 + 畫面晃動 + 閃爍。效果絕佳晃得更大
+-- 被打到：先整隻變成剪影一下 + 往後退 + 畫面晃動 + 閃爍。效果絕佳晃得更大
 function fx_hit(ctx, side, mult)
   local amp = (mult == 4) and 5 or (mult == 1) and 1 or 3
   local away = (side == 2) and 1 or -1           -- 對手往右後退，自己往左後退
@@ -500,11 +501,13 @@ function fx_hit(ctx, side, mult)
     local shake = (i <= 10) and ((i % 2 == 0) and amp or -amp) or 0
     ctx.shake(shake, (i <= 10) and (i % 3 - 1) * amp // 2 or 0)
     ctx.offset(side, (i <= 8) and away * (8 - i) or 0, 0)
+    ctx.white(side, i <= 4)                        -- 打中的那一瞬間：整隻變成深色剪影（W64 的 dpal）
     ctx.hide(side, i > 4 and (i // 4) % 2 == 1)
     ctx.wait(1)
   end
   ctx.shake(0, 0)
   ctx.offset(side, 0, 0)
+  ctx.white(side, false)
   ctx.hide(side, false)
 end
 
