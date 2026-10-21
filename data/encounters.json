@@ -12,7 +12,8 @@
       { "species": "09", "min": 8, "max": 11, "weight": 35, "seasons": { "autumn": 2 } },
       { "species": "10", "min": 8, "max": 11, "weight": 30, "times": { "night": 60, "day": 15 } },
       { "species": "07", "min": 8, "max": 10, "weight": 20 },
-      { "species": "08", "min": 9, "max": 10, "weight": 15 }
+      { "species": "08", "min": 9, "max": 10, "weight": 15 },
+      { "species": "11", "min": 8, "max": 10, "weight": 8, "times": { "evening": 20, "night": 35 } }
     ]
   }
 }

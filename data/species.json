@@ -81,5 +81,13 @@
     "work": { "power": 1 },
     "learn": [ [1, "tackle"], [1, "spark"], [5, "powder"], [9, "quick"], [13, "spark"] ],
     "desc": "翅膀上的斑點會發光。晚上會聚在營地的燈下，把燈泡換掉也沒用，因為牠就是燈。"
+  },
+  "11": {
+    "name": "搧火蝠", "type": "fire", "sprite": 10,
+    "base": { "hp": 44, "atk": 48, "def": 38, "spd": 72 },
+    "catch": 120, "exp": 66,
+    "work": { "fire": 1 },
+    "learn": [ [1, "scratch"], [1, "growl"], [6, "ember"], [10, "quick"], [14, "bite"] ],
+    "desc": "翅膀像風箱，搧一搧炭火就旺起來。烤肉攤老闆最想要的員工，可惜牠只上夜班。"
   }
 }

@@ -11,11 +11,11 @@
 # 都面向左，往右走時左右翻轉。
 import numpy as np
 from PIL import Image
-import pals, pals2
+import pals, pals2, pals3
 from r3d import *
 from paint import put
 
-ALL = pals.ALL + pals2.ALL2
+ALL = pals.ALL + pals2.ALL2 + pals3.ALL3
 VIEW = rot_x(deg(-25)) @ rot_y(deg(20))
 OPT = pals.OPT
 V = lambda *a: np.array(a, float)
@@ -23,6 +23,7 @@ EYES = {
     "Sheep": V(-2.8, -1.2, 4.8), "Tanuki": V(-6.6, -2, 6.6), "Catfish": V(-6, -3.5, 6),
     "Hamster": V(-5, -2.5, 5.2), "Bird": V(-2, -1.2, 4.6), "ForestRam": V(-3, -1.5, 5),
     "StoveTanuki": V(-5.5, -2, 5.6), "RiverLord": V(-5, -3.5, 6.5), "MushroomCrab": None, "LampMoth": None,
+    "FanBat": V(-3, -1, 4),
 }
 
 def kind(tag):
