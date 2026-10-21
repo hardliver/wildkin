@@ -670,6 +670,56 @@ function fx_ball_caught(ctx)
   end)
 end
 
+-- ============================================================
+-- 收回、放出（W65b）
+-- ============================================================
+
+-- 收回：整隻變成粉紅色的輪廓、縮成一點，一圈光收進去
+function fx_withdraw(ctx, side)
+  local x, y = ctx.pos(side)
+  local fy = (side == 1) and 184 or 82          -- 腳底
+  ctx.glow(side, true)
+  ctx.wait(6)
+  for s = 15, 0, -1 do
+    ctx.scale(side, s)
+    ctx.overlay(function() fx_ring(x, fy - s * 2, 4 + s, 14) end)
+    ctx.wait(1)
+  end
+  ctx.overlay(nil)
+  ctx.hide(side, true)
+  ctx.glow(side, false)
+  ctx.scale(side, nil)
+  ctx.away(side, true)
+  ctx.wait(10)
+end
+
+-- 放出：球從畫面外拋過來 → 在野伴腳邊彈開一圈光 → 野伴從粉紅色的輪廓長大、變回原色
+function fx_send_out(ctx, side, set_ball)
+  local x = ctx.pos(side)
+  local fy = (side == 1) and 184 or 82
+  local sx, sy, n, h = -10, 150, 22, 50          -- 自己：從左下（主角的手）拋出去
+  if side == 2 then sx, sy, n, h = 330, 30, 20, 30 end   -- 對手：從右上（對方的訓練家）
+  for i = 1, n do
+    local bx, by = arc(sx, sy, x, fy - 14, i, n, h)
+    set_ball(bx, by, (i // 3) % 2 == 0 and 2 or -2)
+    ctx.wait(1)
+  end
+  set_ball(nil)
+  ctx.scale(side, 0)
+  ctx.glow(side, true)
+  ctx.hide(side, false)
+  for s = 1, 16 do
+    ctx.scale(side, s)
+    ctx.overlay(function() burst(x, fy - 14, 4 + s, 14, 7) end)
+    ctx.wait(1)
+  end
+  ctx.overlay(nil)
+  ctx.scale(side, nil)
+  ctx.wait(4)
+  ctx.glow(side, false)
+  ctx.away(side, false)
+end
+
 -- 破掉：球裂開一圈光，野伴跳出來
 function fx_ball_break(ctx, set_ball)
   local tx, ty = ctx.pos(2)

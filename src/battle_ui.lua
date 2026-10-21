@@ -119,6 +119,9 @@ local ctx = {
   offset = function(side, x, y) S.fx[side].ox, S.fx[side].oy = x, y end,
   hide = function(side, h) S.fx[side].hidden = h end,
   white = function(side, w) S.fx[side].white = w end,
+  glow = function(side, g) S.fx[side].glow = g end,          -- 粉紅色的輪廓（收回、放出時）
+  scale = function(side, s) S.fx[side].scale = s end,        -- 大小：0～16（16 = 原來大小），腳底對齊
+  away = function(side, a) S.fx[side].away = a end,          -- 還沒上場：連資訊框都不畫
   shake = function(x, y) S.sx, S.sy = x, y end,
   overlay = function(fn) S.overlay = fn end,
 }
@@ -130,6 +133,15 @@ end
 
 local function new_fx()
   return { sink = 0, dx = 0, ox = 0, oy = 0, hidden = false }
+end
+
+-- 丟球放出一隻（W65b）：訊息留在框裡（不用按 A），球飛過去、打開、野伴從白光裡長出來
+-- 呼叫時這一邊的 S.view 已經是新的那一隻
+local function send_out(side, text)
+  S.fx[side].hidden, S.fx[side].away = true, true
+  if text then S.last = text end
+  fx_send_out(ctx, side, set_ball)
+  wait(20)
 end
 
 -- 從 a 慢慢變到 b，總共 frames 幀，每幀呼叫 set(目前的值)
@@ -319,9 +331,20 @@ local function show(e)
     forget_and_learn(v.kin, e.key)
     return
   elseif K == "switch" then
+    -- 換野伴（W65b）：場上那隻還站著 → 先收回（白光縮進球裡）；再丟球放出新的一隻
+    -- 倒下之後換人：倒下的已經沉下去了，直接丟球
+    local fx = S.fx[e.side]
+    if not fx.hidden and fx.sink < 64 then
+      local old = kin_name(S.view[e.side].kin)
+      S.last = e.side == 1 and ("回來吧，" .. old .. "！") or ((S.b.trainer or "對手") .. "收回了" .. old .. "。")
+      wait(20)                              -- 訊息留在框裡，不用按 A（和丟球放出一樣）
+      fx_withdraw(ctx, e.side)
+    end
     if e.side == 2 then dex_seen(battle_active(S.b, 2).no) end
     refresh_view(e.side)
     S.fx[e.side] = new_fx()
+    send_out(e.side, text)
+    return
   end
   if text then msg(text) end
 end
@@ -408,18 +431,21 @@ local function begin(foe_party, opts, on_end)
   refresh_view(2)
   local foe = battle_active(b, 2)
   dex_seen(foe.no)
+  -- 自己的野伴還在球裡（W65b：丟球才出來）；訓練家的野伴也是
+  S.fx[1].hidden, S.fx[1].away = true, true
+  if not b.wild then S.fx[2].hidden, S.fx[2].away = true, true end
   run(function()
-    -- 進場：對手從左邊、自己從右邊滑進來（GB 的開場）
-    tween(240, 0, 40, function(x) S.fx[2].dx = -x; S.fx[1].dx = x end)
+    -- 進場：野生的對手從左邊滑進來（GB 的開場）
+    tween(240, 0, 40, function(x) S.fx[2].dx = -x end)
     if b.wild then
       if foe.shiny then fx_shiny_sparkle(ctx) end    -- 異色：閃一下星星
       msg("野生的" .. kin_name(foe) .. "出現了！")
       if foe.shiny then msg("……咦？這隻的顏色好像不太一樣！") end
     else
       msg((b.trainer or "對手") .. "要和你對戰！")
-      msg((b.trainer or "對手") .. "派出了" .. kin_name(foe) .. "！")
+      send_out(2, (b.trainer or "對手") .. "派出了" .. kin_name(foe) .. "！")
     end
-    msg("上吧！" .. kin_name(battle_active(b, 1)) .. "！")
+    send_out(1, "上吧！" .. kin_name(battle_active(b, 1)) .. "！")
     -- 序章 P4：第一場野生戰教怎麼抓（只說一次）
     if b.wild and not FLAGS.first_wild then
       FLAGS.first_wild = true
@@ -584,15 +610,22 @@ end
 -- 剪影（W64 的 dpal：把每個顏色都換成同一色）
 --   被打到的那一下：整隻變成深色（戰鬥背景是淺米色，白色剪影看不出來）
 --   進化中：背景變暗，野伴變成白色的輪廓
-WHITE_MAP, HIT_MAP = {}, {}
-for i = 1, 255 do WHITE_MAP[i] = 7; HIT_MAP[i] = 1 end
+--   收回、放出：粉紅色的光（米色背景上白色看不清楚；W65b）
+WHITE_MAP, HIT_MAP, GLOW_MAP = {}, {}, {}
+for i = 1, 255 do WHITE_MAP[i] = 7; HIT_MAP[i] = 1; GLOW_MAP[i] = 14 end
 
 local function draw_foe()
   local v, fx = S.view[2], S.fx[2]
   if fx.hidden or fx.sink >= 64 then return end
   local n = kin_species(v.kin).sprite
-  if fx.white then dpal(HIT_MAP) else kin_dpal(v.kin) end
-  sspr(IMG.kin_front, n * 64, 0, 64, 64 - fx.sink, 224 + fx.dx + fx.ox, 18 + fx.sink + fx.oy)
+  if fx.white then dpal(HIT_MAP) elseif fx.glow then dpal(GLOW_MAP) else kin_dpal(v.kin) end
+  if fx.scale and fx.scale < 16 then
+    -- 收回／放出：從腳底中心縮小、放大
+    local w = 64 * fx.scale // 16
+    if w > 0 then sspr(IMG.kin_front, n * 64, 0, 64, 64, 256 - w // 2 + fx.dx, 82 - w, w, w) end
+  else
+    sspr(IMG.kin_front, n * 64, 0, 64, 64 - fx.sink, 224 + fx.dx + fx.ox, 18 + fx.sink + fx.oy)
+  end
   dpal()
 end
 
@@ -601,8 +634,13 @@ local function draw_mine()
   if fx.hidden or fx.sink >= 64 then return end
   local n = kin_species(v.kin).sprite
   local h = (64 - fx.sink) // 2                                          -- 原圖要畫幾列（放大 2 倍前）
-  if fx.white then dpal(HIT_MAP) else kin_dpal(v.kin) end
-  sspr(IMG.kin_back, n * 32, 0, 32, h, 40 + fx.dx + fx.ox, 120 + 64 - h * 2 + fx.oy, 64, h * 2)   -- 背面圖放大 2 倍
+  if fx.white then dpal(HIT_MAP) elseif fx.glow then dpal(GLOW_MAP) else kin_dpal(v.kin) end
+  if fx.scale and fx.scale < 16 then
+    local w = 64 * fx.scale // 16
+    if w > 0 then sspr(IMG.kin_back, n * 32, 0, 32, 32, 72 - w // 2 + fx.dx, 184 - w, w, w) end
+  else
+    sspr(IMG.kin_back, n * 32, 0, 32, h, 40 + fx.dx + fx.ox, 120 + 64 - h * 2 + fx.oy, 64, h * 2)   -- 背面圖放大 2 倍
+  end
   dpal()
 end
 
@@ -638,21 +676,25 @@ function battle_scene_draw()
   draw_mine()
   camera()
 
-  -- 對手：左上的資訊
+  -- 對手：左上的資訊（還沒上場不畫）
   local f = S.view[2]
-  name_line(f, 18, 150, 12)
-  hp_bar(26, 34, 124, f.hp, view_max_hp(f))
-  bracket(14, 156, 30, 44, 14)
+  if not S.fx[2].away then
+    name_line(f, 18, 150, 12)
+    hp_bar(26, 34, 124, f.hp, view_max_hp(f))
+    bracket(14, 156, 30, 44, 14)
+  end
 
   -- 自己：右下的資訊
   local m = S.view[1]
-  name_line(m, 170, 304, 104)
-  hp_bar(178, 126, 126, m.hp, view_max_hp(m))
-  local nums = m.hp .. "/" .. view_max_hp(m)
-  text(nums, 304 - textw(nums), 134, 0)
-  text("EXP", 170, 150, 0)
-  exp_bar(198, 155, 106, m)
-  bracket(166, 310, 122, 166, 308)
+  if not S.fx[1].away then
+    name_line(m, 170, 304, 104)
+    hp_bar(178, 126, 126, m.hp, view_max_hp(m))
+    local nums = m.hp .. "/" .. view_max_hp(m)
+    text(nums, 304 - textw(nums), 134, 0)
+    text("EXP", 170, 150, 0)
+    exp_bar(198, 155, 106, m)
+    bracket(166, 310, 122, 166, 308)
+  end
 
   if S.ball then fx_draw_ball(S.ball.x, S.ball.y, S.ball.tilt) end
 
