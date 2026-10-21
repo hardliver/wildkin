@@ -62,9 +62,20 @@ TALK.village_kid = function()
   end
 end
 
-TALK.village_guard =
-  "往東是霧林。\n最近霧太濃了，誰都不准進去。" ..
-  "\f等老苔說可以了，再來找我吧。"
+-- 苔石村東口的守衛（docs/story.md 的 C1-2）
+TALK.village_guard = function()
+  if FLAGS["cut:village:38:14"] then
+    dialog_open("守衛：霧林裡有森之守，很兇，\n但人很好。")
+    return
+  end
+  FLAGS.heard_forest = true
+  local text = "守衛：前面是霧林。上個月颳大風，\n一棵大樹倒下來把路堵住了。" ..
+    "\f要過去，得找會「伐木」的野伴\n把它砍開。" ..
+    "\f草原小徑的囤囤鼠就會。\n牠們什麼都啃。"
+  local k = field_skill_kin("lumber")
+  if k then text = text .. "\f喔，你的" .. kin_name(k) .. "看起來\n很想啃那棵樹。" end
+  dialog_open(text)
+end
 
 -- 跟 NPC 說話：找它的對話編號來執行。沒寫的編號顯示「……」並在主控台提醒
 function talk_to(npc)

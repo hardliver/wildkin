@@ -142,6 +142,7 @@ function world_draw()
   grass_draw()
   tallgrass_draw()   -- 遇敵草叢（encounter.lua）
   gather_draw()      -- 採集點（gather.lua）
+  block_draw()       -- 擋路物（fieldskill.lua）
   facility_draw()    -- 設施、設施空地、工作台（facility.lua）
   bed_draw()         -- 主角的帳篷（day.lua）
   map(world.map, "deco")

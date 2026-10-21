@@ -13,6 +13,7 @@
     "src/npc.lua",
     "src/encounter.lua",
     "src/gather.lua",
+    "src/fieldskill.lua",
     "src/facility.lua",
     "src/day.lua",
     "src/craft.lua",
