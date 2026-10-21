@@ -125,5 +125,28 @@ do
   expect("抓捕機率在合理範圍", got > 200 and got < 320, true)
 end
 
+-- W60：訓練家的 AI
+do
+  -- 鬚鬚鯰（水）對炭毛狸（火）：撞擊、水花、吼叫 → 大多時候選水花（效果絕佳）
+  local picks = { 0, 0, 0 }
+  for _ = 1, 200 do
+    local fish = kin_new("05", 10)
+    fish.moves = { { key = "tackle", pp = 35 }, { key = "splash", pp = 25 }, { key = "growl", pp = 40 } }
+    local b3 = battle_new({ kin_new("03", 10) }, { fish }, { wild = false })
+    local c = battle_ai(b3, 2)
+    picks[c.index] = picks[c.index] + 1
+  end
+  print("  訓練家 AI 200 次：撞擊 " .. picks[1] .. "、水花 " .. picks[2] .. "、吼叫 " .. picks[3])
+  expect("訓練家大多選效果絕佳的招", picks[2] > 140, true)
+  -- 對方攻擊已經 −2：不再用吼叫（除了 1/4 的隨便選）
+  local fish = kin_new("05", 10)
+  fish.moves = { { key = "growl", pp = 40 }, { key = "tackle", pp = 35 } }
+  local b4 = battle_new({ kin_new("01", 10) }, { fish }, { wild = false })
+  b4.sides[1].stages.atk = -2
+  local growls = 0
+  for _ = 1, 200 do if battle_ai(b4, 2).index == 1 then growls = growls + 1 end end
+  expect("對方攻擊已經 −2 就少用吼叫", growls < 60, true)
+end
+
 if failed > 0 then error("battle.lua 有 " .. failed .. " 項測試沒通過") end
 print("✓ battle.lua：全部通過")

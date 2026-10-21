@@ -371,7 +371,43 @@ function battle_send_out(b, side, index)
   return ev
 end
 
--- 對手怎麼選（第一版：隨機選一招還有次數的；W60 再變聰明）
+-- 對手怎麼選（W60）
+--   野生的野伴：隨機選一招還有次數的（和 GB 一樣，野生的不會想）
+--   訓練家：每一招打分數，大多時候選最高分的，偶爾（1/4）隨便選一招，不會每次都被猜中
+--     有傷害的招：預估傷害 × 命中率（效果絕佳自然高分、沒效果是 0）；打得倒對方的加很多分
+--     改變能力的招：對方或自己還沒到 −2／+2 才有分（不會一直瞪眼）
+--     狀態招：對方已經有狀態就 0 分
+local function move_score(b, side, m)
+  local d = DATA.moves[m.key]
+  local me, foe = battle_active(b, side), battle_active(b, 3 - side)
+  local foe_hp = math.max(foe.hp, 1)
+  local acc = (d.accuracy == 0) and 100 or d.accuracy
+  local e = d.effect
+  if d.power > 0 then
+    local dmg, mult = battle_damage(me.level, d.power, battle_stat(b, side, "atk"), battle_stat(b, 3 - side, "def"),
+                                    d.type, kin_species(me).type, kin_species(foe).type, 92)
+    if mult == 0 then return 0 end
+    local score = math.min(dmg, foe_hp) * 100 // foe_hp * acc // 100   -- 能打掉對方幾 % 的 HP
+    if dmg >= foe.hp then score = score + 60 end                        -- 一招打倒
+    if e and e.kind == "drain" and me.hp * 2 < kin_max_hp(me) then score = score + 10 end
+    if e and e.kind == "first" and dmg >= foe.hp then score = score + 30 end   -- 先手收尾
+    return score
+  end
+  if not e then return 0 end
+  if e.kind == "stat" then
+    local who = (e.target == "self") and side or (3 - side)
+    local now = b.sides[who].stages[e.stat]
+    if e.stages < 0 and now <= -2 then return 0 end
+    if e.stages > 0 and now >= 2 then return 0 end
+    return 25 * acc // 100
+  end
+  if e.kind == "status" then
+    if foe.status then return 0 end
+    return 35 * acc // 100
+  end
+  return 10
+end
+
 function battle_ai(b, side)
   local k = battle_active(b, side)
   local usable = {}
@@ -379,7 +415,15 @@ function battle_ai(b, side)
     if m.pp > 0 then usable[#usable + 1] = i end
   end
   if #usable == 0 then return { kind = "move", index = 1 } end
-  return { kind = "move", index = usable[rnd(#usable) + 1] }
+  if b.wild or rnd(4) == 0 then
+    return { kind = "move", index = usable[rnd(#usable) + 1] }
+  end
+  local best, best_score = usable[1], -1
+  for _, i in ipairs(usable) do
+    local sc = move_score(b, side, k.moves[i])
+    if sc > best_score then best, best_score = i, sc end
+  end
+  return { kind = "move", index = best }
 end
 
 -- 隊伍裡下一隻能上場的（倒下後自動換人用；玩家那邊之後由選單決定）
