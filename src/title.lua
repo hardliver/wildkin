@@ -90,6 +90,12 @@ function title_open()
   main_menu()
 end
 
+-- 離開標題畫面（不經過轉場；除錯指令用）
+function title_close()
+  title = nil
+  ui_clear()
+end
+
 function title_update()
   title.t = title.t + 1
   ui_update()

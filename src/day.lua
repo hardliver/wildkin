@@ -64,6 +64,12 @@ local function day_end()
   return table.concat(lines, "\n")
 end
 
+-- 除錯用（debug.lua 的「過一天」）：直接結算一天、顯示報告
+function dbg_next_day()
+  if title_active() then title_close(); new_game(1) end
+  dialog_open(day_end())
+end
+
 function bed_interact(b)
   dialog_ask("要睡到明天早上嗎？", { "睡覺", "不要" }, function(c)
     if c ~= 1 then return end

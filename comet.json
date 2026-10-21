@@ -18,6 +18,7 @@
     "src/craft.lua",
     "src/savegame.lua",
     "src/title.lua",
+    "src/debug.lua",
     "src/trainer.lua",
     "src/talk.lua",
     "src/kin.lua",
