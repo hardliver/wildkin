@@ -66,6 +66,7 @@ expect("對方攻擊最多 −3", g.sides[2].stages.atk, -3)
 -- 7. 一整場戰鬥：固定的亂數種子（Mac 版測試是種子 1），印出事件，檢查一定會結束、HP 不會是負的
 print("---- 測試戰鬥：Lv5 芽角羊 vs 野生 Lv3 囤囤鼠 ----")
 local f = battle_new({ kin_new("01", 5) }, { kin_new("07", 3) }, { wild = true })
+f.sides[1].party[1].moves[3] = { key = "leaf", pp = 25 }   -- 葉刃 Lv7 才學（W61 平衡）；測試直接給
 local turns = 0
 while not f.over and turns < 30 do
   turns = turns + 1

@@ -16,10 +16,11 @@ expect("Lv5 芽角羊 攻擊", kin_stat(sheep, "atk"), 49 * 5 // 50 + 5)  -- 9
 expect("剛產生時 HP 全滿", sheep.hp, 19)
 expect("經驗 = 等級³", sheep.exp, 125)
 
--- 招式：Lv5 會撞擊、吼叫、葉刃（Lv1 兩招 + Lv5 一招）
-expect("Lv5 芽角羊 招式數", #sheep.moves, 3)
-expect("第 3 招", sheep.moves[3].key, "leaf")
-expect("招式次數", sheep.moves[3].pp, 25)
+-- 招式：Lv5 會撞擊、吼叫（Lv1 兩招）；葉刃 Lv7 才學（W61 平衡：原本 Lv5，勁敵第 1 戰太難）
+expect("Lv5 芽角羊 招式數", #sheep.moves, 2)
+local sheep7 = kin_new("01", 7)
+expect("Lv7 第 3 招", sheep7.moves[3] and sheep7.moves[3].key, "leaf")
+expect("招式次數", sheep7.moves[3] and sheep7.moves[3].pp, 25)
 
 -- Lv20：學過 5 招，只記住最後 4 招（撞擊被擠掉）
 local old = kin_new("01", 20)

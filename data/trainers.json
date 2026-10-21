@@ -1,7 +1,7 @@
 {
   "rival1": {
     "name": "阿穗", "notice": 2, "sight": 5, "leave": true, "money": 300,
-    "party": [ { "species": "rival", "level": 5 } ],
+    "party": [ { "species": "rival", "level": 6 } ],
     "intro": "{name}！真的是你！\f抱歉遲到了，送小孩去才藝班。\f我們 25 年前同一天出發的，記得嗎？\f聽說你也來島上拓荒了？\n來，讓我看看你的野伴！",
     "win": "輸給你也好，\n回去可以跟兒子說爸爸讓你的。\f我在村子租了房子，\n週末帶家人來島上玩。\f這是我老婆做的便當，分你一半。",
     "gift": "bento",
@@ -26,7 +26,7 @@
   },
   "forest_keeper": {
     "name": "柏伯", "notice": 0, "sight": 0, "leave": false, "money": 1000,
-    "party": [ { "species": "09", "level": 12 }, { "species": "10", "level": 12 }, { "species": "02", "level": 14 } ],
+    "party": [ { "species": "10", "level": 11 }, { "species": "09", "level": 12 }, { "species": "02", "level": 12 } ],
     "intro": "讓我看看你和野伴的默契！",
     "win": "……好。你的野伴很信任你。",
     "after": "回去跟小苔說，下次換他來找我下棋。"

@@ -269,6 +269,12 @@ function catch_value(k, ball_rate)
   return clamp(a, 1, 255)
 end
 
+-- 抓到的機率（千分比）：4 次搖晃都要過 = (SHAKE / 256)^4。試算器（sim.lua）用
+function battle_catch_permille(k, ball_rate)
+  local s = SHAKE[catch_value(k, ball_rate) + 1]
+  return s * s * s * s * 1000 // (256 * 256 * 256 * 256)
+end
+
 -- 丟球：事件 ball → shake × 0～3 → caught 或 broke
 local function throw_ball(b, side, c, ev)
   local foe = battle_active(b, other(side))

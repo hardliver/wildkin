@@ -5,7 +5,7 @@
     "catch": 45, "exp": 64,
     "work": { "farm": 1 },
     "evolve": { "to": "02", "level": 16 },
-    "learn": [ [1, "tackle"], [1, "growl"], [5, "leaf"], [9, "absorb"], [13, "leer"] ],
+    "learn": [ [1, "tackle"], [1, "growl"], [7, "leaf"], [9, "absorb"], [13, "leer"] ],
     "desc": "角是兩片嫩芽。天氣好的時候會趴著曬太陽，角會長得特別快。"
   },
   "02": {
@@ -22,7 +22,7 @@
     "catch": 45, "exp": 62,
     "work": { "fire": 1 },
     "evolve": { "to": "04", "level": 16 },
-    "learn": [ [1, "scratch"], [1, "leer"], [5, "ember"], [9, "quick"], [13, "firefang"] ],
+    "learn": [ [1, "scratch"], [1, "leer"], [7, "ember"], [9, "quick"], [13, "firefang"] ],
     "desc": "尾巴尖端是一塊悶燒的炭。冬天會有人偷偷靠在牠旁邊取暖。"
   },
   "04": {
@@ -39,7 +39,7 @@
     "catch": 45, "exp": 63,
     "work": { "water": 1 },
     "evolve": { "to": "06", "level": 16 },
-    "learn": [ [1, "tackle"], [1, "growl"], [5, "splash"], [9, "bubblenet"], [13, "mist"] ],
+    "learn": [ [1, "tackle"], [1, "growl"], [7, "splash"], [9, "bubblenet"], [13, "mist"] ],
     "desc": "有手有腳的小鯰魚。長長的鬍鬚能感覺到要下雨了。"
   },
   "06": {

@@ -28,7 +28,7 @@ QUESTS = {
   { chapter = "第 1 章", title = "打通往霧林的路", done = function() return cut("village", 38, 14) end,
     hint = "苔石村東口的倒木，要找會伐木的野伴。\n派在營地工作的也算。" },
   { chapter = "第 1 章", title = "找到森之守", done = function() return FLAGS.badge_forest end,
-    hint = "穿過霧林，到最東邊的森之祠。\n推薦等級：Lv12～14。" },
+    hint = "穿過霧林，到最東邊的森之祠。推薦等級 Lv12～14。\n柏伯的野伴大多是草屬性，帶一隻火屬性的會輕鬆很多。" },
   { chapter = "第 1 章", title = "回苔石村", done = function() return FLAGS.ch1_done end,
     hint = "把霧林的事告訴村民。" },
 }

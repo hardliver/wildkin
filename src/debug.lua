@@ -66,3 +66,64 @@ function dbg_warp(name, cx, cy)
   ui_clear()
   warp(name, cx, cy)
 end
+
+-- ============================================================
+-- 工具（Studio 狀態分頁的「工具」：欄位填一填按「執行」，結果顯示在下面）
+-- ============================================================
+-- 每個工具：name、fields（{ 欄位名, 標題, "choice"／"int", 預設值, 選項 }）、run(填好的值) → 文字
+
+local function species_options()
+  local nos = {}
+  for no in pairs(DATA.species) do nos[#nos + 1] = no end
+  table.sort(nos)
+  local opts = {}
+  for i, no in ipairs(nos) do opts[i] = { no, no .. " " .. DATA.species[no].name } end
+  return opts
+end
+
+-- 第 1 章的平衡表：每一行是一個情況，跑 300 場
+local function chapter1_table()
+  local N = 300
+  local rows = {
+    { "草原小徑野生：芽角羊 Lv5 vs 囤囤鼠 Lv3", { { "01", 5 } }, { { "07", 3 } }, true },
+    { "草原小徑野生：炭毛狸 Lv5 vs 哨哨雀 Lv4", { { "03", 5 } }, { { "08", 4 } }, true },
+    { "霧林野生：芽角羊 Lv10 vs 燈蛾 Lv10", { { "01", 10 } }, { { "10", 10 } }, true },
+    { "霧林野生：鬚鬚鯰 Lv10 vs 菇菇蟹 Lv10", { { "05", 10 } }, { { "09", 10 } }, true },
+  }
+  local rival = { ["01"] = "03", ["03"] = "05", ["05"] = "01" }      -- 阿穗用剋制主角的那隻
+  local mate = { ["01"] = "03", ["03"] = "05", ["05"] = "03" }       -- 主角多抓一隻剋草的（火）或剋火的（水）
+  for _, st in ipairs({ "01", "03", "05" }) do
+    local n = DATA.species[st].name
+    rows[#rows + 1] = { "阿穗第 1 戰：" .. n .. " Lv7 vs Lv6", { { st, 7 } }, { { rival[st], 6 } }, false }
+    rows[#rows + 1] = { "阿穗第 1 戰：" .. n .. " Lv6＋囤囤鼠 Lv3 vs Lv6", { { st, 6 }, { "07", 3 } }, { { rival[st], 6 } }, false }
+  end
+  local keeper = {}
+  for i, p in ipairs(DATA.trainers.forest_keeper.party) do keeper[i] = { p.species, p.level } end
+  for _, st in ipairs({ "01", "03", "05" }) do
+    for _, lv in ipairs({ 12, 13, 14 }) do
+      rows[#rows + 1] = { "柏伯：" .. DATA.species[st].name .. " Lv" .. lv .. "＋" .. DATA.species[mate[st]].name .. "、囤囤鼠 Lv" .. (lv - 2),
+                          { { st, lv }, { mate[st], lv - 2 }, { "07", lv - 2 } }, keeper, false }
+    end
+  end
+  local out = {}
+  for _, r in ipairs(rows) do
+    out[#out + 1] = r[1]
+    out[#out + 1] = "  " .. sim_battles_text(r[2], r[3], r[4], N)
+  end
+  return table.concat(out, "\n")
+end
+
+DEBUG_TOOLS = {
+  { name = "戰鬥試算", fields = {
+      { "me", "我方", "choice", "01", species_options },
+      { "me_lv", "等級", "int", 10 },
+      { "foe", "對手", "choice", "07", species_options },
+      { "foe_lv", "等級", "int", 8 },
+      { "n", "自動對戰幾場", "int", 1000 },
+    },
+    run = function(a)
+      return sim_damage_text(a.me, a.me_lv, a.foe, a.foe_lv) .. "\n\n自動對戰 " .. a.n .. " 場（我方選最好的招，對手是訓練家）：\n" ..
+             sim_battles_text({ { a.me, a.me_lv } }, { { a.foe, a.foe_lv } }, false, a.n)
+    end },
+  { name = "第 1 章平衡表", fields = {}, run = chapter1_table },
+}
