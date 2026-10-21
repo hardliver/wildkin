@@ -261,6 +261,11 @@ function blackout(on)
 end
 
 -- 章節標題：畫面暗下來 → 大字「第 1 章　霧林的守護者」約 2.5 秒 → 回到地圖
+-- 章節標題卡顯示中：晝夜的顏色要暫停（標題卡是圖片，晚上會被染暗；clock.lua）
+function cutscene_overlay_art()
+  return overlay ~= nil and overlay.kind == "chapter"
+end
+
 function chapter_card(n)
   fade(function() overlay = { kind = "chapter", n = n } end)
   wait(150)

@@ -95,6 +95,15 @@ for (const [area, t] of Object.entries(encounters)) {
     if (!(e.species in species)) err(`${at}：野伴「${e.species}」不在 species.json`);
     if (!isInt(e.min) || !isInt(e.max) || e.min < 1 || e.max < e.min || e.max > 50) err(`${at} 的 ${e.species}：等級要 1 ≤ min ≤ max ≤ 50`);
     if (!isInt(e.weight) || e.weight < 1) err(`${at} 的 ${e.species}：weight 要是正整數`);
+    // W64c：時段權重、季節倍率（clock.lua 的代號）
+    for (const [k, v] of Object.entries(e.times || {})) {
+      if (!['morning', 'day', 'evening', 'night'].includes(k)) err(`${at} 的 ${e.species}：times 的 ${k} 不是時段（morning/day/evening/night）`);
+      if (!isInt(v) || v < 0) err(`${at} 的 ${e.species}：times.${k} 要是 0 以上的整數`);
+    }
+    for (const [k, v] of Object.entries(e.seasons || {})) {
+      if (!['spring', 'summer', 'autumn', 'winter'].includes(k)) err(`${at} 的 ${e.species}：seasons 的 ${k} 不是季節`);
+      if (!isInt(v) || v < 0) err(`${at} 的 ${e.species}：seasons.${k} 要是 0 以上的整數`);
+    }
   }
 }
 

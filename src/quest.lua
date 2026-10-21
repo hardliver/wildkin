@@ -22,7 +22,7 @@ QUESTS = {
   { chapter = "序章", title = "在營地蓋一個設施", done = function() return next(FACILITY) ~= nil end,
     hint = "營地東邊柵欄裡的空地，面對它按 A。\n木材不夠的話，野外的木頭可以撿。" },
   { chapter = "序章", title = "派野伴工作，睡一覺", done = function() return (FLAGS.slept or DAY > 1) and any_worker() end,
-    hint = "面對設施選「派駐」，\n再到老苔小屋左邊的帳篷睡覺。" },
+    hint = "面對設施選「派駐」，\n再到老苔小屋左邊的帳篷睡覺（晚上睡到天亮，白天小睡）。" },
   { chapter = "序章", title = "前往苔石村", done = function() return FLAGS.ch1 end,
     hint = "穿過草原小徑一直往南。\n路口好像有人在等你。" },
   { chapter = "第 1 章", title = "打通往霧林的路", done = function() return cut("village", 38, 14) end,

@@ -20,14 +20,28 @@ function in_grass(cx, cy)
   return has_grass and mget(world.map, "grass", cx, cy) ~= 0
 end
 
+-- 這一筆現在的權重（W64c）：
+--   "times": { "night": 60 } → 那個時段改用這個權重（0 = 那個時段不出現）
+--   "seasons": { "autumn": 2 } → 那一季的權重乘幾倍
+function encounter_weight(e)
+  local w = e.weight
+  local p = time_period()
+  if e.times and e.times[p] then w = e.times[p] end
+  local s = season()
+  if e.seasons and e.seasons[s] then w = w * e.seasons[s] end
+  return w
+end
+
 -- 依權重抽一筆：weight 50、40、5、5 → 抽到第一筆的機率 50%
 local function pick(list)
   local total = 0
-  for _, e in ipairs(list) do total = total + e.weight end
+  for _, e in ipairs(list) do total = total + encounter_weight(e) end
+  if total <= 0 then return nil end
   local r = rnd(total)
   for _, e in ipairs(list) do
-    if r < e.weight then return e end
-    r = r - e.weight
+    local w = encounter_weight(e)
+    if r < w then return e end
+    r = r - w
   end
   return list[#list]
 end
@@ -49,6 +63,7 @@ function encounter_check()
   if not t or not party_alive() then return end
   if rnd(256) >= t.rate then return end
   local e = pick(t.list)
+  if not e then return end
   local level = e.min + rnd(e.max - e.min + 1)
   battle_scene_start({ shiny_roll(kin_new(e.species, level)) }, { wild = true, flash = true }, function(result)
     if result == "lose" then wiped_out() end

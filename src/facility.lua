@@ -120,7 +120,7 @@ local function build_menu(l)
   items[#items + 1] = "取消"
   local m = menu_new({ items = items, x = 0, y = 8 })
   m.x = 316 - m.w
-  local screen = { menu = m }
+  local screen = { menu = m, art = true }
   function screen.update(self)
     local r = menu_update(self.menu)
     if r == 0 or r == #items then ui_pop() return end
@@ -192,7 +192,7 @@ function send_home(k)
   return "牧場"
 end
 
--- 每天的產出：{ { "wood", 2 } }（基本量 × 派駐野伴的工作等級總和）。W46 睡覺時結算也用這個
+-- 每天的產出：{ { "wood", 2 } }（基本量 × 派駐野伴的工作等級總和；吃飽的情況）
 function facility_output(fac)
   local f = DATA.facilities[fac.kind]
   local total = 0
@@ -204,41 +204,55 @@ function facility_output(fac)
   return list, total
 end
 
--- 睡覺過一天時結算（day.lua）：每個設施的產出放進背包。
--- 每隻派駐的野伴吃 1 份飼料（BAG.feed）；吃不到的那隻只做一半：
---   產出 = 基本量 × Σ(工作等級 × 2，餓著的 × 1) // 2
--- 回傳：報告的每一行（「伐木場：木材 +2」）、派駐的野伴總數、餓著的隻數
-function facility_day_end()
+-- 換日時（day.lua 的 day_change）：每隻派駐的野伴吃 1 份飼料（BAG.feed）；吃不到的那隻記 k.hungry = true，
+-- 接下來這一天產量減半。照固定順序分飼料（pairs 的順序每次可能不同）。回傳：派駐的野伴總數、餓著的隻數
+local function sorted_keys()
   local keys = {}
   for k in pairs(FACILITY) do keys[#keys + 1] = k end
-  table.sort(keys)   -- 照固定順序分飼料（pairs 的順序每次可能不同）
-  local report, workers, hungry = {}, 0, 0
-  for _, key in ipairs(keys) do
+  table.sort(keys)
+  return keys
+end
+
+function facility_feed()
+  local workers, hungry = 0, 0
+  for _, key in ipairs(sorted_keys()) do
+    for _, k in ipairs(FACILITY[key].workers) do
+      workers = workers + 1
+      if (BAG.feed or 0) > 0 then
+        bag_add("feed", -1)
+        k.hungry = nil
+      else
+        k.hungry = true
+        hungry = hungry + 1
+      end
+    end
+  end
+  return workers, hungry
+end
+
+-- 每到整點（clock.lua）：每個設施做一小時份的產出，直接放進背包。
+-- 一天的產量（和 W46 一樣）= 基本量 × Σ(工作等級 × 2，餓著的 × 1) // 2
+-- 平均分到 24 小時：每小時把「基本量 × Σ」加進 fac.acc，滿 48（= 2 × 24）就給 1 個，餘數留著。
+-- 這樣一整天下來剛好是一天的產量，不會因為切成小時而少給（只用整數）。
+function facility_hour()
+  for _, key in ipairs(sorted_keys()) do
     local fac = FACILITY[key]
     local f = DATA.facilities[fac.kind]
     local units = 0
     for _, k in ipairs(fac.workers) do
-      workers = workers + 1
       local lv = work_level(k, f.work)
-      if (BAG.feed or 0) > 0 then
-        bag_add("feed", -1)
-        units = units + lv * 2
-      else
-        hungry = hungry + 1
-        units = units + lv
+      units = units + (k.hungry and lv or lv * 2)
+    end
+    if units > 0 then
+      fac.acc = fac.acc or {}
+      for _, c in ipairs(sorted_cost(f.output)) do
+        local acc = (fac.acc[c[1]] or 0) + c[2] * units
+        local n = acc // 48
+        if n > 0 then bag_add(c[1], n) end
+        fac.acc[c[1]] = acc % 48
       end
     end
-    local parts = {}
-    for _, c in ipairs(sorted_cost(f.output)) do
-      local n = c[2] * units // 2
-      if n > 0 then
-        bag_add(c[1], n)
-        parts[#parts + 1] = DATA.items[c[1]].name .. " +" .. n
-      end
-    end
-    if #parts > 0 then report[#report + 1] = f.name .. "：" .. table.concat(parts, "、") end
   end
-  return report, workers, hungry
 end
 
 -- 一行野伴：小圖示、名字、Lv、工作等級。y 是這一行的上緣
@@ -293,7 +307,7 @@ local function pick_worker(l, fac)
     dialog_open(nobody_text(f))
     return
   end
-  local screen = { index = 1 }
+  local screen = { index = 1, art = true }
   function screen.update(self)
     if pressed_repeat(UP) then self.index = (self.index - 2) % #list + 1 end
     if pressed_repeat(DOWN) then self.index = self.index % #list + 1 end
@@ -327,7 +341,7 @@ end
 -- 派駐畫面：3 個位置，空的選了派一隻，有野伴的選了叫回來
 local function workers_screen(l, fac)
   local f = DATA.facilities[fac.kind]
-  local screen = { index = 1 }
+  local screen = { index = 1, art = true }
   function screen.update(self)
     if pressed_repeat(UP) then self.index = (self.index - 2) % MAX_WORKERS + 1 end
     if pressed_repeat(DOWN) then self.index = self.index % MAX_WORKERS + 1 end
@@ -366,9 +380,9 @@ local function workers_screen(l, fac)
     else
       local parts = {}
       for _, c in ipairs(out) do parts[#parts + 1] = DATA.items[c[1]].name .. " " .. c[2] end
-      text("每天產出（在帳篷睡一覺）：" .. table.concat(parts, "、"), 14, 192, 0)
+      text("每天產出（每小時慢慢進背包）：" .. table.concat(parts, "、"), 14, 192, 0)
     end
-    text("每隻每天吃 1 份飼料，沒吃到的產量減半。", 14, 210, 5)
+    text("每隻每天半夜吃 1 份飼料，沒吃到的那天產量減半。", 14, 210, 5)
   end
   ui_push(screen)
 end

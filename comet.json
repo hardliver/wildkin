@@ -16,6 +16,7 @@
     "src/gather.lua",
     "src/fieldskill.lua",
     "src/facility.lua",
+    "src/clock.lua",
     "src/day.lua",
     "src/craft.lua",
     "src/savegame.lua",

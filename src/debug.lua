@@ -7,7 +7,7 @@
 -- 指令列也可以直接打：dbg_warp("route1", 9, 20)、dbg_kin("09", 12)、BAG.ball = 30
 
 DEBUG_VIEW = {
-  "SAVE_SLOT", "DAY", "MONEY", "world.name", "{ player_cell() }",
+  "SAVE_SLOT", "clock_long_text()", "MONEY", "world.name", "{ player_cell() }",
   "BAG", "party", "RANCH", "FACILITY", "FLAGS", "DEX.caught", "GATHERED",
 }
 
@@ -17,7 +17,10 @@ DEBUG_COMMANDS = {
   { "道具各 10", "dbg_give('item', 10)" },
   { "錢 +10000", "MONEY = MONEY + 10000" },
   { "隊伍回復", "for _, k in ipairs(party) do kin_heal(k) end" },
-  { "過一天", "dbg_next_day()" },
+  { "睡到明天早上", "dbg_next_day()" },
+  { "時間 +3 小時", "clock_add_minutes(180)" },
+  { "跳到晚上 21:00", "clock_add_minutes(minutes_until(21))" },
+  { "跳到下一季", "for _ = 1, 7 do clock_add_minutes(24 * 60) end" },
   { "Lv10 囤囤鼠", "dbg_kin('07', 10)" },
   { "→ 營地", "dbg_warp('camp', 19, 15)" },
   { "→ 草原小徑", "dbg_warp('route1', 9, 3)" },

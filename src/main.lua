@@ -109,6 +109,7 @@ function new_game(slot)
   DEX = { seen = {}, caught = {} }
   FLAGS, FACILITY, GATHERED = {}, {}, {}
   DAY, PLAY_FRAMES = 1, 0
+  TIME, TIME_SUB, LAST_FEED = 8 * 60, 0, nil   -- 第 1 天（春）早上 08:00（clock.lua）
   MONEY = 3000                      -- 優退金剩下的（商店 W55）
   enter_map("camp")
   player_init(19 * TILE, 27 * TILE)   -- 營地南口（船靠岸之後走上來）
@@ -178,6 +179,7 @@ function _update()
     return
   end
 
+  clock_tick()     -- 遊戲時鐘只在這裡走：上面那些（戰鬥、選單、對話、劇情、轉場）進行中都停住
   player_update()
   for _, n in ipairs(npcs) do npc_update(n) end
   if pressed(A) then interact() end
@@ -207,6 +209,8 @@ local function draw_actors()
 end
 
 function _draw()
+  -- 晝夜的顏色（clock.lua）：標題、戰鬥、會畫野伴圖的畫面用原色（那些圖也用同一組顏色，不然會跟著變暗）
+  clock_tint(title_active() or battle_scene_active() or ui_draws_art() or cutscene_overlay_art())
   if title_active() then
     title_draw()
   elseif battle_scene_active() then

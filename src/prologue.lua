@@ -90,7 +90,7 @@ local STARTERS = {
 local TYPE_COLOR = { grass = 11, fire = 9, water = 12 }
 
 function starter_pick_open(on_done)
-  local s = { index = 1 }
+  local s = { index = 1, art = true }
   function s.update(self)
     if pressed_repeat(LEFT) then self.index = (self.index - 2) % #STARTERS + 1 end
     if pressed_repeat(RIGHT) then self.index = self.index % #STARTERS + 1 end

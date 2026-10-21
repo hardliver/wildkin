@@ -13,6 +13,15 @@ function ui_pop() stack[#stack] = nil end
 function ui_clear() stack = {} end
 function ui_active() return #stack > 0 end
 
+-- 有沒有畫面會畫野伴、設施的圖（screen.art = true）：晝夜的顏色要暫停，不然野伴在晚上會變暗（clock.lua）
+-- 一般的選單、背包只有框和字（0～15 號色），背後的地圖照樣保持晚上的顏色
+function ui_draws_art()
+  for _, s in ipairs(stack) do
+    if s.art then return true end
+  end
+  return false
+end
+
 function ui_update()
   if dialog_active() then
     dialog_update()
@@ -256,7 +265,7 @@ end
 local TYPE_COLOR = { normal = 13, grass = 11, fire = 9, water = 12, electric = 10, rock = 4 }
 
 function summary_open(index)
-  local screen = { index = index }
+  local screen = { index = index, art = true }   -- art：會畫野伴的圖，用原色（W64c）
   function screen.update(self)
     if pressed(A) or pressed(B) then ui_pop() return end
     if pressed_repeat(UP) then self.index = (self.index - 2) % #party + 1 end      -- 上下：看前一隻、下一隻
@@ -380,7 +389,7 @@ local function dex_count()
 end
 
 local function dex_detail(nos, index)
-  local screen = { index = index }
+  local screen = { index = index, art = true }
   function screen.update(self)
     if pressed(A) or pressed(B) then ui_pop() return end
     if pressed_repeat(UP) then self.index = (self.index - 2) % #nos + 1 end
@@ -473,6 +482,13 @@ function money_box_draw(y)
   text(s, w - 6 - textw(s), (y or 8) + 7, 0)
 end
 
+-- 左上角的小框：「第 3 天（春）　14:20 白天」
+function clock_box_draw(y)
+  local s = clock_long_text()
+  ui_box(4, y, textw(s) + 20, 30)
+  text(s, 14, y + 7, 0)
+end
+
 -- ============================================================
 -- 選數量（製作、商店共用）
 -- ============================================================
@@ -538,6 +554,7 @@ function field_menu_open()
   end
   function screen.draw(self)
     money_box_draw(8)   -- 左上角：手上的錢（後面打開的畫面會蓋在上面）
+    clock_box_draw(42)  -- 下面：第幾天、季節、時間（W64c）
     menu_draw(self.menu)
   end
   ui_push(screen)
