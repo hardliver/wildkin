@@ -144,13 +144,17 @@ end
 function world_draw()
   camera(world.cam_x, world.cam_y)
   wind_update()
+  season_dpal(true)  -- 季節的顏色：草、樹的綠色換掉（season.lua）
   map(world.map, "ground")
   grass_draw()
   tallgrass_draw()   -- 遇敵草叢（encounter.lua）
   gather_draw()      -- 採集點（gather.lua）
   block_draw()       -- 擋路物（fieldskill.lua）
+  season_dpal(false) -- 設施、帳篷不換色
   facility_draw()    -- 設施、設施空地、工作台（facility.lua）
   bed_draw()         -- 主角的帳篷（day.lua）
+  season_dpal(true)
   map(world.map, "deco")
   plants_draw()
+  season_dpal(false)
 end

@@ -180,6 +180,7 @@ function _update()
   end
 
   heal_tip_check() -- 第一次受傷：提示帳篷可以回血（day.lua）
+  if not dialog_active() then season_news_check() end   -- 換季的提示（season.lua）
   if dialog_active() then return end
   clock_tick()     -- 遊戲時鐘只在這裡走：上面那些（戰鬥、選單、對話、劇情、轉場）進行中都停住
   player_update()
@@ -230,6 +231,7 @@ function _draw()
   end
 
   camera()           -- 介面固定在畫面上
+  if not title_active() and not battle_scene_active() then season_weather_draw() end   -- 花瓣、落葉、雪（season.lua）
   if not title_active() and not battle_scene_active() then cutscene_overlay_draw() end   -- 劇情的黑畫面、章節標題
   if not battle_scene_active() then ui_draw() end   -- 戰鬥中由戰鬥畫面自己畫
   dialog_draw()

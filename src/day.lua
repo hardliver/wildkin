@@ -82,7 +82,9 @@ end
 LAST_FEED = LAST_FEED or nil
 function day_change()
   GATHERED = {}   -- 全部都能再撿（順便讓存檔不要越存越大）
+  local before = season()
   DAY = DAY + 1
+  if season() ~= before then SEASON_NEWS = season() end   -- 換季：等主角能動時提示（season.lua）
   local workers, hungry = facility_feed()
   LAST_FEED = { day = DAY, workers = workers, hungry = hungry }
   for _, fac in pairs(FACILITY) do
@@ -134,6 +136,10 @@ local function sleep_to_morning()
     end
   end
   if gathered_any then lines[#lines + 1] = "野外的採集點又長出來了。" end
+  if SEASON_NEWS then
+    lines[#lines + 1] = season_news_text(SEASON_NEWS)   -- 睡覺時換季：早上一起說
+    SEASON_NEWS = nil
+  end
   return table.concat(lines, "\n")
 end
 

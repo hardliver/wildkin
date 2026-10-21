@@ -26,5 +26,12 @@ do
   r = tint_at(15 * 60)
   assert(r == 256, "白天原色")
   BAG, FACILITY, GATHERED, DAY, TIME, TIME_SUB = saved[1], saved[2], saved[3], saved[4], saved[5], saved[6]
+  -- 季節的換色（W64d）：春天不換；秋、冬有換到草和樹的綠色；換成的都是已經有的顏色
+  assert(season_map("spring") == nil, "春天是原色")
+  for _, sname in ipairs({ "summer", "autumn", "winter" }) do
+    local n = 0
+    for _ in pairs(season_map(sname)) do n = n + 1 end
+    assert(n >= 3, sname .. " 至少換 3 個綠色")
+  end
   print("ok: 遊戲時鐘")
 end
