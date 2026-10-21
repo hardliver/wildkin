@@ -443,13 +443,19 @@ end
 -- ============================================================
 
 function field_menu_open()
-  local m = menu_new({ items = { "野伴", "背包", "手冊", "關閉" }, x = 0, y = 8 })
+  local m = menu_new({ items = { "野伴", "背包", "手冊", "存檔", "關閉" }, x = 0, y = 8 })
   m.x = 316 - m.w
   local screen = { menu = m }
   function screen.update(self)
     local r = menu_update(self.menu)
-    if r == 0 or r == 4 or pressed(START) then ui_pop()
+    if r == 0 or r == 5 or pressed(START) then ui_pop()
     elseif r == 3 then dex_open()
+    elseif r == 4 then
+      dialog_ask("要存檔嗎？\n（存在欄位 " .. SAVE_SLOT .. "，之前的進度會被蓋掉）", { "存檔", "不要" }, function(c)
+        if c ~= 1 then return end
+        game_save()
+        dialog_open(PLAYER_NAME .. "把今天的事寫進了筆記本。\n存好了！")
+      end)
     elseif r == 1 then party_open("field")
     elseif r == 2 then
       bag_open("field", function(key, i)

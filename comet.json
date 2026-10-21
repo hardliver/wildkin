@@ -16,6 +16,8 @@
     "src/facility.lua",
     "src/day.lua",
     "src/craft.lua",
+    "src/savegame.lua",
+    "src/title.lua",
     "src/trainer.lua",
     "src/talk.lua",
     "src/kin.lua",
@@ -31,7 +33,8 @@
     "kin_back": { "file": "assets/art/kin_back.png", "tile": 32 },
     "tallgrass": "assets/art/tallgrass.png",
     "kin_icons": "assets/art/kin_icons.png",
-    "facilities": { "file": "assets/art/facilities.png", "tile": 32 }
+    "facilities": { "file": "assets/art/facilities.png", "tile": 32 },
+    "logo": "assets/art/logo.png"
   },
   "output": "build/wildkin.lua",
   "maps": {

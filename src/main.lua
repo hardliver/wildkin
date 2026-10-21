@@ -93,15 +93,40 @@ local function interact()
   end
 end
 
-function _init()
+-- 新遊戲：所有進度歸零，存檔欄位是 slot（標題畫面選的）
+function new_game(slot)
+  SAVE_SLOT = slot
+  PLAYER_NAME = "大志"
   -- 隊伍（暫時）：序章選初始野伴（W54）之前，先直接給一隻 Lv5 芽角羊
   party = { kin_new("01", 5) }
   BAG = { potion = 3, ball = 5 }   -- 暫時：一開始有 3 瓶回復藥、5 顆野伴球（W54 序章、W55 商店之後改）
   RANCH = {}                        -- 隊伍滿 6 隻之後抓到的，送到營地的牧場（W45 派駐時可以選）
+  DEX = { seen = {}, caught = {} }
+  FLAGS, FACILITY, GATHERED = {}, {}, {}
+  DAY, PLAY_FRAMES = 1, 0
   for _, k in ipairs(party) do dex_caught(k.no) end   -- 一開始的隊伍也算抓過
   enter_map("camp")
   player_init(19 * TILE, 15 * TILE)   -- 營地空地的中間
   after_place()
+  world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)
+end
+
+-- 讀檔：s 是 game_read 讀回來的表格（savegame.lua）
+function load_game(slot, s)
+  SAVE_SLOT = slot
+  game_apply(s)
+  enter_map(s.map)
+  player_init(0, 0)
+  player.x16, player.y16 = s.x16, s.y16
+  player.dir_x, player.dir_y = s.dx or 0, s.dy or 1
+  player.facing_left = player.dir_x < 0
+  door_armed = world_door_at(player_cell()) == nil   -- 存檔時站在門上：先離開門才會觸發
+  after_place()
+  world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)
+end
+
+function _init()
+  title_open()   -- 標題畫面（title.lua）：繼續／新遊戲
 end
 
 function _update()
@@ -112,6 +137,13 @@ function _update()
     transition_update()
     return
   end
+
+  -- 標題畫面
+  if title_active() then
+    title_update()
+    return
+  end
+  PLAY_FRAMES = PLAY_FRAMES + 1
 
   -- 戰鬥中：只處理戰鬥（戰鬥自己會處理對話框）
   if battle_scene_active() then
@@ -165,7 +197,9 @@ local function draw_actors()
 end
 
 function _draw()
-  if battle_scene_active() then
+  if title_active() then
+    title_draw()
+  elseif battle_scene_active() then
     battle_scene_draw()
   else
     cls(0)
