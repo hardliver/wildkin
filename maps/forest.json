@@ -26,7 +26,8 @@
     {"type":"gather","x":47,"y":13,"item":"ore","amount":1,"tile":44},
     {"type":"door","x":0,"y":14,"to":"village","tx":38,"ty":14},
     {"type":"door","x":0,"y":15,"to":"village","tx":38,"ty":15},
-    {"type":"fire","x":49,"y":15}
+    {"type":"fire","x":49,"y":15},
+    {"type":"npc","x":36,"y":26,"name":"zhe","tile":245,"talk":"trainer","trainer":"youth_zhe","look":"up"}
   ],
   "layers": {
     "ground": [

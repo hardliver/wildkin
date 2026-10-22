@@ -69,6 +69,41 @@
     "win": "輸了。……你可以幫我撿貝殼嗎？",
     "after": "暑假作業到底是誰的作業啊。"
   },
+  "youth_kai": {
+    "name": "國中生小凱", "notice": 1, "sight": 3, "leave": false, "money": 100,
+    "party": [ { "species": "07", "level": 4 }, { "species": "08", "level": 4 } ],
+    "intro": "大叔，你也在抓野伴喔？\n我阿公也有在玩欸！\f（……阿公。）",
+    "win": "蛤？我輸給阿公級的？\f（阿公級的……）",
+    "after": "大叔，你是不是那種\n會在群組傳早安圖的人？\f（……我只傳過一次。）"
+  },
+  "youth_zhe": {
+    "name": "大學生阿哲", "notice": 1, "sight": 3, "leave": false, "money": 300,
+    "party": [ { "species": "09", "level": 11 }, { "species": "10", "level": 11 } ],
+    "intro": "大叔，你那顆是舊款野伴球吧？\n我媽家裡也有一顆。",
+    "win": "等一下，舊款的比較強嗎？\f（是人比較強。……應該吧。）",
+    "after": "大叔你很強欸，\n是不是退休很閒？\f（我還沒退休。）"
+  },
+  "youth_rou": {
+    "name": "直播主小柔", "notice": 1, "sight": 3, "leave": false, "money": 450,
+    "party": [ { "species": "13", "level": 16 }, { "species": "08", "level": 16 } ],
+    "intro": "嗨大叔！我在直播，可以對戰嗎？\n標題叫「挑戰路人大叔」。\f（路人大叔……）",
+    "win": "聊天室都在刷「大叔好帥」……\f欸不對，是在刷「大叔好老」。",
+    "after": "大叔要不要開頻道？\n叫「中年野伴日記」之類的。\f（……有點想。）"
+  },
+  "youth_xiang": {
+    "name": "鐵輪新人阿翔", "notice": 1, "sight": 2, "leave": false, "money": 450,
+    "party": [ { "species": "12", "level": 16 }, { "species": "10", "level": 16 } ],
+    "intro": "大哥……我加班到現在，\n打一場就好，讓我發洩一下。\f（我以前也是這樣。）",
+    "win": "……輸了，反而比較輕鬆。",
+    "after": "大哥，人生還有別的路可以走嗎？\f大志：有。……只是要繞一點。"
+  },
+  "youth_jie": {
+    "name": "健身少年阿傑", "notice": 1, "sight": 3, "leave": false, "money": 500,
+    "party": [ { "species": "12", "level": 21 }, { "species": "11", "level": 21 } ],
+    "intro": "大叔，我們來比誰先喘！\n……啊，對戰啦。\f大志：年輕真好，\n蹲下去還站得起來。",
+    "win": "大叔你都沒在喘欸。\f（我在心裡喘。）",
+    "after": "我爸跟你差不多年紀，\n他爬樓梯都要休息兩次。\f（……我也要。）"
+  },
   "exec2": {
     "name": "范經理", "notice": 0, "sight": 0, "leave": true, "money": 2500,
     "party": [ { "species": "12", "level": 22 }, { "species": "10", "level": 22 }, { "species": "14", "level": 23 } ],

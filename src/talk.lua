@@ -60,6 +60,7 @@ NPC_HOURS.harbor_kid = function(p, w) return p ~= "night" or late_night() end
 NPC_HOURS.harbor_fisher = function(p, w) return (p == "morning" or p == "day") and w ~= "storm" end
 NPC_HOURS.harbor_worker = function(p, w) return p ~= "night" end
 NPC_HOURS.harbor_insurance = function(p, w) return p == "morning" or p == "day" end   -- 上班時間
+NPC_HOURS.salaryman = function(p, w) return p == "evening" or p == "night" end          -- 鐵輪新人阿翔：下班（加班）後才來
 
 TALK.route1_traveler = function()
   local p, w = time_period(), weather_now()

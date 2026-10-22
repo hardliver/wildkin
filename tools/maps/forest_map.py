@@ -101,6 +101,7 @@ objects = [
     {"type": "event", "x": 18, "y": 7, "scene": "c1_moth"},
     {"type": "sign", "x": 49, "y": 13, "text": "森之祠"},
     {"type": "npc", "x": 47, "y": 14, "name": "asui", "tile": 221, "talk": "rival", "trainer": "rival2", "look": "left"},
+    {"type": "npc", "x": 36, "y": 26, "name": "zhe", "tile": 245, "talk": "trainer", "trainer": "youth_zhe", "look": "up"},   # 年輕訓練家（W71j）
     {"type": "npc", "x": 53, "y": 12, "name": "keeper", "tile": 219, "talk": "forest_keeper"},
     {"type": "block", "x": 15, "y": 5, "tile": 29, "need": "lumber"},
     {"type": "block", "x": 35, "y": 24, "tile": 29, "need": "lumber"},

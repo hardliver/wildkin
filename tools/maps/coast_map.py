@@ -86,6 +86,7 @@ objects = [
     {"type": "npc", "x": 42, "y": 4, "name": "angler", "tile": D(86), "talk": "trainer", "trainer": "coast1", "look": "down"},
     {"type": "npc", "x": 22, "y": 9, "name": "surfer", "tile": D(88), "talk": "trainer", "trainer": "coast2", "look": "up"},
     {"type": "npc", "x": 12, "y": 4, "name": "shell", "tile": D(99), "talk": "trainer", "trainer": "coast3", "look": "down"},
+    {"type": "npc", "x": 52, "y": 9, "name": "gym", "tile": D(86), "talk": "trainer", "trainer": "youth_jie", "look": "left"},   # 年輕訓練家（W71j）
     {"type": "sign", "x": 4, "y": 4, "text": "火山洞\n（洞口吹出來的風，熱得像三溫暖）"},
     {"type": "door", "x": 1, "y": 3, "to": "volcano", "tx": 36, "ty": 27},
     {"type": "door", "x": 2, "y": 3, "to": "volcano", "tx": 37, "ty": 27},

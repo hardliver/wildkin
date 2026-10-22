@@ -37,7 +37,7 @@ end
 -- ============================================================
 -- 依時段、天氣出沒（W71i，2026-10-22 Neil）
 -- ============================================================
--- NPC_HOURS[對話編號] = function(時段, 天氣) return 在不在 end（天氣在室內是 nil）。沒寫的 NPC 一直都在。
+-- NPC_HOURS[名字或對話編號] = function(時段, 天氣) return 在不在 end（天氣在室內是 nil）。沒寫的 NPC 一直都在。
 -- 不在的 NPC：n.away = true，不畫、不擋路、不能說話。時段或天氣一變就重新看一次
 NPC_HOURS = NPC_HOURS or {}
 local schedule_key = nil
@@ -49,7 +49,7 @@ function npc_schedule_check(force)
   if not force and key == schedule_key then return end
   schedule_key = key
   for _, n in ipairs(npcs) do
-    local f = n.talk and NPC_HOURS[n.talk]
+    local f = NPC_HOURS[n.name] or (n.talk and NPC_HOURS[n.talk])   -- 先用名字找（訓練家的 talk 都是 "trainer"）
     local away = (f and not f(p, w)) and true or false
     if away ~= (n.away or false) then
       n.away = away

@@ -146,6 +146,8 @@ objects = [
     {"type": "npc", "x": 26, "y": 25, "name": "fisher", "tile": D(112), "talk": "harbor_fisher"},
     {"type": "npc", "x": 30, "y": 16, "name": "harbor_kid", "tile": 218, "talk": "harbor_kid"},
     {"type": "npc", "x": 25, "y": 18, "name": "asui", "tile": 221, "talk": "rival", "trainer": "rival3", "look": "left"},
+    {"type": "npc", "x": 36, "y": 18, "name": "rou", "tile": 232, "talk": "trainer", "trainer": "youth_rou", "look": "left"},   # 年輕訓練家（W71j）
+    {"type": "npc", "x": 14, "y": 12, "name": "salaryman", "tile": 230, "talk": "trainer", "trainer": "youth_xiang", "look": "up"},   # 傍晚、晚上才在（talk.lua 的 NPC_HOURS）
     {"type": "npc", "x": 3, "y": 11, "name": "reef", "tile": D(100), "talk": "rock_keeper"},
     {"type": "event", "x": 37, "y": 14, "scene": "c2_harbor"},
     {"type": "event", "x": 37, "y": 15, "scene": "c2_harbor"},

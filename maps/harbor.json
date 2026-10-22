@@ -25,7 +25,9 @@
     {"type":"sign","x":10,"y":16,"text":"往海岸\\n（西邊海邊有木筏，要有會游泳的野伴拖）"},
     {"type":"raft","x":8,"y":19,"to":"coast","tx":56,"ty":9},
     {"type":"gather","x":15,"y":17,"item":"fiber","amount":2,"tile":282},
-    {"type":"gather","x":32,"y":17,"item":"stone","amount":2,"tile":282}
+    {"type":"gather","x":32,"y":17,"item":"stone","amount":2,"tile":282},
+    {"type":"npc","x":36,"y":18,"name":"rou","tile":232,"talk":"trainer","trainer":"youth_rou","look":"left"},
+    {"type":"npc","x":14,"y":12,"name":"salaryman","tile":230,"talk":"trainer","trainer":"youth_xiang","look":"up"}
   ],
   "layers": {
     "ground": [

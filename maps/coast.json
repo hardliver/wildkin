@@ -22,7 +22,8 @@
     {"type":"gather","x":18,"y":4,"item":"fiber","amount":2,"tile":282},
     {"type":"gather","x":35,"y":9,"item":"stone","amount":2,"tile":282},
     {"type":"gather","x":9,"y":6,"item":"ore","amount":2,"tile":282},
-    {"type":"gather","x":53,"y":5,"item":"berry","amount":2,"tile":6}
+    {"type":"gather","x":53,"y":5,"item":"berry","amount":2,"tile":6},
+    {"type":"npc","x":52,"y":9,"name":"gym","tile":219,"talk":"trainer","trainer":"youth_jie","look":"left"}
   ],
   "layers": {
     "ground": [

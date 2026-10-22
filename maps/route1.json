@@ -19,7 +19,8 @@
     {"type":"gather","x":3,"y":24,"item":"stone","amount":2,"tile":44},
     {"type":"gather","x":16,"y":27,"item":"berry","amount":2,"tile":6},
     {"type":"gather","x":4,"y":35,"item":"wood","amount":2,"tile":107},
-    {"type":"gather","x":6,"y":42,"item":"fiber","amount":1,"tile":18}
+    {"type":"gather","x":6,"y":42,"item":"fiber","amount":1,"tile":18},
+    {"type":"npc","x":3,"y":13,"name":"kai","tile":218,"talk":"trainer","trainer":"youth_kai","look":"down"}
   ],
   "layers": {
     "ground": [
