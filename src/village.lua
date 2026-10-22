@@ -40,15 +40,9 @@ local function mom_call(lines)
   end)
 end
 
+-- 住旅店：和帳篷一樣選睡幾個小時（day.lua 的 rest_open），時間會往前走
 local function inn_stay(host)
-  cutscene_start(function()
-    say((host or "老闆娘") .. "：好好休息喔。")
-    fade(function()
-      for _, k in ipairs(party) do kin_heal(k) end
-    end)
-    say("隊伍的 HP 全部回復了。")
-    say(PLAYER_NAME .. "的腰痠沒有回復。")
-  end)
+  rest_open({ before = (host or "老闆娘") .. "：好好休息喔。", after = PLAYER_NAME .. "的腰痠沒有回復。" })
 end
 
 TALK.village_innkeeper = function()
@@ -63,7 +57,7 @@ TALK.village_innkeeper = function()
     end)
     return
   end
-  dialog_ask("老闆娘：歡迎來到苔石旅店。\n要住一晚嗎？不用錢喔。", { "住一晚", "聽傳音石", "不用了" }, function(c)
+  dialog_ask("老闆娘：歡迎來到苔石旅店。\n要休息嗎？不用錢喔。", { "休息", "聽傳音石", "不用了" }, function(c)
     if c == 1 then inn_stay()
     elseif c == 2 then mom_call()
     else dialog_open("老闆娘：路上小心。") end
@@ -81,7 +75,7 @@ TALK.harbor_innkeeper = function()
     end)
     return
   end
-  dialog_ask("老闆：港灣旅店，住一晚不用錢。\n要住嗎？", { "住一晚", "聽傳音石", "不用了" }, function(c)
+  dialog_ask("老闆：港灣旅店，休息不用錢。\n要休息嗎？", { "休息", "聽傳音石", "不用了" }, function(c)
     if c == 1 then inn_stay("老闆")
     elseif c == 2 then mom_call(MOM_CALL2)
     else dialog_open("老闆：出海小心。") end

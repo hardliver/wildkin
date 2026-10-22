@@ -52,11 +52,7 @@ TALK.coast_granny = function()
   end
   dialog_ask("阿婆：累了嗎？", { "休息", "聽傳音石", "不用了" }, function(c)
     if c == 1 then
-      cutscene_start(function()
-        fade(function() for _, k in ipairs(party) do kin_heal(k) end end)
-        say("阿婆鋪了一床有樟腦丸味道的棉被。")
-        say("隊伍的 HP 全部回復了。")
-      end)
+      rest_open({ before = "阿婆鋪了一床有樟腦丸味道的棉被。" })
     elseif c == 2 then
       cutscene_start(function() say("（傳音石亮了起來。）") mom3() end)
     else

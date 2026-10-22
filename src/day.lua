@@ -1,9 +1,8 @@
 -- day.lua：換日、帳篷睡覺（W46；W64c 改成遊戲時鐘）
 --
--- 營地有主角的帳篷（地圖物件 type = "bed"，2×2 格、擋路）。面對它按 A：
---   傍晚、晚上 →「要睡到明天早上嗎？」→ 畫面暗下來（Zzz……）→ 時間快轉到 06:00 → 報告睡覺時的產出
---   其他時間 →「小睡一下」：過 1 小時
---   兩種都會讓隊伍全部恢復（HP、招式次數、狀態）
+-- 營地有主角的帳篷（地圖物件 type = "bed"，2×2 格、擋路）。面對它按 A →「要睡幾個小時？」（1～24）
+--   → 畫面暗下來（Zzz……）→ 時間快轉 → 報告現在幾點、睡覺時的產出。隊伍全部恢復（HP、招式次數、狀態）
+--   旅店、海岸阿婆的小屋也用同一個 rest_open
 -- 換日不用睡覺：clock.lua 走到半夜就呼叫 day_change。設施的產出每小時進背包（facility_hour）。
 -- 不用真實時間：結果完全由存檔和按鍵決定（design.md）
 
@@ -116,15 +115,17 @@ local function heal_all()
   FLAGS.slept = true   -- 任務日誌：睡過一覺
 end
 
--- 睡到隔天早上 06:00（全黑的時候呼叫），回傳早上要說的話
-local function sleep_to_morning()
+-- 睡 hours 小時（全黑的時候呼叫），回傳醒來要說的話：現在幾點、睡覺時設施做了什麼、飼料、換季
+local function sleep_hours(hours)
   local before, day0 = bag_copy(), DAY
   local gathered_any = next(GATHERED) ~= nil
-  clock_add_minutes(minutes_until(6))
+  clock_add_minutes(hours * 60)
   TIME_SUB = 0
   heal_all()
   local _, sname = season()
-  local lines = { "天亮了，第 " .. DAY .. " 天（" .. sname .. "）。\n野伴們都恢復精神了！" }
+  local _, pname = time_period()
+  local lines = { "睡了 " .. hours .. " 個小時。\n現在是第 " .. DAY .. " 天（" .. sname .. "）" .. clock_text() .. " " .. pname .. "。",
+                  "野伴們都恢復精神了！" }
   local got = gained_text(before)
   if got ~= "" then lines[#lines + 1] = "睡覺的時候，設施做好了：\n" .. got end
   local f = LAST_FEED
@@ -135,38 +136,51 @@ local function sleep_to_morning()
       lines[#lines + 1] = "飼料不夠！有 " .. f.hungry .. " 隻野伴今天要餓著肚子工作，\n產量少一半。（飼料可以在工作台做）"
     end
   end
-  if gathered_any then lines[#lines + 1] = "野外的採集點又長出來了。" end
+  if gathered_any and DAY > day0 then lines[#lines + 1] = "野外的採集點又長出來了。" end
   if SEASON_NEWS then
-    lines[#lines + 1] = season_news_text(SEASON_NEWS)   -- 睡覺時換季：早上一起說
+    lines[#lines + 1] = season_news_text(SEASON_NEWS)   -- 睡覺時換季：醒來一起說
     SEASON_NEWS = nil
   end
-  return table.concat(lines, "\n")
+  return table.concat(lines, "\f")
 end
 
--- 白天小睡：過 1 小時、隊伍恢復
-local function nap()
-  clock_add_minutes(60)
-  heal_all()
-  return "睡了一個小時，現在 " .. clock_text() .. "。\n野伴們都恢復精神了！"
+-- 醒來會是什麼時候：「第 3 天 06:00 早上」
+local function wake_text(hours)
+  local t = TIME + hours * 60
+  local day = DAY + t // (24 * 60)
+  t = t % (24 * 60)
+  local _, pname = time_period(t)
+  return "醒來：第 " .. day .. " 天 " .. clock_text(t) .. " " .. pname
+end
+
+-- 休息（W64c 改，2026-10-22 Neil：白天晚上都可以自己選睡幾個小時）
+-- 帳篷、苔石旅店、港灣旅店、海岸阿婆的小屋共用。opts：
+--   before：開始睡之前說的話（「大志鑽進睡袋。」）；after：醒來報告之後多說的話（「腰痠沒有回復。」）
+-- 一開始停在「睡到早上 6 點」要幾個小時；想抓晚上的野伴就往上調
+function rest_open(opts)
+  opts = opts or {}
+  local start = math.max(1, math.min(24, (minutes_until(6) + 59) // 60))
+  amount_pick("要睡幾個小時？", 24,
+    function(n) return "睡 " .. n .. " 小時" end,
+    function(n) return wake_text(n) end,
+    function(n)
+      local function go()
+        local report
+        transition_start(function() report = sleep_hours(n) end, false,
+          { hold = math.min(90, 30 + n * 5), caption = "Zzz……",
+            on_end = function() dialog_open(report .. (opts.after and ("\f" .. opts.after) or "")) end })
+      end
+      if opts.before then dialog_open(opts.before, go) else go() end
+    end, "睡覺", start)
 end
 
 -- 除錯用（debug.lua 的「睡到明天早上」）
 function dbg_next_day()
   if title_active() then title_close(); new_game(1) end
-  dialog_open(sleep_to_morning())
+  dialog_open(sleep_hours(minutes_until(6) // 60))
 end
 
--- 床：傍晚、晚上才能睡到早上（帕魯只有晚上能睡）；其他時間只能小睡一下
+-- 帳篷
 function bed_interact(b)
-  local p = time_period()
-  local night = (p == "evening" or p == "night")
-  local ask = night and "要睡到明天早上嗎？" or ("現在 " .. clock_text() .. "，還不太睏。\n要小睡一下嗎？（過 1 小時）")
-  dialog_ask(ask, { "睡覺", "不要" }, function(c)
-    if c ~= 1 then return end
-    dialog_open(PLAYER_NAME .. "鑽進睡袋。\n腰發出了「喀」的一聲。", function()
-      local after
-      transition_start(function() after = night and sleep_to_morning() or nap() end, false,
-        { hold = night and 90 or 45, caption = "Zzz……", on_end = function() dialog_open(after) end })
-    end)
-  end)
+  rest_open({ before = PLAYER_NAME .. "鑽進睡袋。\n腰發出了「喀」的一聲。" })
 end

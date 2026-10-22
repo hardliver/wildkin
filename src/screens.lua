@@ -494,8 +494,9 @@ end
 -- ============================================================
 -- title：「要做幾次？」；most：最多幾個；line(n)：選 n 個時下面那一行的說明（「用掉：木材 4」）；
 -- label(n)：中間大字（「野伴球 × 3」）；on_done(n)：按 A。按 B 取消
-function amount_pick(title, most, label, line, on_done, verb)
-  local screen = { n = 1 }
+-- start：一開始停在幾（預設 1）
+function amount_pick(title, most, label, line, on_done, verb, start)
+  local screen = { n = start or 1 }
   function screen.update(self)
     if pressed_repeat(RIGHT) then self.n = self.n % most + 1 end
     if pressed_repeat(LEFT) then self.n = (self.n - 2) % most + 1 end

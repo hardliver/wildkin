@@ -16,7 +16,7 @@ local function enter_map(name)
   gather_load()
   facility_load()
   bed_load()
-  fire_load()        -- 營火（campfire.lua）
+  fire_load()        -- 營火（campfire.lua）ㄎㄨㄜ
   raft_load()        -- 木筏（raft.lua）
   block_load()
   ambient_enter()   -- 先整理好這張地圖的植物、草（ambient.lua，運算預算）
