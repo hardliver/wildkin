@@ -115,7 +115,8 @@ local function interact()
 end
 
 -- 新遊戲：所有進度歸零，存檔欄位是 slot（標題畫面選的）
-function new_game(slot)
+-- clock_mode：時間怎麼走（"game" 遊戲時鐘／"real" 現實時鐘，W64e）；省略是遊戲時鐘
+function new_game(slot, clock_mode)
   SAVE_SLOT = slot
   PLAYER_NAME = "大志"
   party, BAG, RANCH = {}, {}, {}   -- 隊伍、背包都是空的：序章裡老苔給（scenes.lua 的 P2、P3）
@@ -125,6 +126,9 @@ function new_game(slot)
   TIME, TIME_SUB, LAST_FEED = 8 * 60, 0, nil   -- 第 1 天（春）早上 08:00（clock.lua）
   MONEY = 3000                      -- 優退金剩下的（商店 W55）
   SLEEP_DEBT, STIFF = 0, 0          -- 睡眠債、落枕（sleep.lua）
+  CLOCK_MODE, REAL_LAST, REAL_MONTH = "game", nil, nil
+  if clock_mode == "real" then clock_mode_set("real") end   -- 現實時鐘：從現在的時間開始（clock.lua）
+  SEASON_NEWS = nil                 -- 新的一局不用提示「秋天到了」
   enter_map("camp")
   player_init(19 * TILE, 27 * TILE)   -- 營地南口（船靠岸之後走上來）
   player.dir_x, player.dir_y = 0, -1
@@ -147,6 +151,9 @@ function load_game(slot, s)
   door_armed = world_door_at(player_cell()) == nil   -- 存檔時站在門上：先離開門才會觸發
   after_place()
   world_follow(player.x16 // 16 + TILE // 2, player.y16 // 16 + TILE // 2)
+  -- 現實時鐘：補算沒玩的這段時間（產出、飼料、換日），有什麼事就說一聲（day.lua）
+  local away = away_settle()
+  if away then dialog_open(away) end
 end
 
 function _init()
@@ -199,7 +206,8 @@ function _update()
   if not dialog_active() and not transition_active() then sleep_check() end     -- 好睏的哈欠（sleep.lua）
   npc_schedule_check()   -- NPC 依時段、天氣出沒（npc.lua）
   if dialog_active() then return end
-  clock_tick()     -- 遊戲時鐘只在這裡走：上面那些（戰鬥、選單、對話、劇情、轉場）進行中都停住
+  clock_update()   -- 遊戲時鐘只在這裡走：上面那些（戰鬥、選單、對話、劇情、轉場）進行中都停住
+                   -- （現實時鐘那段時間其實照走，回到這裡時一次補上，clock.lua）
   player_update()
   for _, n in ipairs(npcs) do npc_update(n) end
   if pressed(A) then interact() end

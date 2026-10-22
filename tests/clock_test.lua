@@ -7,8 +7,9 @@ do
   assert(clock_text(6 * 60 + 5) == "06:05", "時間的寫法")
 
   -- 囤囤鼠（伐木 1）在伐木場：吃飽一天 = 木材 2 × (1 × 2) // 2 = 2
-  local saved = { BAG, FACILITY, GATHERED, DAY, TIME, TIME_SUB }
+  local saved = { BAG, FACILITY, GATHERED, DAY, TIME, TIME_SUB, party }
   BAG, FACILITY, GATHERED, DAY, TIME, TIME_SUB = { feed = 1 }, {}, {}, 1, 0, 0
+  party = {}   -- 設施工作的經驗最多長到隊伍最高等級（W71g），要有隊伍表格（測試時還沒開新遊戲）
   FACILITY["camp:1:1"] = { kind = "lumber", workers = { kin_new("07", 5) } }
   clock_add_minutes(24 * 60)          -- 00:00 走到隔天 00:00
   assert(DAY == 2 and TIME == 0, "走 24 小時換一天")
@@ -35,7 +36,7 @@ do
   assert(r < 200 and b > r, "晚上變暗偏藍")
   r = tint_at(15 * 60)
   assert(r == 256, "白天原色")
-  BAG, FACILITY, GATHERED, DAY, TIME, TIME_SUB = saved[1], saved[2], saved[3], saved[4], saved[5], saved[6]
+  BAG, FACILITY, GATHERED, DAY, TIME, TIME_SUB, party = saved[1], saved[2], saved[3], saved[4], saved[5], saved[6], saved[7]
   -- 季節的換色（W64d）：春天不換；秋、冬有換到草和樹的綠色；換成的都是已經有的顏色
   assert(season_map("spring") == nil, "春天是原色")
   for _, sname in ipairs({ "summer", "autumn", "winter" }) do

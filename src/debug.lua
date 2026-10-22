@@ -24,6 +24,8 @@ DEBUG_COMMANDS = {
   { "時間 +3 小時", "clock_add_minutes(180)" },
   { "跳到晚上 21:00", "clock_add_minutes(minutes_until(21))" },
   { "跳到下一季", "for _ = 1, 7 do clock_add_minutes(24 * 60) end" },
+  { "現實時鐘：假裝離開 3 小時", "dbg_away(180)" },
+  { "現實時鐘：假裝離開 3 天", "dbg_away(3 * 24 * 60)" },
   { "Lv10 囤囤鼠", "dbg_kin('07', 10)" },
   { "→ 營地", "dbg_warp('camp', 19, 15)" },
   { "→ 草原小徑", "dbg_warp('route1', 9, 3)" },
@@ -41,6 +43,17 @@ DEBUG_COMMANDS = {
 -- 還在標題畫面：直接開一局新遊戲（存在欄位 1），不用一直按
 local function ensure_game()
   if title_active() then dbg_new() end
+end
+
+-- 現實時鐘模式：假裝上次對時是 minutes 分鐘前，像讀檔一樣補算（W64e）。遊戲時鐘模式先換成現實時鐘
+function dbg_away(minutes)
+  ensure_game()
+  if CLOCK_MODE ~= "real" and not clock_mode_set("real") then
+    dialog_open("讀不到現實的時間（Mac 版要加 --clock now）。")
+    return
+  end
+  REAL_LAST = REAL_LAST - minutes
+  dialog_open(away_settle() or "（沒什麼變化）")
 end
 
 -- 新遊戲，跳過序章開頭（取名、選初始、老苔給東西）：直接拿芽角羊 Lv5、野伴球 5、回復藥 2

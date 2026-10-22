@@ -3,7 +3,7 @@
 -- 開機 → 標題：天空、草地、三隻初始野伴、標誌（assets/art/logo.png，tools/art/logo.py 產生）
 --   有存檔：繼續／新遊戲；沒有存檔：新遊戲
 --   繼續 → 選欄位（空的不能選）→ 讀檔
---   新遊戲 → 選要存在哪個欄位（有存檔的要確認）→ 開始
+--   新遊戲 → 選要存在哪個欄位（有存檔的要確認）→ 選時間怎麼走（W64e）→ 開始
 -- 選單用 screens.lua 的堆疊（ui_push），所以對話框、是／否都能直接用。
 
 local title = nil   -- { t = 計時 }，nil = 不在標題畫面
@@ -22,6 +22,16 @@ local function leave(start)
     title = nil
     start()
   end)
+end
+
+-- 新遊戲：選時間怎麼走（W64e），選好呼叫 start(模式)。
+-- 這台機器讀不到現實時間（例如主機沒有 RTC），就不問，直接用遊戲時鐘
+local function ask_clock(start)
+  if not clock() then start("game") return end
+  dialog_ask("時間要怎麼走？\f遊戲時鐘：玩的時候才走。\n現實 1 分鐘＝遊戲 1 小時，睡覺可以快轉。" ..
+    "\f現實時鐘：和現實的時間、季節一樣。\n沒玩的時候野伴也在工作（最多算一天）。" ..
+    "\f要用哪一種？\n（之後可以在 START 選單的「設定」改）",
+    { "遊戲時鐘", "現實時鐘" }, function(c) start(c == 2 and "real" or "game") end)
 end
 
 -- 選欄位。mode = "load"（繼續）／"new"（新遊戲）
@@ -43,10 +53,10 @@ local function slot_screen(mode)
       leave(function() load_game(i, s) end)
     elseif s then
       dialog_ask("欄位 " .. i .. " 已經有存檔了。\n新遊戲存檔時會蓋掉，可以嗎？", { "可以", "不要" }, function(c)
-        if c == 1 then leave(function() new_game(i) end) end
+        if c == 1 then ask_clock(function(m) leave(function() new_game(i, m) end) end) end
       end)
     else
-      leave(function() new_game(i) end)
+      ask_clock(function(m) leave(function() new_game(i, m) end) end)
     end
   end
   function screen.draw(self)
