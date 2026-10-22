@@ -43,6 +43,16 @@ TALK.harbor_worker = function()
 end
 
 TALK.harbor_seafood = function()
+  if time_period() == "night" then
+    cutscene_start(function()
+      say("老闆：這麼晚還來？\n宵夜要吃什麼？")
+      say("（" .. P() .. "想到上次半夜吃炸花枝，\n胃酸逆流到天亮。）")
+      say(P() .. "：……一碗清湯就好。")
+      say("老闆：年輕人都點炸的。")
+      say("（我知道。我以前也是。）")
+    end)
+    return
+  end
   cutscene_start(function()
     say("老闆：今天的魚很新鮮喔！\n烤魚、蛤蜊湯、炸花枝！")
     say("（" .. P() .. "看了看菜單，想到尿酸，\n點了燙青菜。）")
@@ -55,14 +65,36 @@ TALK.harbor_insurance = "業務員：野伴意外險，月繳 100 元，\n戰鬥
   "\f（" .. "只是聽聽而已，沒有買。）"
 
 TALK.harbor_fisher = function()
-  if FLAGS.ch2_done then
+  local w = weather_now()
+  if w == "rain" then
+    dialog_open("漁夫：下雨天魚比較會咬餌。\f人比較不想出門就是了。")
+  elseif time_period() == "morning" then
+    dialog_open("漁夫：四點出海，現在收工了。\f年輕人都說我們起得早。\n其實是老了睡不著。")
+  elseif FLAGS.ch2_done then
     dialog_open("漁夫：燈塔的燈比較亮了。\f不過最近海上常看到鐵輪公司的船，\n往火山那邊開。")
   else
     dialog_open("漁夫：霧傘水母會飄到淺灘。\f牠會噴水，田裡有牠很好用。")
   end
 end
 
-TALK.harbor_kid = "小孩：我爸說鐵輪公司的船很臭。"
+TALK.harbor_kid = function()
+  local p, w = time_period(), weather_now()
+  if p == "night" then
+    cutscene_start(function()
+      say(P() .. "：小朋友，這麼晚了，\n爸媽知道你在這裡嗎？")
+      say("小孩：我爸還在船上。\n我在等他回來。")
+      say(P() .. "：……那你在路燈下面等，\n不要靠近水邊。")
+      say("小孩：大叔，你也是誰的爸爸嗎？")
+      say("（……這題有點難回答。）")
+    end)
+  elseif w == "rain" or w == "storm" then
+    dialog_open("小孩：下雨天船都不出海，\n我爸在家睡一整天。")
+  elseif p == "evening" then
+    dialog_open("小孩：太陽下山的時候，\n海是橘色的。\f我爸說那是太陽在泡澡。")
+  else
+    dialog_open("小孩：我爸說鐵輪公司的船很臭。")
+  end
+end
 
 TALK.harbor_shopkeeper = function()
   shop_open("老闆：港灣商店，什麼都有！", HARBOR_STOCK)

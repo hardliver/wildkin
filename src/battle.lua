@@ -43,6 +43,7 @@ function battle_new(party, foe_party, opts)
     sides = { new_side(party), new_side(foe_party) },
     wild = opts.wild or false,
     trainer = opts.trainer,   -- 訓練家的名字（訊息用：「阿穗的炭毛狸使用了……」）
+    catch_pct = opts.catch_pct, -- 捕獲率倍率（%）：大志睡得好不好、落枕（sleep.lua）。nil = 100
     weather = opts.weather,   -- 天氣（weather.lua）：下雨水招強、火招弱；晴天反過來。nil = 沒有（室內、模擬）
     turn = 0,
     run_tries = 0,
@@ -321,7 +322,7 @@ end
 -- 丟球：事件 ball → shake × 0～3 → caught 或 broke
 local function throw_ball(b, side, c, ev)
   local foe = battle_active(b, other(side))
-  local a = catch_value(foe, DATA.items[c.item].rate)
+  local a = catch_value(foe, DATA.items[c.item].rate * (b.catch_pct or 100) // 100)   -- 大志的手感（sleep.lua）
   local shakes = 0
   for _ = 1, 4 do
     if rnd(256) >= SHAKE[a + 1] then break end

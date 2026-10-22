@@ -31,13 +31,38 @@ function npc_load()
       world_add_blocker(n)      -- NPC 會擋路，不能穿過去
     end
   end
+  npc_schedule_check(true)
+end
+
+-- ============================================================
+-- 依時段、天氣出沒（W71i，2026-10-22 Neil）
+-- ============================================================
+-- NPC_HOURS[對話編號] = function(時段, 天氣) return 在不在 end（天氣在室內是 nil）。沒寫的 NPC 一直都在。
+-- 不在的 NPC：n.away = true，不畫、不擋路、不能說話。時段或天氣一變就重新看一次
+NPC_HOURS = NPC_HOURS or {}
+local schedule_key = nil
+
+function npc_schedule_check(force)
+  local p = time_period()
+  local w = weather_now()
+  local key = DAY .. p .. tostring(w)
+  if not force and key == schedule_key then return end
+  schedule_key = key
+  for _, n in ipairs(npcs) do
+    local f = n.talk and NPC_HOURS[n.talk]
+    local away = (f and not f(p, w)) and true or false
+    if away ~= (n.away or false) then
+      n.away = away
+      if away then world_remove_blocker(n) else world_add_blocker(n) end
+    end
+  end
 end
 
 -- 世界座標 (px, py) 這一點在哪個 NPC 身上（沒有回傳 nil）。
 -- 用整張圖的 16 × 16 範圍判斷，不只是腳：主角站在 NPC 上方往下看時，前方那一點會落在 NPC 的頭上
 function npc_at(px, py)
   for _, n in ipairs(npcs) do
-    if px >= n.x and px < n.x + TILE and py >= n.y and py < n.y + TILE then return n end
+    if not n.away and px >= n.x and px < n.x + TILE and py >= n.y and py < n.y + TILE then return n end
   end
   return nil
 end
@@ -69,5 +94,6 @@ function npc_remove(n)
 end
 
 function npc_draw(n)
+  if n.away then return end
   world_spr(n.tile, n.x, n.y, n.face_left)
 end

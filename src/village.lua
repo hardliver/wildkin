@@ -42,7 +42,7 @@ end
 
 -- 住旅店：和帳篷一樣選睡幾個小時（day.lua 的 rest_open），時間會往前走
 local function inn_stay(host)
-  rest_open({ before = (host or "老闆娘") .. "：好好休息喔。", after = PLAYER_NAME .. "的腰痠沒有回復。" })
+  rest_open({ before = (host or "老闆娘") .. "：好好休息喔。", bed = "bed" })
 end
 
 TALK.village_innkeeper = function()

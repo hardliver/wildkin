@@ -124,6 +124,7 @@ function new_game(slot)
   DAY, PLAY_FRAMES = 1, 0
   TIME, TIME_SUB, LAST_FEED = 8 * 60, 0, nil   -- 第 1 天（春）早上 08:00（clock.lua）
   MONEY = 3000                      -- 優退金剩下的（商店 W55）
+  SLEEP_DEBT, STIFF = 0, 0          -- 睡眠債、落枕（sleep.lua）
   enter_map("camp")
   player_init(19 * TILE, 27 * TILE)   -- 營地南口（船靠岸之後走上來）
   player.dir_x, player.dir_y = 0, -1
@@ -195,6 +196,8 @@ function _update()
   heal_tip_check() -- 第一次受傷：提示帳篷可以回血（day.lua）
   if not dialog_active() then season_news_check() end   -- 換季的提示（season.lua）
   if not dialog_active() and not transition_active() then weather_check() end   -- 大志的膝蓋（weather.lua）
+  if not dialog_active() and not transition_active() then sleep_check() end     -- 好睏的哈欠（sleep.lua）
+  npc_schedule_check()   -- NPC 依時段、天氣出沒（npc.lua）
   if dialog_active() then return end
   clock_tick()     -- 遊戲時鐘只在這裡走：上面那些（戰鬥、選單、對話、劇情、轉場）進行中都停住
   player_update()

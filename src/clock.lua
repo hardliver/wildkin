@@ -53,13 +53,15 @@ function clock_long_text()
   local _, sname = season()
   local _, pname = time_period()
   local w = weather_now()
-  return "第 " .. DAY .. " 天（" .. sname .. "）　" .. clock_text() .. " " .. pname .. (w and ("　" .. WEATHER_NAMES[w]) or "")
+  return "第 " .. DAY .. " 天（" .. sname .. "）　" .. clock_text() .. " " .. pname .. (w and ("　" .. WEATHER_NAMES[w]) or "") ..
+    "\n" .. PLAYER_NAME .. "：" .. sleep_status_text()
 end
 
 -- 時間往前走 n 分鐘：一分鐘一分鐘走，每個整點和半夜都會照順序結算（睡覺一次走好幾百分鐘也一樣）
 function clock_add_minutes(n)
   for _ = 1, n do
     TIME = TIME + 1
+    sleep_minute()                               -- 睡眠債、落枕（sleep.lua）
     if TIME % 60 == 0 then facility_hour() end   -- 剛過完的這一小時的產出
     if TIME >= 24 * 60 then
       TIME = 0

@@ -485,7 +485,9 @@ end
 -- 左上角的小框：「第 3 天（春）　14:20 白天」
 function clock_box_draw(y)
   local s = clock_long_text()
-  ui_box(4, y, textw(s) + 20, 30)
+  local lines = 1
+  for _ in s:gmatch("\n") do lines = lines + 1 end
+  ui_box(4, y, textw(s) + 20, 16 + lines * 14)
   text(s, 14, y + 7, 0)
 end
 

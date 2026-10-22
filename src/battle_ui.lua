@@ -266,6 +266,8 @@ local function show(e)
     fx_status(ctx, e.side, K == "asleep" and "sleep" or K == "paralyzed" and "paralyze" or e.status)
   elseif K == "item" and DATA.items[e.item].kind == "ball" then
     msg(text)
+    local t2 = sleep_throw_text()   -- 落枕、好睏：丟球前抱怨一下（sleep.lua）
+    if t2 then msg(t2) end
     fx_ball_throw(ctx, set_ball)
     return
   elseif K == "shake" then
@@ -426,6 +428,7 @@ local function begin(foe_party, opts, on_end)
   local o = {}
   for k, v in pairs(opts or {}) do o[k] = v end
   if o.weather == nil then o.weather = weather_now() end   -- 室外才有天氣（weather.lua）
+  if o.catch_pct == nil then o.catch_pct = sleep_catch_pct() end   -- 大志的手感（sleep.lua）
   opts = o
   local b = battle_new(party, foe_party, opts)
   S = {

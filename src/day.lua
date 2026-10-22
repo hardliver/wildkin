@@ -116,16 +116,18 @@ local function heal_all()
 end
 
 -- 睡 hours 小時（全黑的時候呼叫），回傳醒來要說的話：現在幾點、睡覺時設施做了什麼、飼料、換季
-local function sleep_hours(hours)
+local function sleep_hours(hours, bed)
   local before, day0 = bag_copy(), DAY
   local gathered_any = next(GATHERED) ~= nil
+  sleep_begin()                    -- 睡覺的這段時間在還睡眠債（sleep.lua）
   clock_add_minutes(hours * 60)
+  local rested = sleep_end(hours, bed)
   TIME_SUB = 0
   heal_all()
   local _, sname = season()
   local _, pname = time_period()
   local lines = { "睡了 " .. hours .. " 個小時。\n現在是第 " .. DAY .. " 天（" .. sname .. "）" .. clock_text() .. " " .. pname .. "。",
-                  "野伴們都恢復精神了！" }
+                  "野伴們都恢復精神了！", rested }
   local got = gained_text(before)
   if got ~= "" then lines[#lines + 1] = "睡覺的時候，設施做好了：\n" .. got end
   local f = LAST_FEED
@@ -159,7 +161,8 @@ end
 
 -- 休息（W64c 改，2026-10-22 Neil：白天晚上都可以自己選睡幾個小時）
 -- 帳篷、苔石旅店、港灣旅店、海岸阿婆的小屋共用。opts：
---   before：開始睡之前說的話（「大志鑽進睡袋。」）；after：醒來報告之後多說的話（「腰痠沒有回復。」）
+--   before：開始睡之前說的話（「大志鑽進睡袋。」）；after：醒來報告之後多說的話
+--   bed：睡在哪（tent 睡袋、home 別人家、bed 旅店的床）：落枕的機率不同（sleep.lua）
 -- 一開始停在 1 小時（2026-10-22 Neil）；上下 ±10、左右 ±1，下面會顯示醒來是幾點
 function rest_open(opts)
   opts = opts or {}
@@ -169,7 +172,7 @@ function rest_open(opts)
     function(n)
       local function go()
         local report
-        transition_start(function() report = sleep_hours(n) end, false,
+        transition_start(function() report = sleep_hours(n, opts.bed) end, false,
           { hold = math.min(90, 30 + n * 5), caption = "Zzz……",
             on_end = function() dialog_open(report .. (opts.after and ("\f" .. opts.after) or "")) end })
       end
@@ -185,5 +188,5 @@ end
 
 -- 帳篷
 function bed_interact(b)
-  rest_open({ before = PLAYER_NAME .. "鑽進睡袋。\n腰發出了「喀」的一聲。" })
+  rest_open({ before = PLAYER_NAME .. "鑽進睡袋。\n腰發出了「喀」的一聲。", bed = "tent" })
 end

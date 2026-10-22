@@ -23,6 +23,7 @@ function game_save()
     facility = FACILITY, gathered = GATHERED, day = DAY,
     time = TIME, time_sub = TIME_SUB,
     frames = PLAY_FRAMES, money = MONEY,
+    sleep_debt = SLEEP_DEBT, stiff = STIFF,
   })
 end
 
@@ -47,6 +48,7 @@ function game_apply(s)
   TIME, TIME_SUB, LAST_FEED = s.time or 8 * 60, s.time_sub or 0, nil   -- W64c 以前的存檔沒有時間：早上 08:00
   PLAY_FRAMES = s.frames or 0
   MONEY = s.money or 0
+  SLEEP_DEBT, STIFF = s.sleep_debt or 0, s.stiff or 0
 end
 
 -- 「1:05」：遊玩幾小時幾分

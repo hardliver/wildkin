@@ -23,6 +23,7 @@
     "src/raft.lua",
     "src/season.lua",
     "src/weather.lua",
+    "src/sleep.lua",
     "src/craft.lua",
     "src/savegame.lua",
     "src/title.lua",
