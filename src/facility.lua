@@ -112,6 +112,9 @@ local function build(l, kind)
   ui_clear()
   dialog_open(f.name .. "蓋好了！\n之後可以派野伴來這裡工作。")
   if not FLAGS.tutorial_sleep then cutscene_start(SCENE.p7_feed) end   -- 序章 P7：老苔來教派野伴、睡覺
+  if kind == "generator" and l.key:sub(1, 5) == "camp:" and FLAGS.bike and not FLAGS.ebike then
+    cutscene_start(SCENE.ebike)   -- 老苔幫菜籃車裝馬達（scenes.lua）
+  end
 end
 
 -- 選要蓋什麼的畫面：右上是清單，左上是設施的圖（放大 2 倍），下面是說明和材料

@@ -145,8 +145,37 @@ SCENE.p7_feed = function()
   say("老苔：我年輕的時候，\n一天工作十六個小時……")
   wait(20)
   say("老苔：……那樣不行。\n野伴也是，要吃飽、要睡覺。")
+  say("老苔：對了，小屋後面有台舊菜籃車，\n我年輕時騎的。借你吧。")
+  say("老苔：後座以前載過我老伴……\n咳，載過很多東西。")
+  set_flag("bike")
+  say(P() .. "借到了菜籃車！")
+  say("老苔：按 B 上車、下車。\n屋子裡、洞穴裡就牽著走吧。")
   fade(function() place("elder", 19, 11) end)
   set_flag("tutorial_sleep")
+end
+
+-- 營地蓋了發電機：老苔幫菜籃車裝馬達（W71e）
+local function camp_has_generator()
+  for key, fac in pairs(FACILITY) do
+    if fac.kind == "generator" and key:sub(1, 5) == "camp:" then return true end
+  end
+  return false
+end
+
+SCENE.ebike = function()
+  local px, py = player_cell()
+  place("elder", px - 3, py)
+  walk_to("elder", "player")
+  face("player", "elder")
+  say("老苔：發電機蓋好啦？\n把菜籃車牽過來。")
+  blackout(true)
+  wait(30)
+  blackout(false)
+  say("老苔：裝了顆馬達、一顆電池。\n上坡也不用站起來踩了。")
+  set_flag("ebike")
+  say(P() .. "的菜籃車變成電動輔助了！")
+  say("老苔：電池是發電機充的，\n用電要感謝野伴喔。")
+  fade(function() place("elder", 19, 11) end)
 end
 
 -- ============================================================
@@ -301,6 +330,8 @@ function scene_on_enter(map)
   if map == "volcano" then volcano_enter() return end                                   -- 火山洞（volcano.lua）
   if map == "camp" and FLAGS.first_catch and not FLAGS.tutorial_base and next(FACILITY) == nil then
     cutscene_start(SCENE.p6_base)
+  elseif map == "camp" and FLAGS.bike and not FLAGS.ebike and camp_has_generator() then
+    cutscene_start(SCENE.ebike)
   elseif map == "village" and not FLAGS.ch1 then
     cutscene_start(SCENE.p9_village)
   elseif map == "village" and FLAGS.badge_forest and not FLAGS.ch1_done then

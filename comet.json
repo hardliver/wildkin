@@ -56,7 +56,8 @@
     "chapters": "assets/art/chapters.png",
     "fog": "assets/art/fog.png",
     "harbor": "assets/art/harbor.png",
-    "campfire": "assets/art/campfire.png"
+    "campfire": "assets/art/campfire.png",
+    "hero": "assets/art/hero.png"
   },
   "output": "build/wildkin.lua",
   "maps": {

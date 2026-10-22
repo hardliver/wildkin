@@ -54,7 +54,7 @@ end
 -- 跳到第 n 章的開頭（測試用，不用每次從序章玩起）：前面章節的旗標、徽記、營火都設好，
 -- 隊伍是那一章的推薦等級，然後傳送到那一章的起點。選哪一隻初始野伴：starter（"01"／"03"／"05"，預設芽角羊）
 local CH_FLAGS = {
-  [1] = { "arrived", "starter", "got_balls", "scene_camp_exit", "first_wild", "first_catch", "tutorial_base", "tutorial_sleep",
+  [1] = { "arrived", "starter", "got_balls", "scene_camp_exit", "first_wild", "first_catch", "tutorial_base", "tutorial_sleep", "bike",
           "slept", "tip_heal", "trainer_rival1", "ch1" },
   [2] = { "inn_first", "heard_forest", "cut:village:38:14", "cut:village:38:15", "saw_ironwheel", "scene_c1_ironwheel",
           "moth_rescued", "scene_c1_moth", "trainer_rival2", "badge_forest", "ch1_done", "fire:village", "fire:forest" },

@@ -199,6 +199,7 @@ function _update()
   player_update()
   for _, n in ipairs(npcs) do npc_update(n) end
   if pressed(A) then interact() end
+  if pressed(B) then player_toggle_bike() end   -- 菜籃車（player.lua）
   if pressed(START) then field_menu_open() return end
   if pressed(SELECT) then quest_open() return end   -- 任務日誌（quest.lua）
   check_door()

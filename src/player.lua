@@ -1,10 +1,15 @@
 -- player.lua：主角
 --
--- 圖：Kenney Tiny Dungeon 的第 112 格（綠色兜帽的冒險者）
+-- 圖：assets/art/hero.png（tools/art/hero.py 畫的：39 歲的大志，POLO 衫、卡其褲、八字鬍）
+--   x=0 走路；x=16 騎車的上半身；x=32 起四台車（24×16）：菜籃車兩格、電動輔助菜籃車兩格
 -- 位置用「放大 16 倍的整數」存（x16 = 實際 x × 16），搖桿推一點點也能慢慢走
+--
+-- 菜籃車（W71e）：老苔借的（FLAGS.bike），按 B 上下車；室內不能騎。
+--   蓋了發電機之後老苔幫忙改裝成電動輔助（FLAGS.ebike）
 
-local HERO_TILE = 112
-local MAX_SPEED = 24        -- 每幀最多 24/16 = 1.5 像素
+local MAX_SPEED = 24        -- 走路：每幀最多 24/16 = 1.5 像素
+local BIKE_SPEED = 36       -- 菜籃車：1.5 倍（2.25 像素）
+local EBIKE_SPEED = 48      -- 電動輔助：2 倍（3 像素）
 local CORNER_HELP = 4       -- 轉角輔助：差幾像素以內就幫忙對準通道
 
 player = {}
@@ -17,6 +22,24 @@ function player_init(x, y)
   player.dir_y = 1             -- 一開始面向下
   player.walking = false
   player.walk_frames = 0    -- 走了幾幀（用來決定走路動畫的哪一步）
+  player.riding = false     -- 騎著菜籃車嗎
+end
+
+-- 按 B：上車／下車
+function player_toggle_bike()
+  if not FLAGS.bike then return end
+  if player.riding then
+    player.riding = false
+  elseif indoor_map() then
+    dialog_open("（這裡面沒辦法騎車。）")
+  else
+    player.riding = true
+  end
+end
+
+local function speed()
+  if not player.riding then return MAX_SPEED end
+  return FLAGS.ebike and EBIKE_SPEED or BIKE_SPEED
 end
 
 -- 主角的圖左上角（像素）
@@ -88,10 +111,12 @@ end
 
 function player_update()
   local mx, my = move_input()
+  if player.riding and indoor_map() then player.riding = false end   -- 進了室內就自動下車
+  local sp = speed()
 
   -- x、y 分開走：斜著撞牆時，被擋住的方向停下來，另一個方向繼續 → 貼著牆滑過去
-  local hit_x = move_axis("x", mx * MAX_SPEED // 127)
-  local hit_y = move_axis("y", my * MAX_SPEED // 127)
+  local hit_x = move_axis("x", mx * sp // 127)
+  local hit_y = move_axis("y", my * sp // 127)
   -- 只往一個方向走、而且被擋住了：試試轉角輔助
   if hit_x and my == 0 then corner_help("x", mx > 0 and 1 or -1) end
   if hit_y and mx == 0 then corner_help("y", my > 0 and 1 or -1) end
@@ -124,8 +149,18 @@ function player_draw()
   local bob = 0
   if player.walking and step == 1 then bob = -1 end
 
+  local left = player.facing_left   -- 圖原本面向右，往左走時左右翻轉
+  if player.riding then
+    -- 車子 24 寬，比主角寬 8：左右各超出 4。踏板每 6 幀換一次
+    local pedal = player.walking and (player.walk_frames // 6) % 2 or 0
+    local n = (FLAGS.ebike and 2 or 0) + pedal
+    rect(x - 2, y + 14, 20, 2, 5)
+    sspr(IMG.hero, 32 + n * 24, 0, 24, 16, x - 4, y, 24, 16, left)
+    -- 人坐在座墊上：車子的第 2 格起（翻轉時從右邊算），往上 3 像素
+    sspr(IMG.hero, 16, 0, 16, 14, left and x + 2 or x - 2, y - 3, 16, 14, left)
+    return
+  end
   -- 影子
   rect(x + 3, y + 14, 10, 2, 5)
-  -- Kenney 的角色原本面向右，往左走時左右翻轉
-  spr(IMG.dungeon, HERO_TILE, x, y + bob, player.facing_left)
+  spr(IMG.hero, 0, x, y + bob, left)
 end
