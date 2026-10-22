@@ -15,11 +15,7 @@
 --   battle_step 一下子就把整回合算完了，但玩家要「先看到訊息，再看到血條變少」，
 --   所以畫面用自己的一份 HP、經驗、等級，事件演到哪裡才更新到哪裡（W26：血條、經驗條慢慢變化）。
 
--- 戰鬥畫面自己的顏色（圖片的顏色從 16 號往上排，這裡用最後面幾號，不會撞到）
-local C_SKY, C_GROUND, C_GROUND_EDGE = 250, 251, 252
-pal(C_SKY, 240, 242, 224)
-pal(C_GROUND, 202, 222, 160)
-pal(C_GROUND_EDGE, 150, 182, 112)
+-- 戰鬥背景的顏色在 battle_bg.lua（調色盤 242～252 號，開戰時照地點、時間、天氣設定）
 
 local STATS = { "hp", "atk", "def", "spd" }
 local STAT_LABEL = { hp = "最大HP", atk = "攻擊", def = "防禦", spd = "速度" }
@@ -431,6 +427,7 @@ local function begin(foe_party, opts, on_end)
   if o.catch_pct == nil then o.catch_pct = sleep_catch_pct() end   -- 大志的手感（sleep.lua）
   opts = o
   local b = battle_new(party, foe_party, opts)
+  battle_bg_begin()   -- 背景：地點、時間、天氣（battle_bg.lua）
   S = {
     b = b, view = {}, on_end = on_end,
     fx = { new_fx(), new_fx() },   -- 演出用：hidden（閃爍）、sink（倒下）、dx（進場滑入）、ox/oy（招式動畫的位移）
@@ -570,8 +567,7 @@ local function ellipse(cx, cy, rx, ry, c)
 end
 
 local function platform(cx, cy, rx, ry)
-  ellipse(cx, cy, rx, ry, C_GROUND_EDGE)
-  ellipse(cx, cy - 1, rx - 2, ry - 2, C_GROUND)
+  battle_bg_platform(cx, cy, rx, ry, ellipse)   -- battle_bg.lua
 end
 
 -- 血條：外框黑、底白；剩一半以上綠、五分之一以上黃、更少紅（GB 的規則）
@@ -613,10 +609,14 @@ local function name_line(v, x, right, y)
   end
 end
 
--- GB 的資訊框：只有兩條線（一條直的、一條橫的）圍著
-local function bracket(x1, x2, y_top, y_bottom, side_x)
-  rect(side_x, y_top, 2, y_bottom - y_top + 1, 0)
-  rect(x1, y_bottom, x2 - x1 + 1, 2, 0)
+-- 資訊框：圓角的面板（2026-10-22 戰鬥畫面改版：背景有圖了，字要有底才看得清楚）
+local function info_panel(x, y, w, h)
+  -- 每個像素只塗一次（運算預算：一開始疊了好幾層長方形，一個面板就塗了 4 倍的像素）
+  rect(x + 2, y + 2, w - 4, h - 4, 7)                                  -- 底
+  rect(x + 2, y, w - 4, 2, 0); rect(x + 2, y + h - 2, w - 4, 2, 0)     -- 上下框（2 像素）
+  rect(x, y + 2, 2, h - 4, 0); rect(x + w - 2, y + 2, 2, h - 4, 0)     -- 左右框
+  rect(x + 1, y + 1, 1, 1, 0); rect(x + w - 2, y + 1, 1, 1, 0)         -- 圓角
+  rect(x + 1, y + h - 2, 1, 1, 0); rect(x + w - 2, y + h - 2, 1, 1, 0)
 end
 
 -- 野伴的圖：閃爍時不畫；倒下時往下沉（只畫上面的部分、往下移，看起來像沉進草地）
@@ -659,7 +659,7 @@ end
 
 local function draw_evolution()
   local E = S.evo
-  cls(E.glow > 0 and 1 or C_SKY)   -- 變化中背景變暗（深藍），白色的輪廓才看得清楚
+  cls(E.glow > 0 and 1 or 7)   -- 變化中背景變暗（深藍），白色的輪廓才看得清楚
   -- 背後的光：一圈一圈往外擴散
   for k = 0, 3 do
     local r = (E.glow * 2 + k * 18) % 72
@@ -679,7 +679,7 @@ end
 function battle_scene_draw()
   camera()
   if S.evo then return draw_evolution() end
-  cls(C_SKY)
+  battle_bg_draw()   -- 地點的背景（battle_bg.lua），包含清畫面
 
   -- 場地和野伴（會跟著畫面晃動）
   camera(S.sx, S.sy)
@@ -688,25 +688,30 @@ function battle_scene_draw()
   draw_foe()
   draw_mine()
   camera()
+  -- 雨、雪、花瓣：和地圖上同一套（室內沒有）
+  if not S.evo then
+    season_weather_draw()
+    weather_draw()
+  end
 
   -- 對手：左上的資訊（還沒上場不畫）
   local f = S.view[2]
   if not S.fx[2].away then
+    info_panel(10, 6, 152, 42)
     name_line(f, 18, 150, 12)
     hp_bar(26, 34, 124, f.hp, view_max_hp(f))
-    bracket(14, 156, 30, 44, 14)
   end
 
   -- 自己：右下的資訊
   local m = S.view[1]
   if not S.fx[1].away then
+    info_panel(162, 98, 152, 72)
     name_line(m, 170, 304, 104)
     hp_bar(178, 126, 126, m.hp, view_max_hp(m))
     local nums = m.hp .. "/" .. view_max_hp(m)
     text(nums, 304 - textw(nums), 134, 0)
     text("EXP", 170, 150, 0)
     exp_bar(198, 155, 106, m)
-    bracket(166, 310, 122, 166, 308)
   end
 
   if S.ball then fx_draw_ball(S.ball.x, S.ball.y, S.ball.tilt) end

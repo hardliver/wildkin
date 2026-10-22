@@ -57,6 +57,8 @@ if new:
                 else: o[x, y] = (0, 0, 0, 0)
         return out
     nf, nb = apply(nf, 0), apply(nb, nf.height)
+    from outline import outline_sheet                 # 加 1 像素外框（outline.py；凍結的那幾隻已經有了）
+    nf, nb = outline_sheet(nf, 64), outline_sheet(nb, 32)
     F.paste(nf, (64 * FROZEN, 0)); B.paste(nb, (32 * FROZEN, 0))
     added = {c for c in remap.values() if c not in set(old_cols)}
     print("new kin:", len(new), "new colors:", len(added))
