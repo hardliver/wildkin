@@ -2,8 +2,9 @@
 --
 -- 地圖物件 type = "block"（Studio：物件 → 擋路物）：擋住路的東西，要用野外技能打開。
 --   tile：畫什麼（地圖格子編號）；need：需要的工作特性（work.json 的編號 lumber，或中文「伐木」）
--- 面對它按 A：隊伍、牧場、或派在設施工作的野伴裡，有會這項工作的 → 問要不要用 → 打開。
--- 野伴不用放在隊伍裡也能用（content.md：比 GB 的秘傳學習器佔招式格方便）。
+-- 面對它按 A：隊伍裡有會這項工作的野伴 → 問要不要用 → 打開。
+-- 要帶在隊伍裡（2026-10-22 Neil：派在營地工作的囤囤鼠跑來砍苔石村的倒木很怪）；不佔招式格（比 GB 的秘傳學習器方便）。
+-- 會的野伴在營地工作或在牧場時，提示「營地的○○會伐木，帶牠一起來吧」（field_skill_hint）。
 -- 連在一起、需要同一個技能的擋路物一次全部打開（兩格高的倒木）。
 -- 記錄：FLAGS["cut:地圖:x:y"] = true（存檔一起存），之後進這張地圖就不會再出現。
 
@@ -46,18 +47,26 @@ function block_at(px, py)
   return nil
 end
 
--- 會這項工作的野伴（隊伍優先，再來是派在設施的、牧場的）。沒有回傳 nil
+local function can(k, work)
+  local w = kin_species(k).work
+  return w and w[work]
+end
+
+-- 隊伍裡會這項工作的野伴（野外技能只能用隊伍裡的）。沒有回傳 nil
 function field_skill_kin(work)
-  local function can(k)
-    local w = kin_species(k).work
-    return w and w[work]
-  end
-  for _, k in ipairs(party) do if can(k) then return k end end
-  for _, fac in pairs(FACILITY) do
-    for _, k in ipairs(fac.workers) do if can(k) then return k end end
-  end
-  for _, k in ipairs(RANCH) do if can(k) then return k end end
+  for _, k in ipairs(party) do if can(k, work) then return k end end
   return nil
+end
+
+-- 隊伍裡沒有、但營地（設施、牧場）有會的：回傳提示的一句話，例如「營地的囤囤鼠會伐木，帶牠一起來吧。」；都沒有回傳 nil
+function field_skill_hint(work)
+  local k = nil
+  for _, fac in pairs(FACILITY) do
+    for _, w in ipairs(fac.workers) do if not k and can(w, work) then k = w end end
+  end
+  for _, r in ipairs(RANCH) do if not k and can(r, work) then k = r end end
+  if not k then return nil end
+  return "（營地的" .. kin_name(k) .. "會" .. (DATA.work[work] or work) .. "，\n帶牠一起來吧。）"
 end
 
 -- 從 b 開始，連在一起、同一個技能的擋路物
@@ -82,7 +91,10 @@ function block_interact(b)
   local what = (b.need == "lumber") and "一棵很大的倒木。" or (b.need == "mine" and "大石頭擋住了路。" or "擋住路的東西。")
   local k = field_skill_kin(b.need)
   if not k then
-    if b.need == "mine" then   -- W67 舊礦坑：提示去哪裡找（礫殼犰狳住在礦坑前段）
+    local home = field_skill_hint(b.need)
+    if home then
+      dialog_open(what .. "\n要找會" .. work .. "的野伴。\f" .. home)
+    elseif b.need == "mine" then   -- W67 舊礦坑：提示去哪裡找（礫殼犰狳住在礦坑前段）
       dialog_open(what .. "\n要找會" .. work .. "的野伴。\f（礦坑裡好像有背著石頭殼的野伴，\n說不定撞得開……）")
     else
       dialog_open(what .. "\n要找會" .. work .. "的野伴。")

@@ -3,6 +3,7 @@
   "height": 30,
   "tilesets": ["town", "dungeon"],
   "objects": [
+    {"type":"fire","x":12,"y":18},
     {"type":"door","x":43,"y":14,"to":"village","tx":1,"ty":14},
     {"type":"door","x":43,"y":15,"to":"village","tx":1,"ty":15},
     {"type":"door","x":0,"y":14,"to":"harbor","tx":38,"ty":14},
@@ -25,8 +26,7 @@
     {"type":"gather","x":32,"y":21,"item":"stone","amount":2,"tile":145},
     {"type":"gather","x":27,"y":6,"item":"ore","amount":2,"tile":157},
     {"type":"gather","x":19,"y":9,"item":"stone","amount":2,"tile":145},
-    {"type":"gather","x":4,"y":20,"item":"ore","amount":3,"tile":157},
-    {"type":"fire","x":36,"y":11}
+    {"type":"gather","x":4,"y":20,"item":"ore","amount":3,"tile":157}
   ],
   "layers": {
     "ground": [

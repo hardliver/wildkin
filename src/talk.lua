@@ -78,7 +78,11 @@ TALK.village_guard = function()
     "\f要過去，得找會「伐木」的野伴\n把它砍開。" ..
     "\f草原小徑的囤囤鼠就會。\n牠們什麼都啃。"
   local k = field_skill_kin("lumber")
-  if k then text = text .. "\f喔，你的" .. kin_name(k) .. "看起來\n很想啃那棵樹。" end
+  if k then text = text .. "\f喔，你的" .. kin_name(k) .. "看起來\n很想啃那棵樹。"
+  else
+    local home = field_skill_hint("lumber")
+    if home then text = text .. "\f" .. home end
+  end
   dialog_open(text)
 end
 

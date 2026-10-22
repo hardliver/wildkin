@@ -82,7 +82,7 @@ for y in (14, 15):
     deco[y][0] = IRON_DOOR; solid[y][0] = 1
 
 objects = [
-    {"type": "fire", "x": 36, "y": 11},   # 營火（W71）
+    {"type": "fire", "x": 12, "y": 18},   # 營火（W71）：在深處的鐵輪工作區（礦坑口離苔石村太近，2026-10-22 Neil）
     {"type": "door", "x": 43, "y": 14, "to": "village", "tx": 1, "ty": 14},
     {"type": "door", "x": 43, "y": 15, "to": "village", "tx": 1, "ty": 15},
     {"type": "door", "x": 0, "y": 14, "to": "harbor", "tx": 38, "ty": 14},

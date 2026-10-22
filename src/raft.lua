@@ -2,7 +2,7 @@
 --
 -- 地圖物件 type = "raft"（Studio：物件 → 木筏）：放在海上的那一格（地圖的圖畫木筏，港灣圖塊第 36 格），
 --   to：到哪張地圖，tx、ty：到了站在哪一格
--- 面對木筏按 A：隊伍、設施、牧場裡有會灌溉的野伴（霧傘水母、鬚鬚鯰）→ 牠咬著繩子把木筏拖到對岸。
+-- 面對木筏按 A：隊伍裡有會灌溉的野伴（霧傘水母、鬚鬚鯰）→ 牠咬著繩子把木筏拖到對岸。
 -- 沒有的話提示去哪裡找。和其他野外技能一樣，不佔招式格（content.md）。
 
 local rafts = {}
@@ -28,7 +28,7 @@ function raft_interact(r)
   local k = field_skill_kin("water")
   if not k then
     dialog_open("一艘木筏綁在岸邊。\n海水太深，自己划不過去。" ..
-      "\f（港灣鎮的淺灘，有會噴水的野伴……\n說不定拖得動。）")
+      "\f" .. (field_skill_hint("water") or "（港灣鎮的淺灘，有會噴水的野伴……\n說不定拖得動。）"))
     return
   end
   local where = MAP_NAME[r.to] or r.to
