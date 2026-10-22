@@ -26,7 +26,7 @@ end
 
 -- 這張地圖是不是室內（有暗處的地圖：礦坑、洞窟）：不下雪、不跟著晝夜變色
 -- 沒有暗處、但也是室內的地圖（W70 火山洞：岩漿照得很亮）
-INDOOR_MAPS = { volcano = true }
+INDOOR_MAPS = { volcano = true, factory = true, office = true }
 
 function indoor_map()
   check()

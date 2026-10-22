@@ -38,6 +38,7 @@
     "src/harbor.lua",
     "src/coast.lua",
     "src/volcano.lua",
+    "src/factory.lua",
     "src/kin.lua",
     "src/shiny.lua",
     "src/battle.lua",
@@ -70,7 +71,9 @@
     "mine": "maps/mine.json",
     "harbor": "maps/harbor.json",
     "coast": "maps/coast.json",
-    "volcano": "maps/volcano.json"
+    "volcano": "maps/volcano.json",
+    "factory": "maps/factory.json",
+    "office": "maps/office.json"
   },
   "data": {
     "types": "data/types.json",

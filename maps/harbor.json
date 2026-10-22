@@ -15,6 +15,7 @@
     {"type":"npc","x":29,"y":7,"name":"receptionist","tile":232,"talk":"harbor_reception"},
     {"type":"npc","x":32,"y":8,"name":"worker","tile":218,"talk":"harbor_worker"},
     {"type":"npc","x":35,"y":12,"name":"seafood","tile":230,"talk":"harbor_seafood"},
+    {"type":"npc","x":36,"y":12,"name":"exec1h","tile":230,"talk":"exec1_harbor","look":"left"},
     {"type":"npc","x":17,"y":12,"name":"insurance","tile":231,"talk":"harbor_insurance"},
     {"type":"npc","x":26,"y":25,"name":"fisher","tile":245,"talk":"harbor_fisher"},
     {"type":"npc","x":30,"y":16,"name":"harbor_kid","tile":218,"talk":"harbor_kid"},

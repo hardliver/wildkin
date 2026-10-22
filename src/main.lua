@@ -18,6 +18,8 @@ local function enter_map(name)
   bed_load()
   fire_load()        -- 營火（campfire.lua）ㄎㄨㄜ
   raft_load()        -- 木筏（raft.lua）
+  lift_load()        -- 升降梯、電梯（factory.lua）
+  console_load()     -- 生產線的控制台（factory.lua）
   block_load()
   ambient_enter()   -- 先整理好這張地圖的植物、草（ambient.lua，運算預算）
   butterflies_enter()
@@ -94,6 +96,16 @@ local function interact()
     local bed = bed_at(fx, fy)
     if bed then
       bed_interact(bed)
+      return
+    end
+    local lift = lift_at(fx, fy)
+    if lift then
+      lift_interact(lift)
+      return
+    end
+    local con = console_at(fx, fy)
+    if con then
+      console_interact(con)
       return
     end
     local raft = raft_at(fx, fy)

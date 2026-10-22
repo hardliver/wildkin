@@ -343,6 +343,7 @@ function scene_on_enter(map)
   end
   if map == "coast" and not FLAGS.ch3 then cutscene_start(SCENE.c3_start) return end   -- 第 3 章（coast.lua）
   if map == "volcano" then volcano_enter() return end                                   -- 火山洞（volcano.lua）
+  if map == "factory" or map == "office" then factory_enter(map) return end              -- 鐵輪工廠（factory.lua）
   if map == "camp" and FLAGS.first_catch and not FLAGS.tutorial_base and next(FACILITY) == nil then
     cutscene_start(SCENE.p6_base)
   elseif map == "camp" and FLAGS.tutorial_sleep and not FLAGS.bike then

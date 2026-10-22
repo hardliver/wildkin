@@ -10,7 +10,7 @@
 local fires = {}
 
 -- 選單上的順序（照故事前進的順序）；沒列到的地圖排在最後
-local ORDER = { camp = 1, route1 = 2, village = 3, forest = 4, mine = 5, harbor = 6, coast = 7, volcano = 8 }
+local ORDER = { camp = 1, route1 = 2, village = 3, forest = 4, mine = 5, harbor = 6, coast = 7, volcano = 8, factory = 9 }
 
 function fire_lit(map)
   return map == "camp" or FLAGS["fire:" .. map] == true

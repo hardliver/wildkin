@@ -150,6 +150,7 @@ function world_draw()
   tallgrass_draw()   -- 遇敵草叢（encounter.lua）
   gather_draw()      -- 採集點（gather.lua）
   block_draw()       -- 擋路物（fieldskill.lua）
+  factory_draw()     -- 工廠還在跑的輸送帶（factory.lua）
   season_dpal(false) -- 設施、帳篷不換色
   facility_draw()    -- 設施、設施空地、工作台（facility.lua）
   bed_draw()         -- 主角的帳篷（day.lua）

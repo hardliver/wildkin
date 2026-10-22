@@ -6,6 +6,7 @@
 #   東北：大碎石洞（爐背牛）
 #   中：鐵輪公司的施工區（范經理，C3-5）
 #   北：溫泉（炭爺，C3-6）、營火
+#   （W73）施工區的柵欄前面多一台往鐵輪工廠的貨梯（第 3 章結束才開，終章 E-0）
 import json, os, sys
 
 W, H = 40, 30
@@ -13,6 +14,7 @@ HB = lambda n: 265 + n
 D = lambda n: n + 133
 FLOOR, RUBBLE1, RUBBLE2, WALL = D(0), D(12), D(24), D(40)
 LAVA, CRACK, SPRING, VENT = HB(48), HB(49), HB(50), HB(51)
+LIFT = HB(67)
 BARREL, CRATE, CRATE2 = D(82), D(63), D(75)
 FENCE = [D(76), D(77), D(78)]
 
@@ -64,6 +66,8 @@ for x in range(13, 21):
 deco[11][13] = FENCE[0]; deco[11][20] = FENCE[2]
 for (x, y, t) in ((7, 12, CRATE), (8, 12, BARREL), (7, 17, CRATE2), (23, 12, BARREL), (22, 18, CRATE), (19, 17, CRATE2)):
     deco[y][x] = t; solid[y][x] = 1
+for x in (16, 17):                    # 往工廠的貨梯（W73）
+    deco[12][x] = LIFT; solid[12][x] = 1
 
 objects = [
     {"type": "door", "x": 36, "y": 29, "to": "coast", "tx": 1, "ty": 4},
@@ -74,6 +78,8 @@ objects = [
     {"type": "event", "x": 18, "y": 16, "scene": "c3_exec"}, {"type": "event", "x": 18, "y": 17, "scene": "c3_exec"},
     {"type": "npc", "x": 13, "y": 14, "name": "exec2", "tile": D(98), "talk": "exec2", "look": "right"},
     {"type": "npc", "x": 9, "y": 3, "name": "charcoal", "tile": D(111), "talk": "fire_keeper"},
+    {"type": "lift", "x": 16, "y": 12, "to": "factory", "tx": 19, "ty": 26, "face": "up", "flag": "ch3_done", "scene": "e0_lift"},
+    {"type": "lift", "x": 17, "y": 12, "to": "factory", "tx": 19, "ty": 26, "face": "up", "flag": "ch3_done", "scene": "e0_lift"},
     {"type": "sign", "x": 21, "y": 12, "text": "鐵輪公司　施工中\\n危險！高溫！（勿近岩漿）"},
     {"type": "gather", "x": 36, "y": 9, "item": "ore", "amount": 3, "tile": D(24)},
     {"type": "gather", "x": 25, "y": 3, "item": "ore", "amount": 2, "tile": D(24)},

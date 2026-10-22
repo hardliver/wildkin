@@ -51,6 +51,16 @@ QUESTS = {
     hint = "火山洞中間，柵欄那邊。推薦等級 Lv24。\n范經理的野伴有火、電、岩：水屬性很好用。" },
   { chapter = "第 3 章", title = "找到焰之守", done = function() return FLAGS.badge_fire end,
     hint = "火山洞最北邊的溫泉。推薦等級 Lv26～28。\n炭爺的野伴是火屬性：水和岩最有效。" },
+  { chapter = "終章", title = "搭貨梯上鐵輪工廠", done = function() return FLAGS.final end,
+    hint = "火山洞的施工區，柵欄前面的貨梯。\n推薦等級 Lv28～32。" },
+  { chapter = "終章", title = "停掉三條生產線", done = function() return factory_lines_done() end,
+    hint = "東邊伐木線、西邊礦石線、北邊照明線。\n打贏顧著控制台的工人，再按停止鈕。" },
+  { chapter = "終章", title = "上二樓", done = function() return FLAGS.exec1_quit end,
+    hint = "大廳北邊往二樓的樓梯，高處長坐在那裡。" },
+  { chapter = "終章", title = "搭電梯到社長室", done = function() return FLAGS.elevator end,
+    hint = "二樓東邊的電梯沒電了。\n隊伍裡要有會發電的野伴（霧林的燈蛾）。" },
+  { chapter = "終章", title = "打敗社長", done = function() return FLAGS.boss end,
+    hint = "社長室在頂樓。推薦等級 Lv30～32。\n社長的野伴有岩、火、電：水屬性最好用，\n選火的話多帶霧傘水母、礫殼犰狳。" },
 
 }
 
