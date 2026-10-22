@@ -356,7 +356,7 @@ SCENE.c2_dark = function()
   if k then
     say(kin_name(k) .. "的翅膀亮了起來！\n四周看得清楚了。")
   else
-    say(field_skill_hint("power") or "（要是有會發光的野伴就好了。\n霧林的燈蛾好像會……）")
+    say(field_skill_hint("power"))
   end
   set_flag("mine_dark")
 end

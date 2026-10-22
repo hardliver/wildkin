@@ -28,7 +28,7 @@ function raft_interact(r)
   local k = field_skill_kin("water")
   if not k then
     dialog_open("一艘木筏綁在岸邊。\n海水太深，自己划不過去。" ..
-      "\f" .. (field_skill_hint("water") or "（港灣鎮的淺灘，有會噴水的野伴……\n說不定拖得動。）"))
+      "\f" .. field_skill_hint("water"))
     return
   end
   local where = MAP_NAME[r.to] or r.to

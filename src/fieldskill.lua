@@ -58,8 +58,24 @@ function field_skill_kin(work)
   return nil
 end
 
--- 隊伍裡沒有、但營地（設施、牧場）有會的：回傳提示的一句話，例如「營地的囤囤鼠會伐木，帶牠一起來吧。」；都沒有回傳 nil
+-- 還沒抓到會的野伴時：去哪裡找（2026-10-22 Neil：玩家可能還沒抓過囤囤鼠）
+local WHERE = {
+  lumber = "（草原小徑的囤囤鼠會伐木。\n牠們什麼都啃。）",
+  mine   = "（礦坑裡好像有背著石頭殼的野伴，\n說不定撞得開……）",
+  water  = "（港灣鎮的淺灘，有會噴水的野伴……\n說不定拖得動。）",
+  power  = "（要是有會發光的野伴就好了。\n霧林的燈蛾好像會……）",
+}
+
+-- 隊伍裡沒有會的野伴時，要說的提示：
+--   營地（設施、牧場）有會的 →「營地的囤囤鼠會伐木，帶牠一起來吧。」
+--   都沒有（還沒抓過）→ 去哪裡抓（WHERE）
 function field_skill_hint(work)
+  local home = field_skill_home(work)
+  if home then return home end
+  return WHERE[work]
+end
+
+function field_skill_home(work)
   local k = nil
   for _, fac in pairs(FACILITY) do
     for _, w in ipairs(fac.workers) do if not k and can(w, work) then k = w end end
@@ -91,14 +107,8 @@ function block_interact(b)
   local what = (b.need == "lumber") and "一棵很大的倒木。" or (b.need == "mine" and "大石頭擋住了路。" or "擋住路的東西。")
   local k = field_skill_kin(b.need)
   if not k then
-    local home = field_skill_hint(b.need)
-    if home then
-      dialog_open(what .. "\n要找會" .. work .. "的野伴。\f" .. home)
-    elseif b.need == "mine" then   -- W67 舊礦坑：提示去哪裡找（礫殼犰狳住在礦坑前段）
-      dialog_open(what .. "\n要找會" .. work .. "的野伴。\f（礦坑裡好像有背著石頭殼的野伴，\n說不定撞得開……）")
-    else
-      dialog_open(what .. "\n要找會" .. work .. "的野伴。")
-    end
+    local hint = field_skill_hint(b.need)
+    dialog_open(what .. "\n要找會" .. work .. "的野伴。" .. (hint and ("\f" .. hint) or ""))
     return
   end
   local act = ACT[b.need] or { verb = "打開", doing = "努力了一下……", done = "被打開了！" }

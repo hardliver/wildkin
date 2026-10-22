@@ -80,7 +80,7 @@ TALK.village_guard = function()
   local k = field_skill_kin("lumber")
   if k then text = text .. "\f喔，你的" .. kin_name(k) .. "看起來\n很想啃那棵樹。"
   else
-    local home = field_skill_hint("lumber")
+    local home = field_skill_home("lumber")
     if home then text = text .. "\f" .. home end
   end
   dialog_open(text)
