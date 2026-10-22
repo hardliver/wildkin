@@ -24,6 +24,7 @@ function game_save()
     time = TIME, time_sub = TIME_SUB,
     frames = PLAY_FRAMES, money = MONEY,
     sleep_debt = SLEEP_DEBT, stiff = STIFF,
+    clock_mode = CLOCK_MODE, real_last = REAL_LAST, real_month = REAL_MONTH,   -- 現實時鐘（W64e）
   })
 end
 
@@ -49,6 +50,7 @@ function game_apply(s)
   PLAY_FRAMES = s.frames or 0
   MONEY = s.money or 0
   SLEEP_DEBT, STIFF = s.sleep_debt or 0, s.stiff or 0
+  CLOCK_MODE, REAL_LAST, REAL_MONTH = s.clock_mode or "game", s.real_last, s.real_month   -- W64e 以前的存檔：遊戲時鐘
 end
 
 -- 「1:05」：遊玩幾小時幾分

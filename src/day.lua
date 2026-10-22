@@ -115,6 +115,37 @@ local function heal_all()
   FLAGS.slept = true   -- 任務日誌：睡過一覺
 end
 
+-- 一段時間過去之後（睡覺、現實時鐘模式沒玩的時候）的報告：設施做了什麼、飼料、工作中長大、採集點、換季
+-- before：開始前的背包（bag_copy）；day0：開始前是第幾天；gathered_any：開始前有沒有採過的採集點
+local function settle_lines(before, day0, gathered_any)
+  local lines = {}
+  local got = gained_text(before)
+  if got ~= "" then lines[#lines + 1] = "設施做好了：\n" .. got end
+  local f = LAST_FEED
+  if f and f.day > day0 and f.workers > 0 then
+    local fed = f.workers - f.hungry
+    if fed > 0 then lines[#lines + 1] = "派駐的野伴吃掉了飼料 ×" .. fed .. "。" end
+    if f.hungry > 0 then
+      lines[#lines + 1] = "飼料不夠！有 " .. f.hungry .. " 隻野伴今天要餓著肚子工作，\n產量少一半。（飼料可以在工作台做）"
+    end
+  end
+  local grew = work_levels_text()   -- 工作中升級的野伴（facility.lua）
+  if grew then lines[#lines + 1] = grew end
+  if gathered_any and DAY > day0 then lines[#lines + 1] = "野外的採集點又長出來了。" end
+  if SEASON_NEWS then
+    lines[#lines + 1] = season_news_text(SEASON_NEWS)   -- 這段時間換季：一起說
+    SEASON_NEWS = nil
+  end
+  return lines
+end
+
+-- 「現在是第 3 天（春）06:00 早上。」
+local function now_text()
+  local _, sname = season()
+  local _, pname = time_period()
+  return "現在是第 " .. DAY .. " 天（" .. sname .. "）" .. clock_text() .. " " .. pname .. "。"
+end
+
 -- 睡 hours 小時（全黑的時候呼叫），回傳醒來要說的話：現在幾點、睡覺時設施做了什麼、飼料、換季
 local function sleep_hours(hours, bed)
   local before, day0 = bag_copy(), DAY
@@ -124,29 +155,28 @@ local function sleep_hours(hours, bed)
   local rested = sleep_end(hours, bed)
   TIME_SUB = 0
   heal_all()
-  local _, sname = season()
-  local _, pname = time_period()
-  local lines = { "睡了 " .. hours .. " 個小時。\n現在是第 " .. DAY .. " 天（" .. sname .. "）" .. clock_text() .. " " .. pname .. "。",
-                  "野伴們都恢復精神了！", rested }
-  local got = gained_text(before)
-  if got ~= "" then lines[#lines + 1] = "睡覺的時候，設施做好了：\n" .. got end
-  local f = LAST_FEED
-  if f and f.day > day0 and f.workers > 0 then
-    local fed = f.workers - f.hungry
-    if fed > 0 then lines[#lines + 1] = "派駐的野伴吃掉了飼料 ×" .. fed .. "。" end
-    if f.hungry > 0 then
-      lines[#lines + 1] = "飼料不夠！有 " .. f.hungry .. " 隻野伴今天要餓著肚子工作，\n產量少一半。（飼料可以在工作台做）"
-    end
-  end
+  local lines = { "睡了 " .. hours .. " 個小時。\n" .. now_text(), "野伴們都恢復精神了！", rested }
+  for _, line in ipairs(settle_lines(before, day0, gathered_any)) do lines[#lines + 1] = line end
   lines[#lines + 1] = weather_wake_text()   -- 天氣＋膝蓋（weather.lua）
   weather_check_skip()
-  local grew = work_levels_text()   -- 工作中升級的野伴（facility.lua）
-  if grew then lines[#lines + 1] = grew end
-  if gathered_any and DAY > day0 then lines[#lines + 1] = "野外的採集點又長出來了。" end
-  if SEASON_NEWS then
-    lines[#lines + 1] = season_news_text(SEASON_NEWS)   -- 睡覺時換季：醒來一起說
-    SEASON_NEWS = nil
+  return table.concat(lines, "\f")
+end
+
+-- 現實時鐘模式（W64e）讀檔時呼叫：補算沒玩的這段時間，回傳要說的話。
+-- 離開不到 1 小時、這段時間也沒發生什麼，回傳 nil（不用每次讀檔都報告）
+function away_settle()
+  if CLOCK_MODE ~= "real" then return nil end
+  local before, day0 = bag_copy(), DAY
+  local gathered_any = next(GATHERED) ~= nil
+  local gap, skipped = realclock_sync(true)
+  if not gap then return nil end   -- 這台機器讀不到時間：照遊戲時鐘接著走
+  local lines = settle_lines(before, day0, gathered_any)
+  if gap + skipped < 60 and #lines == 0 then return nil end
+  table.insert(lines, 1, "離開了 " .. duration_text(gap + skipped) .. "。\n" .. now_text())
+  if skipped > 0 then
+    table.insert(lines, 2, "（離開太久了：營地的工作最多只算 " .. REAL_MAX_AWAY // 60 .. " 小時。\n野伴們也是要放假的。）")
   end
+  weather_check_skip()   -- 這個時段的天氣不用再說一次膝蓋
   return table.concat(lines, "\f")
 end
 
@@ -159,6 +189,20 @@ local function wake_text(hours)
   return "醒來：第 " .. day .. " 天 " .. clock_text(t) .. " " .. pname
 end
 
+-- 現實時鐘模式的休息（W64e，Neil 2026-10-22 選「只回血、不跳時間」）：
+-- 現實的時間沒辦法快轉，所以躺一下只讓隊伍回滿。睡眠債要靠「沒玩的時候」（realclock_sync 算在睡覺）
+local function rest_real(opts)
+  local function go()
+    transition_start(function() heal_all() end, false,
+      { hold = 40, caption = "Zzz……",
+        on_end = function()
+          dialog_open("躺了一下。野伴們都恢復精神了！\f（現實時鐘：躺一下時間不會變快。\n想讓" .. PLAYER_NAME ..
+            "真的睡飽，就關掉遊戲，自己也去睡吧。）" .. (opts.after and ("\f" .. opts.after) or ""))
+        end })
+  end
+  if opts.before then dialog_open(opts.before, go) else go() end
+end
+
 -- 休息（W64c 改，2026-10-22 Neil：白天晚上都可以自己選睡幾個小時）
 -- 帳篷、苔石旅店、港灣旅店、海岸阿婆的小屋共用。opts：
 --   before：開始睡之前說的話（「大志鑽進睡袋。」）；after：醒來報告之後多說的話
@@ -166,6 +210,10 @@ end
 -- 一開始停在 1 小時（2026-10-22 Neil）；上下 ±10、左右 ±1，下面會顯示醒來是幾點
 function rest_open(opts)
   opts = opts or {}
+  if CLOCK_MODE == "real" and clock() then
+    rest_real(opts)
+    return
+  end
   amount_pick("要睡幾個小時？", 24,
     function(n) return "睡 " .. n .. " 小時" end,
     function(n) return wake_text(n) end,

@@ -24,6 +24,8 @@ end
 
 -- 開始睡、睡醒（day.lua 的 sleep_hours 前後呼叫）；回傳醒來要說的話
 function sleep_begin() sleeping = true end
+-- 只停止睡覺、不擲落枕也不說話（現實時鐘模式：沒玩的那段時間算在睡覺，clock.lua 的 realclock_sync）
+function sleep_stop() sleeping = false end
 function sleep_end(hours, bed)
   sleeping = false
   local lines = {}

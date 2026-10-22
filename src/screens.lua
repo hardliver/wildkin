@@ -526,16 +526,39 @@ function amount_pick(title, most, label, line, on_done, verb, start)
 end
 
 -- ============================================================
+-- 設定（W64e）：目前只有時鐘模式
+-- ============================================================
+function settings_open()
+  local real = CLOCK_MODE == "real"
+  local now = real and "現實時鐘（和現實的時間一樣）" or "遊戲時鐘（玩的時候才走）"
+  local to = real and "遊戲時鐘" or "現實時鐘"
+  dialog_ask("時間：" .. now .. "。\n要改成" .. to .. "嗎？", { "改", "不要" }, function(c)
+    if c ~= 1 then return end
+    if not clock_mode_set(real and "game" or "real") then
+      dialog_open("這台機器讀不到現實的時間，\n只能用遊戲時鐘。")
+      return
+    end
+    local _, pname = time_period()
+    if real then
+      dialog_open("改成遊戲時鐘了。\n時間從 " .. clock_text() .. " 接著走，玩的時候才走。")
+    else
+      dialog_open("改成現實時鐘了。現在是 " .. clock_text() .. " " .. pname .. "。\n沒玩的時候，營地的野伴也在工作。")
+    end
+  end)
+end
+
+-- ============================================================
 -- START 選單（地圖上）
 -- ============================================================
 
 function field_menu_open()
-  local m = menu_new({ items = { "野伴", "背包", "手冊", "任務", "存檔", "關閉" }, x = 0, y = 8 })
+  local m = menu_new({ items = { "野伴", "背包", "手冊", "任務", "存檔", "設定", "關閉" }, x = 0, y = 8 })
   m.x = 316 - m.w
   local screen = { menu = m }
   function screen.update(self)
     local r = menu_update(self.menu)
-    if r == 0 or r == 6 or pressed(START) then ui_pop()
+    if r == 0 or r == 7 or pressed(START) then ui_pop()
+    elseif r == 6 then settings_open()
     elseif r == 3 then dex_open()
     elseif r == 4 then quest_open()
     elseif r == 5 then
