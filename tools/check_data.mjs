@@ -94,7 +94,9 @@ for (const [area, t] of Object.entries(encounters)) {
   for (const e of t.list) {
     if (!(e.species in species)) err(`${at}：野伴「${e.species}」不在 species.json`);
     if (!isInt(e.min) || !isInt(e.max) || e.min < 1 || e.max < e.min || e.max > 50) err(`${at} 的 ${e.species}：等級要 1 ≤ min ≤ max ≤ 50`);
-    if (!isInt(e.weight) || e.weight < 1) err(`${at} 的 ${e.species}：weight 要是正整數`);
+    // weight 可以是 0（只在某些時段出現，例如搧火蝠只在傍晚、晚上）：這時 times 裡至少要有一個大於 0
+    if (!isInt(e.weight) || e.weight < 0) err(`${at} 的 ${e.species}：weight 要是 0 以上的整數`);
+    else if (e.weight === 0 && !Object.values(e.times || {}).some((v) => v > 0)) err(`${at} 的 ${e.species}：weight 是 0，times 裡又沒有大於 0 的時段，永遠不會出現`);
     // W64c：時段權重、季節倍率（clock.lua 的代號）
     for (const [k, v] of Object.entries(e.times || {})) {
       if (!['morning', 'day', 'evening', 'night'].includes(k)) err(`${at} 的 ${e.species}：times 的 ${k} 不是時段（morning/day/evening/night）`);

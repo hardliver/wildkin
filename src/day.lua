@@ -156,10 +156,9 @@ end
 -- 休息（W64c 改，2026-10-22 Neil：白天晚上都可以自己選睡幾個小時）
 -- 帳篷、苔石旅店、港灣旅店、海岸阿婆的小屋共用。opts：
 --   before：開始睡之前說的話（「大志鑽進睡袋。」）；after：醒來報告之後多說的話（「腰痠沒有回復。」）
--- 一開始停在「睡到早上 6 點」要幾個小時；想抓晚上的野伴就往上調
+-- 一開始停在 1 小時（2026-10-22 Neil）；上下 ±10、左右 ±1，下面會顯示醒來是幾點
 function rest_open(opts)
   opts = opts or {}
-  local start = math.max(1, math.min(24, (minutes_until(6) + 59) // 60))
   amount_pick("要睡幾個小時？", 24,
     function(n) return "睡 " .. n .. " 小時" end,
     function(n) return wake_text(n) end,
@@ -171,7 +170,7 @@ function rest_open(opts)
             on_end = function() dialog_open(report .. (opts.after and ("\f" .. opts.after) or "")) end })
       end
       if opts.before then dialog_open(opts.before, go) else go() end
-    end, "睡覺", start)
+    end, "睡覺", 1)
 end
 
 -- 除錯用（debug.lua 的「睡到明天早上」）
