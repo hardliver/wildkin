@@ -10,6 +10,7 @@
 #   30/31 小船（左、右）、32 一箱魚、33 浮標（海上）、34 漁網、35 海裡的礁石
 #   （W69 加第 4 列）36 木筏（海上，拖筏渡水）、37 潮池（沙灘上的小水窪）、38 沙灘上的礁岩、39 崖邊的草（海岸北邊）、
 #   40 漂流木、41 籠子（運輸船甲板上，裡面有野伴的影子）
+#   （W70 加第 5 列，火山洞用）48 岩漿池、49 有岩漿裂縫的地面、50 溫泉（冒熱氣）、51 冒蒸氣的孔
 import os
 from PIL import Image
 
@@ -26,7 +27,7 @@ def h(x, y, s=0):
     v ^= v >> 13
     return (v * 1274126177 >> 16) & 0xffff
 
-sheet = Image.new("RGBA", (12 * 16, 4 * 16), (0, 0, 0, 0))
+sheet = Image.new("RGBA", (12 * 16, 5 * 16), (0, 0, 0, 0))
 
 def tile(n):
     return (n % 12) * 16, (n // 12) * 16
@@ -232,6 +233,41 @@ for y in range(2, 15):
     for x in range(2, 14):
         if x in (2, 13) or y in (2, 14) or x % 3 == 2: put(41, x, y, G_D)
         elif (x - 8) ** 2 + (y - 9) ** 2 < 10: put(41, x, y, OUT_)
+
+# 48：岩漿池
+fill(48, RED)
+for y in range(16):
+    for x in range(16):
+        v = h(x // 2, y // 2, 48) % 7
+        if v == 0: put(48, x, y, LAMP)
+        elif v == 1: put(48, x, y, SALMON)
+        elif v == 2 and y % 4 == 0: put(48, x, y, OUT_)
+
+# 49：有岩漿裂縫的地面（焦黑的地，一條條發光的縫）
+fill(49, OUT_)
+for y in range(16):
+    for x in range(16):
+        if h(x, y, 49) % 9 == 0: put(49, x, y, G_D)
+for (x0, y0, dx, dy, n) in ((1, 3, 1, 1, 6), (7, 8, 1, -1, 5), (9, 12, 1, 0, 5), (3, 10, 0, 1, 4)):
+    for i in range(n):
+        x, y = x0 + dx * i, y0 + dy * i
+        put(49, x, y, LAMP if i % 2 else SALMON)
+
+# 50：溫泉（偏綠的水、幾縷熱氣）
+water(50, 13)
+for y in range(16):
+    for x in range(16):
+        if (x + y * 3) % 13 == 0: put(50, x, y, W2)
+for (x, y) in ((4, 3), (4, 2), (5, 1), (10, 6), (11, 5), (11, 4)):
+    put(50, x, y, FOAM)
+
+# 51：冒蒸氣的孔（焦黑的地上一個洞，白煙往上飄）
+fill(51, OUT_)
+for y in range(9, 14):
+    for x in range(5, 11):
+        if (x - 8) ** 2 + (y - 11) ** 2 * 2 < 10: put(51, x, y, G_D)
+for (x, y) in ((7, 8), (8, 7), (8, 6), (9, 5), (8, 4), (7, 3), (8, 2)):
+    put(51, x, y, G_L)
 
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../assets/art/harbor.png")
 sheet.save(out)

@@ -206,6 +206,14 @@ function facility_output(fac)
   return list, total
 end
 
+-- 營地有沒有在發電（發電機有派野伴）：晚上就沒那麼暗（clock.lua 的 clock_tint）
+function camp_lit()
+  for key, fac in pairs(FACILITY) do
+    if DATA.facilities[fac.kind].lights and #fac.workers > 0 and key:sub(1, 5) == "camp:" then return true end
+  end
+  return false
+end
+
 -- 換日時（day.lua 的 day_change）：每隻派駐的野伴吃 1 份飼料（BAG.feed）；吃不到的那隻記 k.hungry = true，
 -- 接下來這一天產量減半。照固定順序分飼料（pairs 的順序每次可能不同）。回傳：派駐的野伴總數、餓著的隻數
 local function sorted_keys()
@@ -383,7 +391,10 @@ local function workers_screen(l, fac)
     end
     ui_box(4, 184, 312, 52)
     local out = facility_output(fac)
-    if #out == 0 then
+    if f.lights then
+      -- 發電機（W70）：沒有產出，有野伴在工作時營地晚上會亮燈
+      text(#fac.workers > 0 and "營地晚上會亮燈。" or "沒有會" .. DATA.work[f.work] .. "的野伴工作，晚上就不會亮。", 14, 192, 0)
+    elseif #out == 0 then
       text("沒有會" .. DATA.work[f.work] .. "的野伴工作，就不會有產出。", 14, 192, 0)
     else
       local parts = {}

@@ -3,6 +3,8 @@
               "desc": "HP 回復 20。\n對肩頸痠痛無效。" },
   "ball": { "name": "野伴球", "sort": 10, "kind": "ball", "rate": 100, "price": 200, "battle": true, "field": false,
             "desc": "丟向野生的野伴，就有機會抓到。\n沒抓到不會退費。" },
+  "fineball": { "name": "精製球", "sort": 12, "kind": "ball", "rate": 200, "price": 1200, "battle": true, "field": false,
+                "desc": "比野伴球容易抓到（2 倍）。\n炭爺教的做法，球裡加了金屬骨架。" },
   "goodball": { "name": "好球", "sort": 11, "kind": "ball", "rate": 150, "price": 600, "battle": true, "field": false,
                 "desc": "比野伴球容易抓到（1.5 倍）。\n森之守教的做法，藤條編得特別密。" },
   "superpotion": { "name": "好傷藥", "sort": 2, "kind": "heal", "amount": 50, "price": 700, "battle": true, "field": true,

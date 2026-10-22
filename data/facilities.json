@@ -7,5 +7,8 @@
               "desc": "派會採集的野伴去附近找，每天帶回纖維和菇。" },
   "furnace": { "name": "爐", "sort": 4, "work": "fire", "sprite": 7, "cost": { "stone": 15, "wood": 5 }, "input": { "ore": 1 }, "output": { "metal": 1 },
                "unlock": "badge_rock",
-               "desc": "派會生火的野伴顧火，把礦石燒成金屬。\n每燒出一個金屬，要用掉一個礦石。" }
+               "desc": "派會生火的野伴顧火，把礦石燒成金屬。\n每燒出一個金屬，要用掉一個礦石。" },
+  "generator": { "name": "發電機", "sort": 5, "work": "power", "sprite": 8, "cost": { "metal": 10, "stone": 10 }, "output": {},
+                 "unlock": "badge_fire", "lights": true,
+                 "desc": "派會發電的野伴在輪子裡跑。\n有野伴在工作，營地晚上就會亮燈。" }
 }

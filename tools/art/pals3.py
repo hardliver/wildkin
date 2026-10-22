@@ -185,8 +185,58 @@ class MistJelly(Pal):
             x, y = project(info, p)
             eye_round(im, x, y, 1, 2, (40, 36, 70), big_hi=1)
 
-ALL3 = [FanBat(), StoneArmadillo(), MistJelly()]
-NAMES3 = ["11 搧火蝠", "12 礫殼犰狳", "13 霧傘水母"]
+# ============================================================
+# 14 爐背牛：矮壯的四腳牛，紅褐色的毛、短而粗的角、胸口一圈淺色的毛；
+# 背上長著一根磚砌的煙囪（頂端冒火星），像一座會走路的窯。低頭、前腳踏穩
+# ============================================================
+class StoveOx(Pal):
+    FUR = Mat([(104, 50, 40), (144, 74, 54), (182, 104, 72), (210, 138, 96)], line=(96, 44, 36))
+    MANE = Mat([(176, 150, 120), (210, 186, 150), (234, 214, 182)], line=(160, 134, 104))
+    HORN = Mat([(150, 140, 120), (196, 186, 160), (230, 222, 200)], line=(120, 110, 96))
+    BRICK = Mat([(110, 56, 46), (150, 80, 60), (186, 110, 80)], line=(84, 40, 36))
+    EMBER = Mat([(240, 110, 40), (255, 156, 54), (255, 204, 90), (255, 240, 170)])
+    HOOF = Mat([(44, 34, 36), (76, 58, 56), (108, 86, 78)])
+    NOSE = Mat([(60, 40, 44), (120, 80, 76)], gloss=0.05)
+    HEAD = V(-15, -2, 0)
+    scale_f, off_f = 1.1, (34, 36)
+
+    def model(self):
+        m = Model(); H = self.HEAD
+        m.ell((2, 0, 0), (13, 9, 9), self.FUR, tag="body")
+        m.ell((-8, 0, 0), (7, 8.5, 8.5), self.FUR, tag="chest")
+        for i, d in enumerate(fib(16)):
+            if d[0] > -0.3 or d[1] < -0.3: continue
+            m.sph(V(-10, 2, 0) + d * V(4, 5, 6), 3.0, self.MANE, tag=f"mane{i}")     # 胸口淺色的毛
+        # 煙囪：背上一根磚柱，一段一段，頂端冒火星
+        for i in range(4):
+            m.ell((4, -10 - i * 3.2, 0), (3.6, 1.8, 3.6), self.BRICK, tag=f"brick{i}")
+        m.ell((4, -22.5, 0), (4.2, 1.2, 4.2), self.BRICK, tag="chimtop")
+        for j, (x, y, z, r) in enumerate(((4, -24.5, 0, 1.8), (5.5, -26.5, 1, 1.2), (2.8, -27.5, -0.8, 1.0))):
+            m.sph((x, y, z), r, self.EMBER, tag=f"ember{j}")
+        # 腳：粗短
+        for (x, z) in ((-9, 5.5), (-9, -5.5), (10, 5.5), (10, -5.5)):
+            m.tube([(x, 6, z), (x, 13, z)], [3.4, 3.0], self.FUR, tag=f"leg{x}{z}")
+            m.ell((x, 14, z), (3.0, 1.4, 3.0), self.HOOF, tag=f"leg{x}{z}")
+        m.tuft((15, -2, 0), (4, 4, 0), 1.6, self.FUR, tag="tail")
+        # 頭：低下來，大鼻子，短角往兩邊
+        m.ell(H, (6.5, 6, 6.5), self.FUR, tag="head")
+        m.ell(H + (-5, 3, 0), (4, 3.4, 4.6), self.MANE, tag="head")
+        for s in (1, -1):
+            m.ell(H + (-7.5, 3, 1.8 * s), (0.9, 0.9, 0.9), self.NOSE, tag=f"nose{s}")
+            m.tube([H + (1, -5, 4 * s), H + (2, -8, 8 * s), H + (0, -10, 9 * s)], [1.6, 1.2, 0.7], self.HORN, tag=f"horn{s}")
+            m.ell(H + (1, -2, 6.5 * s), (2.6, 1.4, 1.8), self.FUR, rot_x(deg(30 * s)), tag=f"ear{s}")
+        return m
+
+    def paint_front(self, im, info):
+        H = self.HEAD
+        x, y = project(info, H + (-3, -1.5, 5.2))
+        eye_round(im, x, y, 1, 2, (250, 170, 60), big_hi=1)
+        if visible(info, H + (-3, -1.5, -5.2), 3):
+            x2, y2 = project(info, H + (-3, -1.5, -5.2))
+            eye_round(im, x2, y2, 1, 2, (250, 170, 60), big_hi=1)
+
+ALL3 = [FanBat(), StoneArmadillo(), MistJelly(), StoveOx()]
+NAMES3 = ["11 搧火蝠", "12 礫殼犰狳", "13 霧傘水母", "14 爐背牛"]
 
 if __name__ == "__main__":
     fs = [p.front() for p in ALL3]; bs = [p.back() for p in ALL3]

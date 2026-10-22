@@ -218,11 +218,33 @@ def furnace():
         box(im, x0, 26, 5, 3, W2)
     return im
 
+def generator():
+    """發電機（W70）：木箱裡一個大輪子（野伴在裡面跑），旁邊一根柱子掛著燈泡，電線繞過去"""
+    im = new()
+    # 燈柱和燈泡（右邊）
+    vline(im, 26, 6, 29, W1); vline(im, 27, 6, 29, W2)
+    box(im, 24, 2, 6, 6, YEL)
+    px(im, 25, 3, (0xff, 0xff, 0xff))
+    # 木箱（底座）
+    box(im, 2, 20, 22, 10, W2)
+    hline(im, 3, 22, 24, W1)
+    # 大輪子
+    for y in range(4, 24):
+        for x in range(3, 23):
+            d = (x - 12.5) ** 2 + (y - 14) ** 2
+            if 72 <= d < 100: px(im, x, y, OUT)
+            elif 52 <= d < 72: px(im, x, y, W3)
+            elif d < 52 and (x - 12) % 5 == 0: px(im, x, y, W1)          # 輪子的橫條（踏板）
+    for (x, y) in ((12, 14), (13, 14), (12, 13), (13, 13)): px(im, x, y, S1)  # 軸
+    # 電線：輪子 → 燈柱
+    for x in range(21, 26): px(im, x, 9 + (x - 21) // 2, NAVY)
+    return im
+
 if __name__ == "__main__":
-    # 輸出到 assets/art/facilities.png：第 0 格空地、1 伐木場、2 田、3 倉庫、4 採集點、5 工作台、6 帳篷、7 爐（每格 32×32）
+    # 輸出到 assets/art/facilities.png：第 0 格空地、1 伐木場、2 田、3 倉庫、4 採集點、5 工作台、6 帳篷、7 爐、8 發電機（每格 32×32）
     import os
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../assets/art/facilities.png")
-    FRAMES = (lot, lumber, farm, storage, gather, workbench, tent, furnace)
+    FRAMES = (lot, lumber, farm, storage, gather, workbench, tent, furnace, generator)
     sheet = Image.new("RGBA", (32 * len(FRAMES), 32), (0, 0, 0, 0))
     for i, f in enumerate(FRAMES):
         sheet.paste(f(), (i * 32, 0))

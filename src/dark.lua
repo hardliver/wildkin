@@ -25,9 +25,12 @@ function dark_enter()
 end
 
 -- 這張地圖是不是室內（有暗處的地圖：礦坑、洞窟）：不下雪、不跟著晝夜變色
+-- 沒有暗處、但也是室內的地圖（W70 火山洞：岩漿照得很亮）
+INDOOR_MAPS = { volcano = true }
+
 function indoor_map()
   check()
-  return has_dark
+  return has_dark or INDOOR_MAPS[world.name] == true
 end
 
 -- 主角在不在暗處

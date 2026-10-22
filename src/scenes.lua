@@ -298,6 +298,7 @@ function scene_on_enter(map)
     if not FLAGS.ch2 then cutscene_start(SCENE.c2_start) return end
   end
   if map == "coast" and not FLAGS.ch3 then cutscene_start(SCENE.c3_start) return end   -- 第 3 章（coast.lua）
+  if map == "volcano" then volcano_enter() return end                                   -- 火山洞（volcano.lua）
   if map == "camp" and FLAGS.first_catch and not FLAGS.tutorial_base and next(FACILITY) == nil then
     cutscene_start(SCENE.p6_base)
   elseif map == "village" and not FLAGS.ch1 then

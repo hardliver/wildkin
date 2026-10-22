@@ -118,7 +118,13 @@ local last_tint = nil
 -- 只有倍率改變時才真的呼叫 paltint（一遊戲分鐘才變一次）
 function clock_tint(neutral)
   local r, g, b = 256, 256, 256
-  if not neutral then r, g, b = tint_at(TIME) end
+  if not neutral then
+    r, g, b = tint_at(TIME)
+    -- 營地有發電機在發電（W70）：晚上的暗只剩一半，而且偏暖色（燈泡的光）
+    if world.name == "camp" and camp_lit() and r < 256 then
+      r, g, b = (r + 256) // 2, (g + 240) // 2, (b + 200) // 2
+    end
+  end
   local key = r * 1000000 + g * 1000 + b
   if key == last_tint then return end
   last_tint = key

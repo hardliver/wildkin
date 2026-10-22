@@ -69,6 +69,20 @@
     "win": "輸了。……你可以幫我撿貝殼嗎？",
     "after": "暑假作業到底是誰的作業啊。"
   },
+  "exec2": {
+    "name": "范經理", "notice": 0, "sight": 0, "leave": true, "money": 2500,
+    "party": [ { "species": "12", "level": 22 }, { "species": "10", "level": 22 }, { "species": "14", "level": 23 } ],
+    "intro": "別浪費我時間。",
+    "win": "……這不在我的計畫裡。",
+    "after": "……"
+  },
+  "fire_keeper": {
+    "name": "炭爺", "notice": 0, "sight": 0, "leave": false, "money": 3000,
+    "party": [ { "species": "14", "level": 26 }, { "species": "11", "level": 25 }, { "species": "14", "level": 28 } ],
+    "intro": "讓我看看，你燒得夠不夠久！",
+    "win": "……燒得好。",
+    "after": "回去跟那傢伙說，那顆棋子，我還留著。"
+  },
   "exec1": {
     "name": "高處長", "notice": 0, "sight": 0, "leave": true, "money": 1500,
     "party": [ { "species": "12", "level": 15 }, { "species": "10", "level": 15 }, { "species": "07", "level": 16 } ],

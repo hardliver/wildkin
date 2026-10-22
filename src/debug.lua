@@ -179,6 +179,16 @@ local function chapter1_table()
     rows[#rows + 1] = { "礁嬤：" .. DATA.species[EVO[st]].name .. " Lv20＋" .. DATA.species[mate2[st]].name .. "、" .. DATA.species[third].name .. " Lv18",
                         { { EVO[st], 20 }, { mate2[st], 18 }, { third, 18 } }, keeper2, false }
   end
+  -- 第 3 章：范經理、炭爺（W70）。隊伍：進化後的初始＋霧傘水母、礫殼犰狳、搧火蝠（低 2 級）
+  for _, t in ipairs({ { "exec2", "范經理", 24 }, { "fire_keeper", "炭爺", 27 } }) do
+    local foe3 = {}
+    for i, p in ipairs(DATA.trainers[t[1]].party) do foe3[i] = { p.species, p.level } end
+    for _, st in ipairs({ "01", "03", "05" }) do
+      local lv = t[3]
+      rows[#rows + 1] = { t[2] .. "：" .. DATA.species[EVO[st]].name .. " Lv" .. lv .. "＋霧傘水母、礫殼犰狳、搧火蝠 Lv" .. (lv - 2),
+                          { { EVO[st], lv }, { "13", lv - 2 }, { "12", lv - 2 }, { "11", lv - 2 } }, foe3, false }
+    end
+  end
   local out = {}
   for _, r in ipairs(rows) do
     out[#out + 1] = r[1]

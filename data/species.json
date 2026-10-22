@@ -105,5 +105,13 @@
     "work": { "water": 1, "carry": 1 },
     "learn": [ [1, "splash"], [1, "mist"], [8, "bubblenet"], [13, "absorb"], [17, "mudshot"] ],
     "desc": "傘蓋像一把撐開的小雨傘。下雨天會飄到岸邊，幫忘記帶傘的人遮雨。"
+  },
+  "14": {
+    "name": "爐背牛", "type": "fire", "sprite": 13,
+    "base": { "hp": 80, "atk": 75, "def": 70, "spd": 30 },
+    "catch": 60, "exp": 150,
+    "work": { "fire": 2, "carry": 2 },
+    "learn": [ [1, "tackle"], [1, "ember"], [10, "bite"], [18, "firefang"], [26, "stoveblast"] ],
+    "desc": "背上的煙囪一直冒著熱氣。冬天大家都靠過來取暖，跟發福的中年人一樣，自帶暖氣。"
   }
 }

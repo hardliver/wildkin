@@ -35,6 +35,7 @@
     "src/village.lua",
     "src/harbor.lua",
     "src/coast.lua",
+    "src/volcano.lua",
     "src/kin.lua",
     "src/shiny.lua",
     "src/battle.lua",
@@ -65,7 +66,8 @@
     "forest": "maps/forest.json",
     "mine": "maps/mine.json",
     "harbor": "maps/harbor.json",
-    "coast": "maps/coast.json"
+    "coast": "maps/coast.json",
+    "volcano": "maps/volcano.json"
   },
   "data": {
     "types": "data/types.json",

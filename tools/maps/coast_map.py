@@ -71,9 +71,9 @@ for x in range(25, 35):
     if ground[13][x] < HB(16): pass
 ground[12][25] = HB(30); ground[12][34] = HB(31)
 
-# 西：火山洞口（崖上的洞，W70 才進得去）
+# 西：火山洞口（崖上的洞；W70 起走進去就到火山洞）
 for x in (1, 2):
-    ground[3][x] = D(10); solid[3][x] = 1
+    ground[3][x] = D(10); solid[3][x] = 0
 
 objects = [
     {"type": "fire", "x": 51, "y": 7},
@@ -87,6 +87,8 @@ objects = [
     {"type": "npc", "x": 22, "y": 9, "name": "surfer", "tile": D(88), "talk": "trainer", "trainer": "coast2", "look": "up"},
     {"type": "npc", "x": 12, "y": 4, "name": "shell", "tile": D(99), "talk": "trainer", "trainer": "coast3", "look": "down"},
     {"type": "sign", "x": 4, "y": 4, "text": "火山洞\n（洞口吹出來的風，熱得像三溫暖）"},
+    {"type": "door", "x": 1, "y": 3, "to": "volcano", "tx": 36, "ty": 27},
+    {"type": "door", "x": 2, "y": 3, "to": "volcano", "tx": 37, "ty": 27},
     {"type": "gather", "x": 18, "y": 4, "item": "fiber", "amount": 2, "tile": SAND2},
     {"type": "gather", "x": 35, "y": 9, "item": "stone", "amount": 2, "tile": SAND2},
     {"type": "gather", "x": 9, "y": 6, "item": "ore", "amount": 2, "tile": SAND2},

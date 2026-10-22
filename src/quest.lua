@@ -47,6 +47,10 @@ QUESTS = {
     hint = "港灣鎮西邊的海邊有木筏。\n要有會灌溉的野伴拖（霧傘水母、鬚鬚鯰）。" },
   { chapter = "第 3 章", title = "往火山洞", done = function() return FLAGS.volcano end,
     hint = "沿著海岸一直往西。推薦等級 Lv20～23。\n漁村的阿婆可以讓你休息。" },
+  { chapter = "第 3 章", title = "突破鐵輪的施工區", done = function() return FLAGS.trainer_exec2 end,
+    hint = "火山洞中間，柵欄那邊。推薦等級 Lv24。\n范經理的野伴有火、電、岩：水屬性很好用。" },
+  { chapter = "第 3 章", title = "找到焰之守", done = function() return FLAGS.badge_fire end,
+    hint = "火山洞最北邊的溫泉。推薦等級 Lv26～28。\n炭爺的野伴是火屬性：水和岩最有效。" },
 
 }
 
