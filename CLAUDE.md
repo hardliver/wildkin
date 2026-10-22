@@ -65,6 +65,8 @@ Makefile 預設引擎在旁邊的 `../comet`。
 ## 工作方式
 
 1. **一次只做一個任務**，依 `docs/tasks.md` 的順序。不確定規格時先問，不要自己發明。
+   - 跳過「展示」類任務（W72 等，那是 Neil 自己試玩），做下一個開發任務。
+   - **新的劇情章節、新角色的台詞**：先寫草案進 `docs/story.md`，標「草案、待 Neil 確認」，這一輪只交草案、不要實作；Neil 確認後再實作。
 2. 遊戲需要引擎新功能時，去 `comet` 改（通用 API，不要寫進 Wildkin 專用的東西），在 comet repo 另外 commit。
 3. 改完跑 `make check`；新的遊戲邏輯盡量加測試到 `tests/`。
 4. 做完在 `docs/tasks.md` 打勾、寫完成日期（YYYY-MM-DD）。
