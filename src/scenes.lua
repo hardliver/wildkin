@@ -145,13 +145,28 @@ SCENE.p7_feed = function()
   say("老苔：我年輕的時候，\n一天工作十六個小時……")
   wait(20)
   say("老苔：……那樣不行。\n野伴也是，要吃飽、要睡覺。")
+  bike_gift()
+  fade(function() place("elder", 19, 11) end)
+  set_flag("tutorial_sleep")
+end
+
+-- 老苔借菜籃車（W71e）：序章 P7 的最後；舊存檔已經過了 P7 的，回營地時老苔會走過來補給
+function bike_gift()
   say("老苔：對了，小屋後面有台舊菜籃車，\n我年輕時騎的。借你吧。")
   say("老苔：後座以前載過我老伴……\n咳，載過很多東西。")
   set_flag("bike")
   say(P() .. "借到了菜籃車！")
   say("老苔：按 B 上車、下車。\n屋子裡、洞穴裡就牽著走吧。")
+end
+
+SCENE.bike_late = function()
+  local px, py = player_cell()
+  place("elder", px - 3, py)
+  walk_to("elder", "player")
+  face("player", "elder")
+  say("老苔：年輕人，等一下！")
+  bike_gift()
   fade(function() place("elder", 19, 11) end)
-  set_flag("tutorial_sleep")
 end
 
 -- 營地蓋了發電機：老苔幫菜籃車裝馬達（W71e）
@@ -330,6 +345,8 @@ function scene_on_enter(map)
   if map == "volcano" then volcano_enter() return end                                   -- 火山洞（volcano.lua）
   if map == "camp" and FLAGS.first_catch and not FLAGS.tutorial_base and next(FACILITY) == nil then
     cutscene_start(SCENE.p6_base)
+  elseif map == "camp" and FLAGS.tutorial_sleep and not FLAGS.bike then
+    cutscene_start(SCENE.bike_late)
   elseif map == "camp" and FLAGS.bike and not FLAGS.ebike and camp_has_generator() then
     cutscene_start(SCENE.ebike)
   elseif map == "village" and not FLAGS.ch1 then

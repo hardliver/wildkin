@@ -42,8 +42,8 @@ HERO = [
     "..oookhhhhkooo..",
     ".ooopWWkkWWpooo.",
     "ooPppppWpppppPoo",
-    "okkPppppppppPkko",
-    "ookohhhYhhhhokoo",
+    "okkPhhhYhhhhPkko",
+    "ookonnnNNnnnokoo",
     "oooonnNoonNnoooo",
     ".ooohhhoohhhooo.",
 ]
@@ -82,11 +82,25 @@ def bike(pedal, electric):
     for y in range(4, 9):
         for x in range(18, 24):
             put(x, y, "o" if y in (4, 8) or x in (18, 23) else ("b" if (x + y) % 2 else "B"))
-    # 腿：大腿從座墊往前，小腿踩到踏板（兩種踩法輪流）
-    if pedal:
-        for (x, y, ch) in ((11, 9, "n"), (12, 9, "n"), (13, 10, "n"), (13, 11, "N"), (13, 12, "h"), (14, 12, "h")): put(x, y, ch)
-    else:
-        for (x, y, ch) in ((11, 9, "n"), (12, 10, "n"), (12, 11, "N"), (11, 12, "N"), (10, 13, "h"), (11, 14, "h"), (12, 14, "h")): put(x, y, ch)
+    # 腿：從皮帶（車子第 10 列）往下：大腿往前、膝蓋彎、小腿踩踏板，外面一圈外框才看得清楚
+    #   pedal 0：右腳在前上方；pedal 1：右腳踩到最下面
+    LEG = ([
+        "oooooo..",
+        "onnnnNo.",
+        ".ooooNNo",
+        "....ohho",
+        ".....oo.",
+    ], [
+        "ooooo...",
+        "onnnNo..",
+        ".onnNo..",
+        "..oNNo..",
+        "..ohhho.",
+        "...ooo..",
+    ])[pedal]
+    for dy, row in enumerate(LEG):
+        for dx, ch in enumerate(row):
+            if ch != ".": put(8 + dx, 10 + dy, ch)
     if electric:
         for (x, y) in ((5, 10), (6, 10), (7, 10), (6, 11), (7, 11), (8, 11)): put(x, y, "V")
         put(6, 10, "v")
@@ -111,4 +125,4 @@ if "--preview" in sys.argv:
         bx = 40 + i * 28
         pv.alpha_composite(sheet.crop((32 + i * 24, 0, 56 + i * 24, 16)), (bx, 4))
         pv.alpha_composite(sheet.crop((16, 0, 32, 14)), (bx + RIDER_DX, 2 + RIDER_DY + 2))
-    pv.resize((pv.width * 8, pv.height * 8), Image.NEAREST).save(os.path.expanduser("~/mnt/nova/.hero.png"))
+    pv.resize((pv.width * 10, pv.height * 10), Image.NEAREST).save(os.path.expanduser("~/mnt/nova/.hero.png"))
