@@ -27,8 +27,13 @@ local STAT_NAMES = { atk = "攻擊", def = "防禦", spd = "速度" }
 -- ============================================================
 
 local function new_side(party)
+  -- 第一隻上場的：隊伍裡第一隻還有血的（2026-10-22 Neil 回報：倒下的還會被派上場）
+  local first = 1
+  for i, k in ipairs(party) do
+    if k.hp > 0 then first = i break end
+  end
   -- seen：這場戰鬥上場過的（第幾隻 → true），分經驗用
-  return { party = party, active = 1, stages = { atk = 0, def = 0, spd = 0 }, seen = { [1] = true } }
+  return { party = party, active = first, stages = { atk = 0, def = 0, spd = 0 }, seen = { [first] = true } }
 end
 
 -- opts.wild：野生戰（可以逃跑、可以丟球）
