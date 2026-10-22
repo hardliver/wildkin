@@ -43,6 +43,7 @@ function battle_new(party, foe_party, opts)
     sides = { new_side(party), new_side(foe_party) },
     wild = opts.wild or false,
     trainer = opts.trainer,   -- 訓練家的名字（訊息用：「阿穗的炭毛狸使用了……」）
+    weather = opts.weather,   -- 天氣（weather.lua）：下雨水招強、火招弱；晴天反過來。nil = 沒有（室內、模擬）
     turn = 0,
     run_tries = 0,
     over = nil,
@@ -248,6 +249,7 @@ local function use_move(b, side, index, ev)
     local roll = 85 + rnd(16)
     local dmg, mult = battle_damage(k.level, move.power, battle_stat(b, side, "atk"), battle_stat(b, target, "def"),
                                     move.type, kin_species(k).type, kin_species(foe).type, roll)
+    if b.weather and mult > 0 then dmg = math.max(1, dmg * weather_power(b.weather, move.type) // 2) end
     if mult == 0 then
       ev[#ev + 1] = { kind = "no_effect", side = target }
       return
@@ -441,6 +443,7 @@ local function move_score(b, side, m)
   if d.power > 0 then
     local dmg, mult = battle_damage(me.level, d.power, battle_stat(b, side, "atk"), battle_stat(b, 3 - side, "def"),
                                     d.type, kin_species(me).type, kin_species(foe).type, 92)
+    if b.weather and mult > 0 then dmg = math.max(1, dmg * weather_power(b.weather, d.type) // 2) end
     if mult == 0 then return 0 end
     local score = math.min(dmg, foe_hp) * 100 // foe_hp * acc // 100   -- 能打掉對方幾 % 的 HP
     if dmg >= foe.hp then score = score + 60 end                        -- 一招打倒

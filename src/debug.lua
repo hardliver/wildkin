@@ -30,6 +30,12 @@ DEBUG_COMMANDS = {
   { "→ 苔石村", "dbg_warp('village', 19, 3)" },
   { "清除旗標", "FLAGS = {}" },
   { "下一隻野生是異色", "DEBUG_NEXT_SHINY = true" },
+  { "天氣：下雨", "DEBUG_WEATHER = 'rain'" },
+  { "天氣：雷雨", "DEBUG_WEATHER = 'storm'" },
+  { "天氣：晴天", "DEBUG_WEATHER = 'sunny'" },
+  { "天氣：起霧", "DEBUG_WEATHER = 'fog'" },
+  { "天氣：下雪", "DEBUG_WEATHER = 'snow'" },
+  { "天氣：照常", "DEBUG_WEATHER = nil" },
 }
 
 -- 還在標題畫面：直接開一局新遊戲（存在欄位 1），不用一直按

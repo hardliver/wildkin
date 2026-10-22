@@ -22,6 +22,7 @@
     "src/campfire.lua",
     "src/raft.lua",
     "src/season.lua",
+    "src/weather.lua",
     "src/craft.lua",
     "src/savegame.lua",
     "src/title.lua",

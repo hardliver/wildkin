@@ -9,8 +9,8 @@ local FOG_MAPS = { forest = 14 }   -- 哪些地圖有霧、幾團
 local FOG_W, FOG_H = 64, 32
 
 function fog_draw()
-  local n = FOG_MAPS[world.name]
-  if not n then return end
+  local n = FOG_MAPS[world.name] or weather_fog_count()   -- 起霧的時段，室外地圖都有霧（weather.lua）
+  if n == 0 then return end
   local f = frame()
   local span = world.w + FOG_W * 2
   for i = 1, n do

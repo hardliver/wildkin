@@ -3,16 +3,16 @@
     "rate": 20,
     "list": [
       { "species": "07", "min": 2, "max": 4, "weight": 50, "times": { "evening": 70, "night": 70 } },
-      { "species": "08", "min": 2, "max": 4, "weight": 40, "times": { "morning": 60 } }
+      { "species": "08", "min": 2, "max": 4, "weight": 40, "times": { "morning": 60, "night": 5 }, "weather": { "rain": 0, "storm": 0 } }
     ]
   },
   "forest": {
     "rate": 24,
     "list": [
-      { "species": "09", "min": 8, "max": 11, "weight": 35, "seasons": { "autumn": 2 } },
-      { "species": "10", "min": 8, "max": 11, "weight": 30, "times": { "night": 60, "day": 15 } },
+      { "species": "09", "min": 8, "max": 11, "weight": 35, "seasons": { "autumn": 2 }, "weather": { "rain": 3, "fog": 2 } },
+      { "species": "10", "min": 8, "max": 11, "weight": 30, "times": { "night": 60, "day": 15 }, "weather": { "storm": 3 } },
       { "species": "07", "min": 8, "max": 10, "weight": 20 },
-      { "species": "08", "min": 9, "max": 10, "weight": 15 },
+      { "species": "08", "min": 9, "max": 10, "weight": 15, "times": { "morning": 22, "night": 2 }, "weather": { "rain": 0, "storm": 0 } },
       { "species": "11", "min": 8, "max": 10, "weight": 1, "times": { "evening": 20, "night": 35 } }
     ]
   },
@@ -28,19 +28,20 @@
   "harbor": {
     "rate": 22,
     "list": [
-      { "species": "13", "min": 15, "max": 18, "weight": 40 },
-      { "species": "08", "min": 15, "max": 17, "weight": 30 },
+      { "species": "13", "min": 15, "max": 18, "weight": 40, "times": { "morning": 60 }, "weather": { "fog": 3, "rain": 2 } },
+      { "species": "08", "min": 15, "max": 17, "weight": 30, "times": { "morning": 45, "night": 2 }, "weather": { "rain": 0, "storm": 0 } },
       { "species": "07", "min": 15, "max": 17, "weight": 20 },
-      { "species": "12", "min": 15, "max": 17, "weight": 10 }
+      { "species": "12", "min": 15, "max": 17, "weight": 10, "times": { "day": 3, "night": 20 } }
     ]
   },
   "coast": {
     "rate": 20,
     "list": [
-      { "species": "13", "min": 19, "max": 22, "weight": 35 },
-      { "species": "08", "min": 19, "max": 21, "weight": 25 },
+      { "species": "13", "min": 19, "max": 22, "weight": 35, "times": { "morning": 52 }, "weather": { "fog": 3, "rain": 2 } },
+      { "species": "08", "min": 19, "max": 21, "weight": 25, "times": { "morning": 37, "night": 2 }, "weather": { "rain": 0, "storm": 0 } },
       { "species": "11", "min": 20, "max": 22, "weight": 1, "times": { "evening": 35, "night": 45 } },
-      { "species": "12", "min": 20, "max": 22, "weight": 20 }
+      { "species": "12", "min": 20, "max": 22, "weight": 20, "times": { "day": 6, "night": 40 } },
+      { "species": "14", "min": 20, "max": 22, "weight": 0, "times": { "day": 6 }, "weather": { "cloudy": 0, "rain": 0, "storm": 0, "fog": 0, "snow": 0 } }
     ]
   },
   "volcano": {

@@ -30,12 +30,15 @@ end
 -- 這一筆現在的權重（W64c）：
 --   "times": { "night": 60 } → 那個時段改用這個權重（0 = 那個時段不出現）
 --   "seasons": { "autumn": 2 } → 那一季的權重乘幾倍
+--   "weather": { "rain": 3 } → 那種天氣的權重乘幾倍（0 = 那種天氣不出現；室內沒有天氣，weather.lua）
 function encounter_weight(e)
   local w = e.weight
   local p = time_period()
   if e.times and e.times[p] then w = e.times[p] end
   local s = season()
   if e.seasons and e.seasons[s] then w = w * e.seasons[s] end
+  local wn = weather_now()
+  if e.weather and wn and e.weather[wn] then w = w * e.weather[wn] end
   return w
 end
 

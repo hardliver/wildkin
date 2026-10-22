@@ -141,7 +141,8 @@ local FALL = {
 
 function season_weather_draw()
   if indoor_map() then return end      -- 礦坑裡不下雪（dark.lua）
-  local f = FALL[season()]
+  local which = weather_fall(season())   -- 下雨不飄花瓣；雪只有下雪的時段才下（weather.lua）
+  local f = which and FALL[which]
   if not f then return end
   local t = frame()
   for i = 1, f.n do

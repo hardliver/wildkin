@@ -52,7 +52,8 @@ end
 function clock_long_text()
   local _, sname = season()
   local _, pname = time_period()
-  return "第 " .. DAY .. " 天（" .. sname .. "）　" .. clock_text() .. " " .. pname
+  local w = weather_now()
+  return "第 " .. DAY .. " 天（" .. sname .. "）　" .. clock_text() .. " " .. pname .. (w and ("　" .. WEATHER_NAMES[w]) or "")
 end
 
 -- 時間往前走 n 分鐘：一分鐘一分鐘走，每個整點和半夜都會照順序結算（睡覺一次走好幾百分鐘也一樣）
@@ -120,6 +121,8 @@ function clock_tint(neutral)
   local r, g, b = 256, 256, 256
   if not neutral then
     r, g, b = tint_at(TIME)
+    local wr, wg, wb = weather_tint()                      -- 陰天、下雨暗一點（weather.lua）
+    r, g, b = r * wr // 256, g * wg // 256, b * wb // 256
     -- 營地有發電機在發電（W70）：晚上的暗只剩一半，而且偏暖色（燈泡的光）
     if world.name == "camp" and camp_lit() and r < 256 then
       r, g, b = (r + 256) // 2, (g + 240) // 2, (b + 200) // 2

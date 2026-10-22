@@ -423,6 +423,10 @@ end
 -- ============================================================
 
 local function begin(foe_party, opts, on_end)
+  local o = {}
+  for k, v in pairs(opts or {}) do o[k] = v end
+  if o.weather == nil then o.weather = weather_now() end   -- 室外才有天氣（weather.lua）
+  opts = o
   local b = battle_new(party, foe_party, opts)
   S = {
     b = b, view = {}, on_end = on_end,
@@ -450,6 +454,8 @@ local function begin(foe_party, opts, on_end)
       send_out(2, (b.trainer or "對手") .. "派出了" .. kin_name(foe) .. "！")
     end
     send_out(1, "上吧！" .. kin_name(battle_active(b, 1)) .. "！")
+    local wt = weather_battle_text(b.weather)
+    if wt then msg(wt) end
     -- 序章 P4：第一場野生戰教怎麼抓（只說一次）
     if b.wild and not FLAGS.first_wild then
       FLAGS.first_wild = true

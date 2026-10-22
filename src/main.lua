@@ -194,6 +194,7 @@ function _update()
 
   heal_tip_check() -- 第一次受傷：提示帳篷可以回血（day.lua）
   if not dialog_active() then season_news_check() end   -- 換季的提示（season.lua）
+  if not dialog_active() and not transition_active() then weather_check() end   -- 大志的膝蓋（weather.lua）
   if dialog_active() then return end
   clock_tick()     -- 遊戲時鐘只在這裡走：上面那些（戰鬥、選單、對話、劇情、轉場）進行中都停住
   player_update()
@@ -248,6 +249,7 @@ function _draw()
   if not title_active() and not battle_scene_active() then
     dark_draw()            -- 礦坑的暗處：圓以外塗黑（dark.lua）
     season_weather_draw()  -- 花瓣、落葉、雪（season.lua）
+    weather_draw()         -- 雨（weather.lua）
   end
   if not title_active() and not battle_scene_active() then cutscene_overlay_draw() end   -- 劇情的黑畫面、章節標題
   if not battle_scene_active() then ui_draw() end   -- 戰鬥中由戰鬥畫面自己畫
