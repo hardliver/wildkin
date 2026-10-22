@@ -23,8 +23,8 @@ C = {
     "r": (139, 155, 180), # 車輪框（灰）
     "R": (82, 96, 124),   # 輪胎
     "f": (232, 69, 55),   # 車架（紅）
-    "b": (207, 130, 84),  # 菜籃（藤編）
-    "B": (118, 59, 54),   # 菜籃陰影
+    "b": (139, 155, 180), # 菜籃（鐵絲）
+    "B": (82, 96, 124),   # 菜籃陰影
     "v": (67, 225, 179),  # 電池燈（綠）
     "V": (37, 149, 106),  # 電池盒
     "L": (254, 231, 97),  # 車燈
@@ -107,17 +107,71 @@ def bike(pedal, electric):
         put(22, 9, "L"); put(23, 9, "L")
     return ["".join(r) for r in g]
 
-# 排法：x=0 走路、x=16 騎車的人、x=32 起四台車（各 24 寬：菜籃車兩格、電動兩格）
+# 上下騎（參考 GB 寶可夢：往下騎看到正面＋握把＋菜籃＋前輪，往上騎看到背面＋後貨架＋後輪）
+# 16×20：比走路的圖高 4 像素（輪子露在下面），畫的時候往上 4 像素對齊腳底
+def legs(g, pedal):
+    # 兩隻腳在左右兩邊踩踏板；pedal 1 時左腳低一格、右腳高一格
+    L = ["onno", "onno", "oNNo", "ohho", "oooo"]
+    for side, x0 in ((0, 1), (1, 11)):
+        dy = (1 if side == 0 else -1) if pedal else 0
+        for i, row in enumerate(L):
+            for j, ch in enumerate(row):
+                y = 12 + i + dy
+                if 0 <= y < 20: g[y][x0 + j] = ch
+
+def bike_down(pedal, electric):
+    g = [list(r) for r in HERO[:11]] + [list("." * 16) for _ in range(9)]
+    g[11] = list("okkrrrrrrrrrrkko")                 # 握把（兩手握著）
+    for y, row in ((12, "bBbBbB"), (13, "BbBbBb"), (14, "LooooL" if electric else "oooooo")):
+        g[y][5:11] = list(row)                       # 鐵絲菜籃
+    for y in range(15, 19): g[y][6:10] = list("oRRo")   # 前輪
+    g[19][6:10] = list(".oo.")
+    legs(g, pedal)
+    return ["".join(r) for r in g]
+
+BACK = [
+    "......ooooo.....",
+    "....oooooooo....",
+    "...oohhhhhhoo...",
+    "..oohhhhhhhhoo..",
+    "..oohhhhhhhhoo..",
+    "..oohhhhhhhhoo..",
+    "..oohhhhhhhhoo..",
+    "..ooghhhhhhgoo..",
+    "..ooghhhhhhgoo..",
+    "..oookssssooo...",
+    ".ooopWWWWWWpooo.",
+    "okkPppppppppPkko",
+    "ookPppppppppPkoo",
+]
+def bike_up(pedal, electric):
+    g = [list(r) for r in BACK] + [list("." * 16) for _ in range(7)]
+    g[13][4:12] = list("ohhhhhho")                               # 皮帶（背面）
+    g[14][5:11] = list("VVvVVV" if electric else "rrrrrr")       # 後貨架（電動版放電池）
+    g[15][6:10] = list("offo")                                   # 紅色反光片
+    for y in range(16, 19): g[y][6:10] = list("oRRo")            # 後輪
+    g[19][6:10] = list(".oo.")
+    legs(g, pedal)
+    return ["".join(r) for r in g]
+
+# 排法（x=128 以後見下面）：x=0 走路、x=16 騎車的人、x=32 起四台車（各 24 寬：菜籃車兩格、電動兩格）
 PARTS = [(0, HERO), (16, RIDER + ["." * 16] * 2), (32, bike(0, False)), (56, bike(1, False)), (80, bike(0, True)), (104, bike(1, True))]
-sheet = Image.new("RGBA", (128, 16), (0, 0, 0, 0))
+# x=128 起：往下騎 ×2、往上騎 ×2、電動往下 ×2、電動往上 ×2（各 16 寬）
+for i, (fn, e) in enumerate(((bike_down, False), (bike_up, False), (bike_down, True), (bike_up, True))):
+    PARTS += [(128 + i * 32, fn(0, e)), (144 + i * 32, fn(1, e))]
+sheet = Image.new("RGBA", (256, 20), (0, 0, 0, 0))
 for ox, rows in PARTS:
-    assert len(rows) == 16 and len(set(map(len, rows))) == 1, (ox, rows)
+    assert len(rows) in (16, 20) and len(set(map(len, rows))) == 1, (ox, rows)
     for y, row in enumerate(rows):
         for x, ch in enumerate(row):
             if ch != ".": sheet.putpixel((ox + x, y), (*C[ch], 255))
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../assets/art/hero.png")
 sheet.save(out)
 if "--preview" in sys.argv:
+    pv = Image.new("RGBA", (16 * 8 + 4 * 8, 24), (120, 170, 90, 255))
+    for i in range(8):
+        pv.alpha_composite(sheet.crop((128 + i * 16, 0, 144 + i * 16, 20)), (i * 20 + 2, 2))
+    pv.resize((pv.width * 10, pv.height * 10), Image.NEAREST).save(os.path.expanduser("~/mnt/nova/.hero2.png"))
     old = Image.open(os.path.join(os.path.dirname(out), "../kenney/tiny-dungeon/tilemap.png")).convert("RGBA").crop((64, 144, 80, 160))
     pv = Image.new("RGBA", (16 + 4 + 16 + 4 + 4 * 28, 20), (120, 170, 90, 255))
     pv.alpha_composite(old, (0, 4)); pv.alpha_composite(sheet.crop((0, 0, 16, 16)), (20, 4))

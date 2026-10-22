@@ -1,7 +1,8 @@
 -- player.lua：主角
 --
 -- 圖：assets/art/hero.png（tools/art/hero.py 畫的：39 歲的大志，POLO 衫、卡其褲、八字鬍）
---   x=0 走路；x=16 騎車的上半身；x=32 起四台車（24×16）：菜籃車兩格、電動輔助菜籃車兩格
+--   x=0 走路；x=16 騎車的上半身；x=32 起四台車（24×16，左右騎）：菜籃車兩格、電動輔助菜籃車兩格
+--   x=128 起上下騎（16×20）：往下 ×2、往上 ×2、電動往下 ×2、電動往上 ×2
 -- 位置用「放大 16 倍的整數」存（x16 = 實際 x × 16），搖桿推一點點也能慢慢走
 --
 -- 菜籃車（W71e）：老苔借的（FLAGS.bike），按 B 上下車；室內不能騎。
@@ -153,6 +154,13 @@ function player_draw()
   if player.riding then
     -- 車子 24 寬，比主角寬 8：左右各超出 4。踏板每 6 幀換一次
     local pedal = player.walking and (player.walk_frames // 6) % 2 or 0
+    if player.dir_y ~= 0 then
+      -- 往上／往下騎（參考 GB 寶可夢）：x=128 起每格 16×20，比走路高 4 像素（輪子露在腳下）
+      local sx = 128 + (FLAGS.ebike and 64 or 0) + (player.dir_y < 0 and 32 or 0) + pedal * 16
+      rect(x + 4, y + 14, 8, 2, 5)
+      sspr(IMG.hero, sx, 0, 16, 20, x, y - 4)
+      return
+    end
     local n = (FLAGS.ebike and 2 or 0) + pedal
     rect(x - 2, y + 14, 20, 2, 5)
     sspr(IMG.hero, 32 + n * 24, 0, 24, 16, x - 4, y, 24, 16, left)
