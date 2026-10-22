@@ -210,7 +210,7 @@ end
 -- 一開始停在 1 小時（2026-10-22 Neil）；上下 ±10、左右 ±1，下面會顯示醒來是幾點
 function rest_open(opts)
   opts = opts or {}
-  if CLOCK_MODE == "real" and clock() then
+  if CLOCK_MODE == "real" and real_clock() then
     rest_real(opts)
     return
   end
