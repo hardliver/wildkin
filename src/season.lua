@@ -96,6 +96,7 @@ end
 
 -- ============================================================
 -- 整張地圖換色（W70）：火山洞借舊礦坑的 Tiny Dungeon 圖塊，灰磚換成暗紅、棕色的地換成焦黑
+-- 鐵輪工廠、社長室（W73）：灰磚換成冷冷的藍灰、棕色的地換成水泥灰
 -- ============================================================
 -- 和季節一樣：只換 Tiny Dungeon 圖片裡的顏色，換成遊戲已經有的顏色裡最接近的。有換色的地圖不跟季節變
 local RECOLOR = {
@@ -103,19 +104,26 @@ local RECOLOR = {
     if s < 60 then return 8, 150, v * 3 // 4 end            -- 灰的（磚牆、石頭）→ 暗紅
     return 4, math.min(255, s + 20), v * 5 // 8              -- 棕的（地面）→ 焦黑帶紅
   end,
+  factory = function(h, s, v)
+    if s < 60 then return 215, 50, v end                       -- 灰的（磚牆）→ 藍灰
+    return 30, 25, v * 3 // 4                                  -- 棕的（地面、木頭）→ 水泥灰
+  end,
 }
+RECOLOR.office = RECOLOR.factory
+-- 快取用換色函式當鍵（不是地圖名字）：社長室和工廠用同一個函式，算一次就好
 local recolor_maps = {}
 local function recolor_map(name)
-  if recolor_maps[name] then return recolor_maps[name] end
+  local f = RECOLOR[name]
+  if recolor_maps[f] then return recolor_maps[f] end
   local m = {}
   for _, c in ipairs(imgcolors(IMG.dungeon)) do
     local r, g, b = palget(c)
     local h, s, v = hsv(r, g, b)
     if v > 40 and not (r > 200 and g < 120) then        -- 太暗的（外框）、紅色的（火把）不換
-      m[c] = nearest(rgb(RECOLOR[name](h, s, v)))
+      m[c] = nearest(rgb(f(h, s, v)))
     end
   end
-  recolor_maps[name] = m
+  recolor_maps[f] = m
   return m
 end
 

@@ -16,6 +16,7 @@ DEBUG_COMMANDS = {
   { "跳到第 1 章開頭（苔石村）", "dbg_chapter(1)" },
   { "跳到第 2 章開頭（舊礦坑前）", "dbg_chapter(2)" },
   { "跳到第 3 章開頭（港灣鎮的木筏）", "dbg_chapter(3)" },
+  { "跳到終章開頭（火山洞的貨梯）", "dbg_chapter(4)" },
   { "材料各 20", "dbg_give('material', 20)" },
   { "道具各 10", "dbg_give('item', 10)" },
   { "錢 +10000", "MONEY = MONEY + 10000" },
@@ -80,13 +81,16 @@ local CH_FLAGS = {
   [3] = { "ch2", "mine_entered", "scene_c2_foreman", "mine_dark", "scene_c2_dark", "mine_rock1", "cut:mine:16:14", "cut:mine:16:15",
           "mine_kin_seen", "scene_c2_carts", "trainer_exec1", "scene_c2_exec", "mine_done", "harbor", "scene_c2_harbor",
           "saw_office", "harbor_inn", "trainer_rival3", "badge_rock", "ch2_done", "fire:mine", "fire:harbor" },
+  [4] = { "ch3", "coast_hut", "saw_ship", "scene_c3_ship", "trainer_coast1", "trainer_coast2", "trainer_coast3", "volcano",
+          "trainer_exec2", "scene_c3_exec", "badge_fire", "ch3_done", "fire:coast", "fire:volcano" },
 }
 local CH_PARTY = {      -- 第一隻是初始野伴（等級到了會用進化後的樣子）
   [1] = { 9, { "07", 7 } },
   [2] = { 15, { "11", 13 }, { "07", 13 } },
   [3] = { 21, { "11", 19 }, { "12", 19 }, { "13", 19 } },
+  [4] = { 29, { "13", 27 }, { "12", 27 }, { "10", 27 }, { "14", 27 } },   -- 燈蛾：社長室的電梯要發電
 }
-local CH_START = { [1] = { "village", 19, 3 }, [2] = { "village", 2, 14 }, [3] = { "harbor", 9, 19 } }
+local CH_START = { [1] = { "village", 19, 3 }, [2] = { "village", 2, 14 }, [3] = { "harbor", 9, 19 }, [4] = { "volcano", 16, 13 } }
 
 function dbg_chapter(n, starter)
   dbg_new()
@@ -208,6 +212,17 @@ local function chapter1_table()
                           { { EVO[st], lv }, { "13", lv - 2 }, { "12", lv - 2 }, { "11", lv - 2 } }, foe3, false }
     end
   end
+  -- 終章：工廠的工人、社長（W73）。隊伍：進化後的初始＋霧傘水母、礫殼犰狳、燈蛾（低 2 級；燈蛾是電梯要的）
+  for _, t in ipairs({ { "factory_wood", "阿德", 28 }, { "factory_ore", "品管小姐", 28 }, { "factory_light", "保全大哥", 28 },
+                       { "boss", "社長", 30 }, { "boss", "社長", 32 } }) do
+    local foe4 = {}
+    for i, p in ipairs(DATA.trainers[t[1]].party) do foe4[i] = { p.species, p.level } end
+    for _, st in ipairs({ "01", "03", "05" }) do
+      local lv = t[3]
+      rows[#rows + 1] = { t[2] .. "：" .. DATA.species[EVO[st]].name .. " Lv" .. lv .. "＋霧傘水母、礫殼犰狳、燈蛾 Lv" .. (lv - 2),
+                          { { EVO[st], lv }, { "13", lv - 2 }, { "12", lv - 2 }, { "10", lv - 2 } }, foe4, false }
+    end
+  end
   local out = {}
   for _, r in ipairs(rows) do
     out[#out + 1] = r[1]
@@ -228,5 +243,5 @@ DEBUG_TOOLS = {
       return sim_damage_text(a.me, a.me_lv, a.foe, a.foe_lv) .. "\n\n自動對戰 " .. a.n .. " 場（我方選最好的招，對手是訓練家）：\n" ..
              sim_battles_text({ { a.me, a.me_lv } }, { { a.foe, a.foe_lv } }, false, a.n)
     end },
-  { name = "第 1、2 章平衡表", fields = {}, run = chapter1_table },
+  { name = "第 1 章～終章平衡表", fields = {}, run = chapter1_table },
 }

@@ -9,7 +9,7 @@ SAVE_VERSION = 1
 SAVE_SLOT = SAVE_SLOT or nil   -- 這一局存在哪個欄位（新遊戲時選、讀檔時決定）
 PLAY_FRAMES = PLAY_FRAMES or 0 -- 遊玩時間（幀數，60 幀 = 1 秒）
 
-MAP_NAME = { camp = "新芽營地", route1 = "草原小徑", village = "苔石村", forest = "霧林", mine = "舊礦坑", harbor = "港灣鎮", coast = "海岸", volcano = "火山洞" }
+MAP_NAME = { camp = "新芽營地", route1 = "草原小徑", village = "苔石村", forest = "霧林", mine = "舊礦坑", harbor = "港灣鎮", coast = "海岸", volcano = "火山洞", factory = "鐵輪工廠", office = "社長室" }
 
 -- 把現在的遊戲狀態存到 SAVE_SLOT
 function game_save()

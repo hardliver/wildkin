@@ -11,7 +11,9 @@
 #   （W69 加第 4 列）36 木筏（海上，拖筏渡水）、37 潮池（沙灘上的小水窪）、38 沙灘上的礁岩、39 崖邊的草（海岸北邊）、
 #   40 漂流木、41 籠子（運輸船甲板上，裡面有野伴的影子）
 #   （W70 加第 5 列，火山洞用）48 岩漿池、49 有岩漿裂縫的地面、50 溫泉（冒熱氣）、51 冒蒸氣的孔
-import os
+#   （W73 加第 6 列，鐵輪工廠用；只用已經有的顏色）60/61 輸送帶（兩格輪流畫就會動）、62 控制台（運轉中）、
+#   63 控制台（停了）、64 打卡機、65 玻璃罩（裡面發光的燈蛾）、66 電梯門、67 貨梯（木架＋鐵欄）
+import os, sys
 from PIL import Image
 
 OUT_ = (63, 38, 49)          # Tiny Town 的外框色
@@ -27,7 +29,7 @@ def h(x, y, s=0):
     v ^= v >> 13
     return (v * 1274126177 >> 16) & 0xffff
 
-sheet = Image.new("RGBA", (12 * 16, 5 * 16), (0, 0, 0, 0))
+sheet = Image.new("RGBA", (12 * 16, 6 * 16), (0, 0, 0, 0))
 
 def tile(n):
     return (n % 12) * 16, (n // 12) * 16
@@ -269,8 +271,75 @@ for y in range(9, 14):
 for (x, y) in ((7, 8), (8, 7), (8, 6), (9, 5), (8, 4), (7, 3), (8, 2)):
     put(51, x, y, G_L)
 
+# 60、61：輸送帶（上下是鐵軌、中間是皮帶上的斜紋；61 的斜紋往右挪 2 格，兩格輪流畫看起來就在動）
+def conveyor(n, shift):
+    fill(n, G_M)
+    for x in range(16):
+        put(n, x, 0, OUT_); put(n, x, 1, G_D); put(n, x, 14, G_D); put(n, x, 15, OUT_)
+        for y in range(3, 13):
+            if (x - y - shift) % 4 == 0: put(n, x, y, G_L)
+        put(n, x, 2, G_D if x % 4 else OUT_); put(n, x, 13, G_D if x % 4 else OUT_)   # 滾輪
+conveyor(60, 0)
+conveyor(61, 2)
+
+# 62、63：控制台（灰色的機台、上面一個小螢幕、紅色的停止鈕）
+def console(n, on):
+    for y in range(3, 16):
+        for x in range(2, 14):
+            edge = x in (2, 13) or y in (3, 15)
+            put(n, x, y, OUT_ if edge else G_M)
+    for y in range(5, 9):
+        for x in range(4, 12):
+            put(n, x, y, (GRASS if (x + y) % 3 else GRASS_D) if on else G_D)   # 螢幕：運轉中是綠的波形
+    for (x, y) in ((5, 11), (6, 11), (5, 12), (6, 12)):
+        put(n, x, y, RED if on else SALMON)                                  # 停止鈕：按下去之後變淡
+    for x in (9, 11):
+        put(n, x, 11, LAMP if on else G_D); put(n, x, 12, G_D)               # 指示燈
+console(62, True)
+console(63, False)
+
+# 64：打卡機（牆上的灰盒子、圓形的鐘、下面插卡的縫）
+for y in range(1, 15):
+    for x in range(3, 13):
+        put(64, x, y, OUT_ if x in (3, 12) or y in (1, 14) else G_L)
+for y in range(3, 9):
+    for x in range(5, 11):
+        if (x - 7.5) ** 2 + (y - 5.5) ** 2 <= 8: put(64, x, y, FOAM)
+put(64, 7, 4, OUT_); put(64, 7, 5, OUT_); put(64, 8, 5, OUT_)                  # 指針
+for x in range(5, 11): put(64, x, 11, OUT_)                                   # 插卡的縫
+put(64, 10, 12, RED)
+
+# 65：玻璃罩（照明線：關著一隻燈蛾，發著光）
+for y in range(1, 16):
+    for x in range(2, 14):
+        edge = x in (2, 13) or y in (1, 15)
+        put(65, x, y, G_D if edge else W2)
+for y in range(4, 13):
+    for x in range(4, 12):
+        d = (x - 7.5) ** 2 + (y - 8) ** 2
+        if d <= 4: put(65, x, y, LAMP_L)
+        elif d <= 10: put(65, x, y, LAMP)
+put(65, 4, 3, FOAM); put(65, 4, 4, FOAM); put(65, 5, 3, FOAM)                 # 玻璃的反光
+for x in range(2, 14): put(65, x, 15, OUT_)
+
+# 66：電梯門（兩片灰門、中間一條縫、上面的樓層燈）
+for y in range(0, 16):
+    for x in range(1, 15):
+        edge = x in (1, 14) or y == 0
+        put(66, x, y, OUT_ if edge else (G_L if x < 8 else G_M))
+for y in range(3, 16): put(66, 7, y, OUT_); put(66, 8, y, G_D)
+for x in range(5, 11): put(66, x, 1, G_D)
+put(66, 7, 1, LAMP); put(66, 8, 1, LAMP)
+
+# 67：貨梯（木頭的框、鐵欄杆，火山洞往工廠）
+for y in range(0, 16):
+    for x in range(0, 16):
+        if x in (0, 1, 14, 15) or y in (0, 1): put(67, x, y, WOOD_D if x in (0, 15) or y == 0 else WOOD)
+        elif x % 3 == 0: put(67, x, y, G_D)
+        else: put(67, x, y, OUT_)
+for x in range(2, 14): put(67, x, 15, WOOD)
+
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../assets/art/harbor.png")
+if len(sys.argv) > 1: out = sys.argv[1]
 sheet.save(out)
-big = sheet.resize((sheet.width * 4, sheet.height * 4), Image.NEAREST)
-big.save(os.path.expanduser("~/mnt/nova/.hb.png"))
 print("ok", len({p[:3] for p in sheet.getdata() if p[3]}), "colors")

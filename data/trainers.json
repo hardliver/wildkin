@@ -124,5 +124,33 @@
     "intro": "既然你擋路，就照公司的規矩來吧。",
     "win": "……你還是一樣，做事不看 KPI。",
     "after": "……"
+  },
+  "factory_wood": {
+    "name": "夜班工人阿德", "notice": 2, "sight": 4, "leave": false, "money": 600,
+    "party": [ { "species": "07", "level": 27 }, { "species": "11", "level": 27 } ],
+    "intro": "大叔，你也是來應徵夜班的？\f（……我看起來像嗎？）",
+    "win": "我連續上了 12 天班。\n輸了剛好，可以休息。",
+    "after": "控制台的紅色按鈕……\n按下去，我就可以下班了吧。"
+  },
+  "factory_ore": {
+    "name": "品管小姐", "notice": 2, "sight": 4, "leave": false, "money": 650,
+    "party": [ { "species": "12", "level": 28 }, { "species": "13", "level": 28 } ],
+    "intro": "不良品要退回。\n……你是哪一批的？",
+    "win": "我們做品管的，\n其實最知道哪裡出問題。",
+    "after": "這些野伴沒有一隻是不良品。\n……我一直都知道。"
+  },
+  "factory_light": {
+    "name": "保全大哥", "notice": 2, "sight": 4, "leave": false, "money": 700,
+    "party": [ { "species": "14", "level": 29 }, { "species": "10", "level": 29 } ],
+    "intro": "這裡是管制區！\n……我也是被派來的啦。",
+    "win": "我女兒也很喜歡燈蛾。\n我不敢跟她說我在這裡上班。",
+    "after": "今天回家，跟女兒說實話好了。"
+  },
+  "boss": {
+    "name": "社長", "notice": 0, "sight": 0, "leave": false, "money": 3000,
+    "party": [ { "species": "12", "level": 30 }, { "species": "11", "level": 30 }, { "species": "14", "level": 31 }, { "species": "10", "level": 32 } ],
+    "intro": "那就讓我看看，你這個「不良品」有多少用處。",
+    "win": "……",
+    "after": "……"
   }
 }

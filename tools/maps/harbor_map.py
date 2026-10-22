@@ -142,6 +142,7 @@ objects = [
     {"type": "npc", "x": 29, "y": 7, "name": "receptionist", "tile": D(99), "talk": "harbor_reception"},
     {"type": "npc", "x": 32, "y": 8, "name": "worker", "tile": D(85), "talk": "harbor_worker"},
     {"type": "npc", "x": 35, "y": 12, "name": "seafood", "tile": 230, "talk": "harbor_seafood"},
+    {"type": "npc", "x": 36, "y": 12, "name": "exec1h", "tile": 230, "talk": "exec1_harbor", "look": "left"},   # W73：高處長下班之後
     {"type": "npc", "x": 17, "y": 12, "name": "insurance", "tile": D(98), "talk": "harbor_insurance"},
     {"type": "npc", "x": 26, "y": 25, "name": "fisher", "tile": D(112), "talk": "harbor_fisher"},
     {"type": "npc", "x": 30, "y": 16, "name": "harbor_kid", "tile": 218, "talk": "harbor_kid"},

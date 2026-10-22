@@ -26,7 +26,8 @@ end
 -- 進火山洞時（scenes.lua 的 scene_on_enter 呼叫）：范經理打完就不在
 function volcano_enter()
   for i = #npcs, 1, -1 do
-    if npcs[i].name == "exec2" and FLAGS.trainer_exec2 then npc_remove(npcs[i]) end
+    -- 打完就不在；工廠那天睡著、被蓋了外套之後（W73 E-4），回到施工區上班
+    if npcs[i].name == "exec2" and FLAGS.trainer_exec2 and not (FLAGS.exec2_sleep and FLAGS.factory_done) then npc_remove(npcs[i]) end
   end
   if not FLAGS.volcano then cutscene_start(SCENE.c3_volcano) end
 end
@@ -60,6 +61,10 @@ SCENE.c3_exec = function()
 end
 
 TALK.exec2 = function()
+  if FLAGS.trainer_exec2 then
+    dialog_open("范經理：……外套是你的吧？\n我睡了十個小時。好久沒有這樣。\f范經理：……謝謝，大叔。")
+    return
+  end
   cutscene_start(SCENE.c3_exec)
 end
 
