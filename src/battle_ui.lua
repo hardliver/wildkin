@@ -330,6 +330,10 @@ local function show(e)
     msg(text)
     forget_and_learn(v.kin, e.key)
     return
+  elseif K == "full_kin" then
+    msg(text)
+    forget_and_learn(S.b.sides[1].party[e.index], e.key)
+    return
   elseif K == "switch" then
     -- 換野伴（W65b）：場上那隻還站著 → 先收回（白光縮進球裡）；再丟球放出新的一隻
     -- 倒下之後換人：倒下的已經沉下去了，直接丟球

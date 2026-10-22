@@ -136,6 +136,8 @@ local function sleep_hours(hours)
       lines[#lines + 1] = "飼料不夠！有 " .. f.hungry .. " 隻野伴今天要餓著肚子工作，\n產量少一半。（飼料可以在工作台做）"
     end
   end
+  local grew = work_levels_text()   -- 工作中升級的野伴（facility.lua）
+  if grew then lines[#lines + 1] = grew end
   if gathered_any and DAY > day0 then lines[#lines + 1] = "野外的採集點又長出來了。" end
   if SEASON_NEWS then
     lines[#lines + 1] = season_news_text(SEASON_NEWS)   -- 睡覺時換季：醒來一起說

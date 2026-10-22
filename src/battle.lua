@@ -27,10 +27,11 @@ local STAT_NAMES = { atk = "攻擊", def = "防禦", spd = "速度" }
 -- ============================================================
 
 local function new_side(party)
-  return { party = party, active = 1, stages = { atk = 0, def = 0, spd = 0 } }
+  -- seen：這場戰鬥上場過的（第幾隻 → true），分經驗用
+  return { party = party, active = 1, stages = { atk = 0, def = 0, spd = 0 }, seen = { [1] = true } }
 end
 
--- opts.wild：野生戰（可以逃跑、打贏得到經驗）
+-- opts.wild：野生戰（可以逃跑、可以丟球）
 function battle_new(party, foe_party, opts)
   opts = opts or {}
   return {
@@ -119,22 +120,57 @@ local function order(b, c1, c2)
   return rnd(2) == 0 and { 1, 2 } or { 2, 1 }
 end
 
+-- 分經驗（W71g，2026-10-22 Neil：參考幻獸帕魯）：
+--   隊伍裡還站著的野伴都有：這場上場過的拿全額，沒上場的拿一半
+--   場上那隻用原本的 exp／level／learn／full 事件（畫面會跑經驗條）；
+--   其他的用 exp_kin／exp_rest／level_kin／learn_kin／full_kin（index = 隊伍第幾隻）
+local function kin_events(evs, index, ev)
+  for _, e in ipairs(evs) do
+    if e.kind ~= "known" then
+      e.kind = e.kind .. "_kin"
+      e.index = index
+      ev[#ev + 1] = e
+    end
+  end
+end
+
+function give_exp(b, amount, ev)
+  local s = b.sides[1]
+  local me = s.party[s.active]
+  if me.hp > 0 then
+    ev[#ev + 1] = { kind = "exp", side = 1, amount = amount }
+    for _, e in ipairs(kin_gain_exp(me, amount)) do
+      e.side = 1
+      ev[#ev + 1] = e
+    end
+  end
+  local rest, rest_events = amount // 2, {}
+  for i, k in ipairs(s.party) do
+    if i ~= s.active and k.hp > 0 then
+      if s.seen[i] then
+        ev[#ev + 1] = { kind = "exp_kin", index = i, amount = amount }
+        kin_events(kin_gain_exp(k, amount), i, ev)
+      elseif rest > 0 then
+        rest_events[#rest_events + 1] = { i, kin_gain_exp(k, rest) }
+      end
+    end
+  end
+  if #rest_events > 0 then
+    ev[#ev + 1] = { kind = "exp_rest", amount = rest }
+    for _, r in ipairs(rest_events) do kin_events(r[2], r[1], ev) end
+  end
+end
+
 -- 倒下判定：倒下的這一邊，看還有沒有能上場的
 local function check_faint(b, side, ev)
   local k = battle_active(b, side)
   if k.hp > 0 then return false end
   ev[#ev + 1] = { kind = "faint", side = side }
-  -- 對手的野伴倒下：玩家這隻得到經驗
-  if side == 2 and b.wild then
-    local me = battle_active(b, 1)
-    if me.hp > 0 then
-      local amount = kin_exp_reward(k)
-      ev[#ev + 1] = { kind = "exp", side = 1, amount = amount }
-      for _, e in ipairs(kin_gain_exp(me, amount)) do
-        e.side = 1
-        ev[#ev + 1] = e
-      end
-    end
+  -- 對手的野伴倒下：分經驗（訓練家的野伴 1.5 倍）
+  if side == 2 then
+    local amount = kin_exp_reward(k)
+    if not b.wild then amount = amount * 3 // 2 end
+    give_exp(b, amount, ev)
   end
   if not has_alive(b.sides[side].party) then
     b.over = side == 1 and "lose" or "win"
@@ -288,6 +324,13 @@ local function throw_ball(b, side, c, ev)
   if shakes == 4 then
     b.over = "caught"
     ev[#ev + 1] = { kind = "caught", side = side }
+    -- 抓到也有經驗（和打倒一樣多）；手冊裡第一次抓到這一種：3 倍
+    local amount = kin_exp_reward(foe)
+    if not (DEX and DEX.caught and DEX.caught[foe.no]) then
+      amount = amount * 3
+      ev[#ev + 1] = { kind = "first_catch" }
+    end
+    give_exp(b, amount, ev)
     ev[#ev + 1] = { kind = "end", result = "caught" }
   else
     ev[#ev + 1] = { kind = "broke", side = side, shakes = shakes }
@@ -311,6 +354,7 @@ end
 local function do_switch(b, side, index, ev)
   local s = b.sides[side]
   s.active = index
+  s.seen[index] = true
   s.stages = { atk = 0, def = 0, spd = 0 }   -- 換下場，能力階段歸零
   ev[#ev + 1] = { kind = "switch", side = side, index = index }
 end
@@ -473,6 +517,13 @@ function battle_event_text(b, e)
   if K == "no_pp" then return "可是招式的次數用完了！" end
   if K == "faint" then return who(e.side) .. "倒下了！" end
   if K == "exp" then return who(e.side) .. "得到了 " .. e.amount .. " 點經驗！" end
+  local mine = e.index and kin_name(b.sides[1].party[e.index])
+  if K == "exp_kin" then return mine .. "得到了 " .. e.amount .. " 點經驗！" end
+  if K == "exp_rest" then return "隊伍裡其他的野伴\n也得到了 " .. e.amount .. " 點經驗！" end
+  if K == "level_kin" then return mine .. "升到了 Lv" .. e.level .. "！" end
+  if K == "learn_kin" then return mine .. "學會了" .. DATA.moves[e.key].name .. "！" end
+  if K == "full_kin" then return mine .. "想學" .. DATA.moves[e.key].name .. "，可是已經記住 4 招了。" end
+  if K == "first_catch" then return "第一次抓到這種野伴！\n經驗變成 3 倍！" end
   if K == "level" then return who(e.side) .. "升到了 Lv" .. e.level .. "！" end
   if K == "learn" then return who(e.side) .. "學會了" .. DATA.moves[e.key].name .. "！" end
   if K == "full" then return who(e.side) .. "想學" .. DATA.moves[e.key].name .. "，可是已經記住 4 招了。" end

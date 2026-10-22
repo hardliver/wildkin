@@ -247,12 +247,49 @@ end
 -- 一天的產量（和 W46 一樣）= 基本量 × Σ(工作等級 × 2，餓著的 × 1) // 2
 -- 平均分到 24 小時：每小時把「基本量 × Σ」加進 fac.acc，滿 48（= 2 × 24）就給 1 個，餘數留著。
 -- 這樣一整天下來剛好是一天的產量，不會因為切成小時而少給（只用整數）。
+-- 睡醒時報告：哪些野伴在工作中升級了（回傳一行字，沒有就是 nil）
+function work_levels_text()
+  local names = {}
+  for _, key in ipairs(sorted_keys()) do
+    for _, k in ipairs(FACILITY[key].workers) do
+      if WORK_LEVELS[k] then names[#names + 1] = kin_name(k) .. " Lv" .. WORK_LEVELS[k] end
+    end
+  end
+  WORK_LEVELS = {}
+  if #names == 0 then return nil end
+  return "野伴在工作中長大了！\n" .. table.concat(names, "、")
+end
+
+-- 工作的經驗（W71g，參考幻獸帕魯）：每工作 1 小時得到「等級 // 2 + 1」，餓著肚子減半。
+-- 等級最多長到隊伍裡最高的那一隻（工作不會比出去冒險的還強）。
+-- 升級記在 WORK_LEVELS，睡醒時一起報告（day.lua）；招式滿了就不學（像寄放屋）
+WORK_LEVELS = {}
+local function party_top_level()
+  local top = 1
+  for _, k in ipairs(party) do top = math.max(top, k.level) end
+  return top
+end
+
+local function work_exp(k, top)
+  if k.level >= top then return end
+  local amount = k.level // 2 + 1
+  if k.hungry then amount = (amount + 1) // 2 end
+  local cap = kin_exp_for(top)
+  amount = math.min(amount, cap - k.exp)
+  if amount <= 0 then return end
+  for _, e in ipairs(kin_gain_exp(k, amount)) do
+    if e.kind == "level" then WORK_LEVELS[k] = e.level end
+  end
+end
+
 function facility_hour()
+  local top = party_top_level()
   for _, key in ipairs(sorted_keys()) do
     local fac = FACILITY[key]
     local f = DATA.facilities[fac.kind]
     local units = 0
     for _, k in ipairs(fac.workers) do
+      work_exp(k, top)
       local lv = work_level(k, f.work)
       units = units + (k.hungry and lv or lv * 2)
     end
