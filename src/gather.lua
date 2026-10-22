@@ -51,6 +51,18 @@ function gather_take(s)
   dialog_open(PLAYER_NAME .. "撿到了" .. name .. " ×" .. s.amount .. "！")
 end
 
+-- 還能採的採集點：右上角不時閃一下小星星（2026-10-22 Neil：能採和不能採的蘑菇長得一樣，
+-- 村子、營地有裝飾用的蘑菇）。每個採集點錯開時間，約 2 秒閃一次，亮 20 幀
+local function twinkle(s)
+  local t = (frame() + s.cx * 37 + s.cy * 11) % 120
+  if t >= 20 then return end
+  local r = (t < 10) and (t // 4) or ((20 - t) // 4)
+  local x, y = s.x + 12, s.y + 2
+  rect(x - r, y, r * 2 + 1, 1, 7)
+  rect(x, y - r, 1, r * 2 + 1, 7)
+  pset(x, y, 10)
+end
+
 -- 地面之後、角色之前畫
 function gather_draw()
   for _, s in ipairs(spots) do
@@ -66,5 +78,6 @@ function gather_draw()
     elseif ok then
       world_spr(s.tile, s.x, s.y)
     end
+    if ok then twinkle(s) end
   end
 end
