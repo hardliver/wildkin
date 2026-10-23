@@ -3,6 +3,7 @@
   "height": 30,
   "tilesets": ["town", "dungeon"],
   "objects": [
+    {"type":"npc","x":16,"y":18,"name":"meiling","tile":232,"talk":"meiling","look":"left"},
     {"type":"sign","x":21,"y":3,"text":"苔石村"},
     {"type":"sign","x":8,"y":11,"text":"苔石旅店"},
     {"type":"npc","x":11,"y":11,"name":"innkeeper","tile":231,"talk":"village_innkeeper"},

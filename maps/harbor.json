@@ -3,6 +3,7 @@
   "height": 30,
   "tilesets": ["town", "dungeon", "harbor"],
   "objects": [
+    {"type":"npc","x":13,"y":10,"name":"meiling","tile":232,"talk":"meiling","look":"left"},
     {"type":"fire","x":20,"y":12},
     {"type":"door","x":39,"y":14,"to":"mine","tx":1,"ty":14},
     {"type":"door","x":39,"y":15,"to":"mine","tx":1,"ty":15},

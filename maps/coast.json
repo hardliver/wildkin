@@ -3,6 +3,7 @@
   "height": 15,
   "tilesets": ["town", "dungeon", "harbor"],
   "objects": [
+    {"type":"npc","x":47,"y":8,"name":"meiling","tile":232,"talk":"meiling","look":"left"},
     {"type":"fire","x":51,"y":7},
     {"type":"raft","x":56,"y":10,"to":"harbor","tx":9,"ty":19},
     {"type":"npc","x":48,"y":7,"name":"granny","tile":233,"talk":"coast_granny"},

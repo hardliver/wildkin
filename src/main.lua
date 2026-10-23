@@ -134,6 +134,7 @@ function new_game(slot, clock_mode)
   party, BAG, RANCH = {}, {}, {}   -- 隊伍、背包都是空的：序章裡老苔給（scenes.lua 的 P2、P3）
   DEX = { seen = {}, caught = {} }
   FLAGS, FACILITY, GATHERED = {}, {}, {}
+  FLAGS.mlm_seed = rnd(65536)       -- 直銷說明會的種子：每一期中不中，開局就決定了（mlm.lua）
   DAY, PLAY_FRAMES = 1, 0
   TIME, TIME_SUB, LAST_FEED = 8 * 60, 0, nil   -- 第 1 天（春）早上 08:00（clock.lua）
   MONEY = 3000                      -- 優退金剩下的（商店 W55）

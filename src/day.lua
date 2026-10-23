@@ -150,6 +150,7 @@ end
 local function sleep_hours(hours, bed)
   local before, day0 = bag_copy(), DAY
   local gathered_any = next(GATHERED) ~= nil
+  sleep_bedtime()                  -- 睡前：有褪黑素軟糖就吃一顆（sleep.lua，W75b）
   sleep_begin()                    -- 睡覺的這段時間在還睡眠債（sleep.lua）
   clock_add_minutes(hours * 60)
   local rested = sleep_end(hours, bed)

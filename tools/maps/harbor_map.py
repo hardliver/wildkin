@@ -130,6 +130,7 @@ for i, n in enumerate((24, 25, 26, 27, 28, 29)):
     deco[y][x] = HB(n); solid[y][x] = 1
 
 objects = [
+    {"type": "npc", "x": 13, "y": 10, "name": "meiling", "tile": 232, "talk": "meiling", "look": "left"},   # W75b 美玲姊（mlm.lua 決定在不在）
     {"type": "fire", "x": 20, "y": 12},   # 營火（W71）
     {"type": "door", "x": 39, "y": 14, "to": "mine", "tx": 1, "ty": 14},
     {"type": "door", "x": 39, "y": 15, "to": "mine", "tx": 1, "ty": 15},

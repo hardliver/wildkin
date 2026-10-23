@@ -76,6 +76,7 @@ for x in (1, 2):
     ground[3][x] = D(10); solid[3][x] = 0
 
 objects = [
+    {"type": "npc", "x": 47, "y": 8, "name": "meiling", "tile": 232, "talk": "meiling", "look": "left"},   # W75b 美玲姊（mlm.lua 決定在不在）
     {"type": "fire", "x": 51, "y": 7},
     {"type": "raft", "x": 56, "y": 10, "to": "harbor", "tx": 9, "ty": 19},
     {"type": "npc", "x": 48, "y": 7, "name": "granny", "tile": D(100), "talk": "coast_granny"},

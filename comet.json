@@ -41,6 +41,7 @@
     "src/factory.lua",
     "src/summit.lua",
     "src/ending.lua",
+    "src/mlm.lua",
     "src/kin.lua",
     "src/shiny.lua",
     "src/battle.lua",

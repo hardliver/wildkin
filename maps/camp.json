@@ -3,6 +3,7 @@
   "height": 30,
   "tilesets": ["town", "dungeon"],
   "objects": [
+    {"type":"npc","x":16,"y":24,"name":"meiling","tile":232,"talk":"meiling","look":"left"},
     {"type":"sign","x":16,"y":9,"text":"老苔的小屋"},
     {"type":"npc","x":19,"y":11,"name":"elder","tile":217,"talk":"elder"},
     {"type":"npc","x":16,"y":13,"name":"guest_bo","tile":219,"talk":"guest_bo","look":"right"},
