@@ -174,6 +174,12 @@ end
 --   ‧ 沒有時間來源（clock() 是 nil，例如主機沒有 RTC）：那段時間照遊戲時鐘走，不會卡住
 -- 記錄（存檔）：CLOCK_MODE；REAL_LAST = 上一次對時是「1970 年起第幾分鐘」；REAL_MONTH = 現實的月份
 
+-- 讀現實時間：引擎的 clock()。舊版引擎沒有 clock 這個函式（網頁版沒重新編譯時），當作沒有時間來源，不要整個當掉
+function real_clock()
+  if clock == nil then return nil end
+  return clock()
+end
+
 CLOCK_MODE = CLOCK_MODE or "game"
 REAL_LAST = REAL_LAST or nil
 REAL_MONTH = REAL_MONTH or nil
@@ -183,7 +189,7 @@ REAL_MAX_AWAY = 24 * 60   -- 離開再久，最多補算幾分鐘（Neil 2026-10
 -- offline = true：這段時間大志不在遊戲裡（讀檔時），算他在睡覺
 -- 回傳：有補算的分鐘、超過上限沒補算的分鐘；沒有時間來源回傳 nil
 function realclock_sync(offline)
-  local c = clock()
+  local c = real_clock()
   if not c then return nil end
   local now = c.time // 60
   local season_before = season()
@@ -217,7 +223,7 @@ end
 function clock_mode_set(mode)
   local season_before = season()
   if mode == "real" then
-    if not clock() then return false end
+    if not real_clock() then return false end
     CLOCK_MODE = "real"
     REAL_LAST = nil         -- 換過來的這一刻不算離開，不補算
     realclock_sync(false)

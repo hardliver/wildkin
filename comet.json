@@ -44,6 +44,7 @@
     "src/battle.lua",
     "src/sim.lua",
     "src/battle_fx.lua",
+    "src/battle_bg.lua",
     "src/battle_ui.lua",
     "src/main.lua"
   ],
