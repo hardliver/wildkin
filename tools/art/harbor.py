@@ -13,6 +13,9 @@
 #   （W70 加第 5 列，火山洞用）48 岩漿池、49 有岩漿裂縫的地面、50 溫泉（冒熱氣）、51 冒蒸氣的孔
 #   （W73 加第 6 列，鐵輪工廠用；只用已經有的顏色）60/61 輸送帶（兩格輪流畫就會動）、62 控制台（運轉中）、
 #   63 控制台（停了）、64 打卡機、65 玻璃罩（裡面發光的燈蛾）、66 電梯門、67 貨梯（木架＋鐵欄）
+#   （W74 加第 7 列，山脊、聖所用）72 岩壁、73 崖邊（上面是草、下面是岩壁）、74 草地上的大石頭、
+#   75 雲（聖所邊緣，雲海和草地的交界）、76 立石（聖所的石圈）、77 雲海
+#   （W74）老榕樹 3×3：84、85、86／96、97、98／108、109、110（上排樹冠、中排樹冠＋樹幹、下排氣根和樹根）
 import os, sys
 from PIL import Image
 
@@ -29,7 +32,7 @@ def h(x, y, s=0):
     v ^= v >> 13
     return (v * 1274126177 >> 16) & 0xffff
 
-sheet = Image.new("RGBA", (12 * 16, 6 * 16), (0, 0, 0, 0))
+sheet = Image.new("RGBA", (12 * 16, 10 * 16), (0, 0, 0, 0))
 
 def tile(n):
     return (n % 12) * 16, (n // 12) * 16
@@ -338,6 +341,123 @@ for y in range(0, 16):
         elif x % 3 == 0: put(67, x, y, G_D)
         else: put(67, x, y, OUT_)
 for x in range(2, 14): put(67, x, 15, WOOD)
+
+# ---- W74：山脊、聖所 ----
+LEAF_D = (71, 159, 74)        # Tiny Town 最暗的樹葉綠（本來就在調色盤裡）
+
+def rock_fill(n, seed):
+    """山的岩壁：不規則的大石塊（用格子點附近的距離分區，像 Voronoi），每塊左上亮、右下暗，塊和塊之間是深色的縫"""
+    pts = [((h(i, 0, seed) % 16), (h(i, 1, seed) % 16)) for i in range(6)]
+    def cell(x, y):
+        best, bd, second = 0, 1e9, 1e9
+        for i, (px, py) in enumerate(pts):
+            for ox in (-16, 0, 16):                 # 左右上下接得起來（格子拼在一起看不出接縫）
+                for oy in (-16, 0, 16):
+                    d = (x - px - ox) ** 2 + (y - py - oy) ** 2
+                    if d < bd: best, second, bd = i, bd, d
+                    elif d < second: second = d
+        return best, second - bd
+    for y in range(16):
+        for x in range(16):
+            i, gap = cell(x, y)
+            if gap < 10: put(n, x, y, OUT_ if gap < 4 else G_D)          # 石塊之間的縫
+            else:
+                ci, _ = cell(x - 1, y - 1)
+                put(n, x, y, G_L if ci != i else (G_M if h(x, y, seed + 9) % 9 else G_D))   # 左上的邊亮一點
+
+# 72：岩壁
+rock_fill(72, 72)
+# 73：崖邊（上面 5 行是草，草的下緣有一排深色的影子，下面是岩壁）
+rock_fill(73, 73)
+for y in range(5):
+    for x in range(16):
+        put(73, x, y, GRASS if h(x, y, 73) % 5 else GRASS_D)
+for x in range(16):
+    put(73, x, 5, GRASS_D if x % 3 else OUT_)
+    put(73, x, 6, OUT_ if h(x, 6, 7) % 3 == 0 else G_D)
+# 74：草地上的大石頭
+fill(74, GRASS)
+for y in range(16):
+    for x in range(16):
+        if h(x, y, 74) % 7 == 0: put(74, x, y, GRASS_D)
+for y in range(3, 15):
+    for x in range(2, 14):
+        d = ((x - 7.5) / 6) ** 2 + ((y - 9) / 6) ** 2
+        if d <= 1:
+            c = G_L if (x + y < 14) else (G_M if d < 0.7 else G_D)
+            put(74, x, y, c)
+        elif d <= 1.25: put(74, x, y, OUT_)
+for x in range(4, 12): put(74, x, 15, GRASS_D)                     # 石頭下的影子
+# 77：雲海（淡藍底、一團團白雲）
+def clouds(n, seed, top=0):
+    for y in range(top, 16):
+        for x in range(16):
+            put(n, x, y, W2 if (x + y * 2 + seed) % 11 else FOAM)
+    for (cx, cy, r) in ((4, 6, 4), (11, 9, 5), (2, 13, 3), (13, 3, 3)):
+        for y in range(max(top, cy - r), min(16, cy + r + 1)):
+            for x in range(cx - r - 1, cx + r + 2):
+                if 0 <= x < 16 and (x - cx) ** 2 + ((y - cy) * 1.4) ** 2 <= r * r:
+                    put(n, x, y, FOAM if y < cy else (232, 244, 250))
+clouds(77, 0)
+# 75：雲（上半是草地的邊緣，下半是雲）
+clouds(75, 3, top=0)
+for y in range(0, 6):
+    for x in range(16):
+        if y < 4 or h(x, y, 75) % 3: put(75, x, y, GRASS if h(x, y, 76) % 4 else GRASS_D)
+for x in range(16): put(75, x, 6 if h(x, 0, 75) % 2 else 5, OUT_)
+# 76：立石（草地上一根直立的長石頭）
+fill(76, GRASS)
+for y in range(1, 15):
+    for x in range(5, 11):
+        edge = x in (5, 10) or y == 1
+        put(76, x, y, OUT_ if edge else (G_L if x < 8 else G_M))
+for (x, y) in ((7, 5), (8, 6), (7, 9)): put(76, x, y, G_D)        # 刻痕
+for x in range(4, 12): put(76, x, 15, GRASS_D)
+
+# 老榕樹（3×3 格 = 48×48 像素）：先畫在一張大圖上，再切成 9 格貼到 84～86、96～98、108～110
+big_t = Image.new("RGBA", (48, 48), (0, 0, 0, 0))
+def bput(x, y, c):
+    if 0 <= x < 48 and 0 <= y < 48: big_t.putpixel((x, y), (*c, 255))
+# 樹冠：好幾團綠葉疊起來（亮的在上、暗的在下）
+for (cx, cy, r) in ((24, 13, 14), (12, 17, 10), (36, 17, 10), (18, 8, 8), (31, 8, 8), (24, 22, 12)):
+    for y in range(cy - r, cy + r + 1):
+        for x in range(cx - r, cx + r + 1):
+            d = (x - cx) ** 2 + (y - cy) ** 2
+            if d <= r * r:
+                c = LEAF_D if y > cy + r // 3 else (GRASS_D if h(x // 2, y // 2, 9) % 3 else GRASS)
+                bput(x, y, c)
+for y in range(48):                                              # 樹冠的外框
+    for x in range(48):
+        p = big_t.getpixel((x, y))
+        if p[3] == 0 and y < 34:
+            if any(0 <= x + dx < 48 and 0 <= y + dy < 48 and big_t.getpixel((x + dx, y + dy))[3] and big_t.getpixel((x + dx, y + dy))[:3] != OUT_
+                   for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                bput(x, y, OUT_)
+# 樹幹：粗、往下張開
+for y in range(26, 44):
+    w = 6 + (y - 26) // 3
+    for x in range(24 - w, 24 + w):
+        edge = x in (24 - w, 24 + w - 1)
+        bput(x, y, OUT_ if edge else (WOOD if (x + y) % 5 else WOOD_D))
+# 氣根：從樹冠下緣垂下來（淺色，和樹幹分開），根尖有小葉片
+for i, x in enumerate((8, 13, 18, 30, 35, 40)):
+    top = 26 + (i % 2) * 2
+    L = 12 + (i * 5) % 9
+    for y in range(top, top + L):
+        xx = x + ((y // 4) % 2 if i % 2 else -((y // 4) % 2))
+        bput(xx, y, SAND_D)
+    bput(x, top + L, GRASS)
+    bput(x + 1, top + L, GRASS_D)
+# 樹根：在地面上往兩邊伸
+for (x0, dx) in ((14, -1), (34, 1), (20, -1), (28, 1)):
+    for i in range(8):
+        bput(x0 + dx * i, 44 + i // 4, WOOD_D)
+        bput(x0 + dx * i, 45 + i // 4, OUT_)
+for j, n0 in enumerate((84, 96, 108)):
+    for i in range(3):
+        cell = big_t.crop((i * 16, j * 16, i * 16 + 16, j * 16 + 16))
+        ox, oy = tile(n0 + i)
+        sheet.alpha_composite(cell, (ox, oy))
 
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../assets/art/harbor.png")
 if len(sys.argv) > 1: out = sys.argv[1]

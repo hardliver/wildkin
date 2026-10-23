@@ -39,6 +39,7 @@
     "src/coast.lua",
     "src/volcano.lua",
     "src/factory.lua",
+    "src/summit.lua",
     "src/kin.lua",
     "src/shiny.lua",
     "src/battle.lua",
@@ -74,7 +75,9 @@
     "coast": "maps/coast.json",
     "volcano": "maps/volcano.json",
     "factory": "maps/factory.json",
-    "office": "maps/office.json"
+    "office": "maps/office.json",
+    "ridge": "maps/ridge.json",
+    "summit": "maps/summit.json"
   },
   "data": {
     "types": "data/types.json",

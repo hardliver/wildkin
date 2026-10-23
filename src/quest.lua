@@ -61,6 +61,10 @@ QUESTS = {
     hint = "二樓東邊的電梯沒電了。\n隊伍裡要有會發電的野伴（霧林的燈蛾）。" },
   { chapter = "終章", title = "打敗社長", done = function() return FLAGS.boss end,
     hint = "社長室在頂樓。推薦等級 Lv30～32。\n社長的野伴有岩、火、電：水屬性最好用，\n選火的話多帶霧傘水母、礫殼犰狳。" },
+  { chapter = "終章", title = "爬上山脊", done = function() return FLAGS.trainer_rival4 end,
+    hint = "社長室的後門開了。推薦等級 Lv34～36。\n觀景台好像有人在野餐。" },
+  { chapter = "終章", title = "到山頂聖所", done = function() return FLAGS.ch4_done end,
+    hint = "山脊最北邊。雲根 Lv38：想抓的話多帶精製球，\n先把牠打弱一點、讓牠睡著或麻痺。\n（打倒也可以過關。）" },
 
 }
 

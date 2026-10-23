@@ -126,7 +126,7 @@
     "name": "雲根", "type": "normal", "sprite": 15,
     "base": { "hp": 100, "atk": 100, "def": 100, "spd": 100 },
     "catch": 3, "exp": 250,
-    "learn": [ [1, "tackle"], [1, "mist"], [20, "absorb"], [40, "rootpulse"] ],
+    "learn": [ [1, "tackle"], [1, "rootpulse"], [10, "mist"], [25, "harden"] ],
     "desc": "山頂老榕樹的根，和雲纏在一起，變成了牠。島上的人說，牠是這座島的根。比老苔還老，但從來不喊腰痠。"
   }
 }

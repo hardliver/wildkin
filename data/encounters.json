@@ -52,5 +52,11 @@
       { "species": "12", "min": 22, "max": 24, "weight": 25 },
       { "species": "10", "min": 22, "max": 24, "weight": 10 }
     ]
-  }
+  },
+  "ridge": { "rate": 20, "list": [
+    { "species": "08", "min": 30, "max": 33, "weight": 40, "times": { "night": 5 }, "weather": { "rain": 0, "storm": 0 } },
+    { "species": "12", "min": 30, "max": 33, "weight": 35, "times": { "night": 45 } },
+    { "species": "11", "min": 31, "max": 33, "weight": 2, "times": { "evening": 35, "night": 45 } },
+    { "species": "15", "min": 31, "max": 34, "weight": 5, "weather": { "storm": 3 } }
+  ] }
 }

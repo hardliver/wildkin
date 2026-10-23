@@ -51,7 +51,7 @@ def thing(m, x, y, tile, layer="deco", solid=1):
 def write(m, objects, name):
     W, H = m["W"], m["H"]
     for o in objects:
-        if o["type"] == "sign":
+        if o["type"] == "sign" and not o.pop("keep", False):   # keep：放在桌子之類的東西上，不畫告示牌（只在這裡用，不寫進地圖檔：地圖物件不能有 true/false）
             thing(m, o["x"], o["y"], SIGN)
         if o["type"] == "door":
             m["solid"][o["y"]][o["x"]] = 0
@@ -174,6 +174,9 @@ thing(o, 10, 14, ELEVATOR, "ground", 1)
 thing(o, 17, 2, IRON_DOOR, "deco", 1)     # 後門（社長往山頂走的樓梯）
 office_objects = [
     {"type": "lift", "x": 10, "y": 14, "to": "factory", "tx": 37, "ty": 3},
+    {"type": "door", "x": 17, "y": 2, "to": "ridge", "tx": 9, "ty": 42},     # 後門（W74）：打贏社長才打開（factory.lua）
+    # 桌上的舊相框（W74：阿電的伏筆）
+    {"type": "sign", "x": 12, "y": 4, "keep": True, "text": "舊相框：一個穿制服的少年，和一隻雷角羚。\f雷角羚的兩根角，都還好好的。\n照片的角落寫著：「第 28 屆大賽　第一輪」"},
     {"type": "npc", "x": 10, "y": 3, "name": "president", "tile": D(100), "talk": "president", "look": "up"},
     {"type": "event", "x": 8, "y": 8, "scene": "e6_boss"}, {"type": "event", "x": 9, "y": 8, "scene": "e6_boss"},
     {"type": "event", "x": 10, "y": 8, "scene": "e6_boss"}, {"type": "event", "x": 11, "y": 8, "scene": "e6_boss"},

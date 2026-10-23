@@ -17,6 +17,7 @@ DEBUG_COMMANDS = {
   { "跳到第 2 章開頭（舊礦坑前）", "dbg_chapter(2)" },
   { "跳到第 3 章開頭（港灣鎮的木筏）", "dbg_chapter(3)" },
   { "跳到終章開頭（火山洞的貨梯）", "dbg_chapter(4)" },
+  { "跳到終章（下）（社長室的後門）", "dbg_chapter(5)" },
   { "材料各 20", "dbg_give('material', 20)" },
   { "道具各 10", "dbg_give('item', 10)" },
   { "錢 +10000", "MONEY = MONEY + 10000" },
@@ -81,6 +82,9 @@ local CH_FLAGS = {
   [3] = { "ch2", "mine_entered", "scene_c2_foreman", "mine_dark", "scene_c2_dark", "mine_rock1", "cut:mine:16:14", "cut:mine:16:15",
           "mine_kin_seen", "scene_c2_carts", "trainer_exec1", "scene_c2_exec", "mine_done", "harbor", "scene_c2_harbor",
           "saw_office", "harbor_inn", "trainer_rival3", "badge_rock", "ch2_done", "fire:mine", "fire:harbor" },
+  [5] = { "final", "scene_e0_lift", "factory", "scene_e1_clock", "line_wood", "line_ore", "line_light",
+          "trainer_factory_wood", "trainer_factory_ore", "trainer_factory_light", "exec1_quit", "exec2_sleep", "scene_e4_sleep",
+          "elevator", "boss", "trainer_boss", "scene_e6_boss", "factory_done", "fire:factory" },
   [4] = { "ch3", "coast_hut", "saw_ship", "scene_c3_ship", "trainer_coast1", "trainer_coast2", "trainer_coast3", "volcano",
           "trainer_exec2", "scene_c3_exec", "badge_fire", "ch3_done", "fire:coast", "fire:volcano" },
 }
@@ -89,8 +93,9 @@ local CH_PARTY = {      -- 第一隻是初始野伴（等級到了會用進化�
   [2] = { 15, { "11", 13 }, { "07", 13 } },
   [3] = { 21, { "11", 19 }, { "12", 19 }, { "13", 19 } },
   [4] = { 29, { "13", 27 }, { "12", 27 }, { "10", 27 }, { "14", 27 } },   -- 燈蛾：社長室的電梯要發電
+  [5] = { 34, { "13", 32 }, { "12", 32 }, { "10", 32 }, { "14", 32 } },
 }
-local CH_START = { [1] = { "village", 19, 3 }, [2] = { "village", 2, 14 }, [3] = { "harbor", 9, 19 }, [4] = { "volcano", 16, 13 } }
+local CH_START = { [1] = { "village", 19, 3 }, [2] = { "village", 2, 14 }, [3] = { "harbor", 9, 19 }, [4] = { "volcano", 16, 13 }, [5] = { "office", 16, 2 } }
 
 function dbg_chapter(n, starter)
   dbg_new()
@@ -110,6 +115,7 @@ function dbg_chapter(n, starter)
     dex_caught(p[i][1])
   end
   BAG.ball, BAG.goodball, BAG.potion, BAG.superpotion, BAG.feed = 10, (n >= 2) and 5 or nil, 5, (n >= 2) and 3 or nil, 10
+  if n >= 4 then BAG.fineball = 10 end   -- 精製球（第 3 章焰之徽記之後才做得出來）
   MONEY = 3000 + n * 3000
   DAY = 1 + (n - 1) * 3
   local s = CH_START[n]
@@ -221,6 +227,23 @@ local function chapter1_table()
       local lv = t[3]
       rows[#rows + 1] = { t[2] .. "：" .. DATA.species[EVO[st]].name .. " Lv" .. lv .. "＋霧傘水母、礫殼犰狳、燈蛾 Lv" .. (lv - 2),
                           { { EVO[st], lv }, { "13", lv - 2 }, { "12", lv - 2 }, { "10", lv - 2 } }, foe4, false }
+    end
+  end
+  -- 終章（下）：阿穗第 4 戰、雲根（W74）。隊伍：草、水帶搧火蝠，火帶霧傘水母；加礫殼犰狳、燈蛾（低 2 級）
+  for _, st in ipairs({ "01", "03", "05" }) do
+    local mate = (st == "03") and "13" or "11"
+    local foe5 = {}
+    for i, p in ipairs(DATA.trainers.rival4.party) do
+      local no = p.species
+      if no == "rival" then no = rival[st] end     -- 阿穗用剋制主角初始的那一隻
+      local ev = DATA.species[no].evolve
+      if ev and p.level >= ev.level then no = ev.to end
+      foe5[i] = { no, p.level }
+    end
+    for _, lv in ipairs({ 34, 36 }) do
+      local me = { { EVO[st], lv }, { mate, lv - 2 }, { "12", lv - 2 }, { "10", lv - 2 } }
+      rows[#rows + 1] = { "阿穗第 4 戰：" .. DATA.species[EVO[st]].name .. " Lv" .. lv .. "＋" .. DATA.species[mate].name .. "、礫殼犰狳、燈蛾 Lv" .. (lv - 2), me, foe5, false }
+      rows[#rows + 1] = { "雲根 Lv" .. CLOUDROOT_LEVEL .. "（野生）：同上", me, { { "16", CLOUDROOT_LEVEL } }, true }
     end
   end
   local out = {}

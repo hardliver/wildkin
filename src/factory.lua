@@ -228,6 +228,8 @@ function factory_enter(map)
   elseif map == "office" then
     local n = npc_named("president")
     if n and FLAGS.boss then npc_remove(n) end
+    -- 後門（往山脊，W74）：打贏社長之前是鎖著的鐵門
+    if not FLAGS.boss then mset(world.map, "solid", 17, 2, 1) end
   end
 end
 

@@ -106,9 +106,17 @@ SCENE.c3_keeper = function()
   blackout(false)
 end
 
+-- 拿到徽記之後，三句輪流說（W74 加後兩句：阿電的伏筆，docs/story.md「阿電的伏筆」）
+local keeper_talks = 0
+local KEEPER_AFTER = {
+  false,   -- 第 1 句是 trainers.json 的 after（棋子）。用 false 不用 nil：表格裡有 nil 時 # 算出來的長度不可靠
+  "山頂那邊，有一隻斷了角的雷角羚。\n好幾十年了，誰靠近都會被電。",
+  "……我年輕的時候看過牠一次。\n那時候牠的角還是好的，旁邊跟著一個西裝小子。",
+}
 TALK.fire_keeper = function()
   if FLAGS.badge_fire then
-    dialog_open("炭爺：" .. DATA.trainers.fire_keeper.after)
+    keeper_talks = keeper_talks % #KEEPER_AFTER + 1
+    dialog_open("炭爺：" .. (KEEPER_AFTER[keeper_talks] or DATA.trainers.fire_keeper.after))
   else
     cutscene_start(SCENE.c3_keeper)
   end

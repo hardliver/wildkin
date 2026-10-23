@@ -33,6 +33,7 @@ local INDOOR_BG = { cave = true, volcano = true, factory = true }
 BG_OF_MAP = {
   camp = "grass", route1 = "grass", village = "grass", forest = "forest", mine = "cave",
   harbor = "beach", coast = "beach", volcano = "volcano", factory = "factory", office = "factory",
+  ridge = "grass", summit = "grass",   -- W74：山脊、聖所先用草原（之後可以畫一張山上的背景）
 }
 
 local bg = "grass"

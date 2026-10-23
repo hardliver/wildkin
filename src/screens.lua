@@ -110,6 +110,10 @@ function bag_open(where, on_use, opts)
       dialog_open("做東西用的材料。在營地的工作台使用。")
       return
     end
+    if it.kind == "key" then            -- 重要物品（家族合照，W74）：不能用、不能賣，按 A 看說明
+      dialog_open(it.desc)
+      return
+    end
     if it.kind == "ball" then
       -- 野伴球：不用選野伴，直接丟
       if where ~= "battle" then

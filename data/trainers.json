@@ -152,5 +152,12 @@
     "intro": "那就讓我看看，你這個「不良品」有多少用處。",
     "win": "……",
     "after": "……"
+  },
+  "rival4": {
+    "name": "阿穗", "notice": 0, "sight": 0, "leave": false, "money": 3000,
+    "party": [ { "species": "rival", "level": 32 }, { "species": "08", "level": 29 }, { "species": "15", "level": 30 } ],
+    "intro": "來吧。最後一場，用全力。",
+    "win": "……輸了。輸得很乾脆。",
+    "after": "下次換你帶家人來，好嗎？"
   }
 }
