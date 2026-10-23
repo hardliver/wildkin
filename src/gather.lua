@@ -47,6 +47,7 @@ end
 function gather_take(s)
   GATHERED[key(s.o)] = DAY
   bag_add(s.item, s.amount)
+  snd("item")
   local name = DATA.items[s.item].name
   dialog_open(PLAYER_NAME .. "撿到了" .. name .. " ×" .. s.amount .. "！")
 end

@@ -148,6 +148,7 @@ function dialog_update(no_input)
       choose(r)
     end
   elseif ok then
+    snd("page")
     if dlg.page < #dlg.pages then
       start_page(dlg.page + 1)                   -- 下一頁
     else

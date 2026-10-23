@@ -35,6 +35,7 @@ function player_toggle_bike()
     dialog_open("（這裡面沒辦法騎車。）")
   else
     player.riding = true
+    snd("bike")
   end
 end
 
@@ -140,6 +141,7 @@ function player_update()
   else
     player.walk_frames = 0
   end
+  step_sound()   -- 腳步聲（sound.lua）
 end
 
 function player_draw()

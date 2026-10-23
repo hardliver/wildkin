@@ -51,11 +51,12 @@ function menu_update(m)
   -- 移到的位置要在範圍內、而且那一格有選項（最後一列可能沒排滿）；不行就不動
   local i = new_row * m.cols + new_col + 1
   if new_row >= 0 and new_col >= 0 and new_col < m.cols and i >= 1 and i <= #m.items then
+    if i ~= m.index then snd("cursor") end
     m.index = i
   end
 
-  if pressed(A) then return m.index end
-  if pressed(B) and m.cancel then return 0 end
+  if pressed(A) then snd("select") return m.index end
+  if pressed(B) and m.cancel then snd("cancel") return 0 end
   return nil
 end
 

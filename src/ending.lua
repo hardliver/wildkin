@@ -110,6 +110,7 @@ SCENE.ending = function()
   set_flag("ending4")
   -- F-5：片尾
   blackout(true)
+  play_music("ending")
   credits_roll(CREDITS)
   table_set(false)
   set_flag("credits")

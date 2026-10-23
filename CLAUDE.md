@@ -30,7 +30,8 @@ src/         遊戲 Lua，合併成單一檔 build/wildkin.lua
 data/        遊戲資料 JSON（只能有整數、文字、true/false；不能有小數和 null）
 maps/        地圖 JSON
 assets/      kenney/（CC0 素材）、art/（原創美術）
-tools/       check_data.mjs（資料一致性檢查）、art/ 和 maps/（產生圖和地圖的 Python）
+audio/       sfx.json（音效和音樂，tools/audio/make_sfx.py 產生；Studio 的音效編輯器也能改）
+tools/       check_data.mjs（資料一致性檢查）、art/、maps/、audio/（產生圖、地圖、聲音的 Python）
 tests/       遊戲邏輯測試（接在遊戲檔後面，用引擎的 Mac 版無頭跑）
 ```
 

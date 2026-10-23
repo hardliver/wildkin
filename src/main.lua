@@ -12,6 +12,7 @@ PLAYER_NAME = "大志"   -- 主角的名字（W54 序章可以自己取）
 -- 進入一張地圖：地圖本身交給 world，NPC 從地圖的物件建立
 local function enter_map(name)
   world_enter(name)
+  map_music()        -- 這張地圖的音樂（sound.lua；同一種就接著播）
   npc_load()
   gather_load()
   facility_load()
@@ -54,6 +55,7 @@ local function check_door()
   end
   if not door_armed then return end
   door_armed = false
+  snd("door")
   transition_start(function()
     enter_map(door.to)
     player_place(door.tx, door.ty)

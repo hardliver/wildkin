@@ -151,11 +151,6 @@ for (const [key, r] of Object.entries(recipes)) {
   if (r.unlock !== undefined && typeof r.unlock !== "string") err(`${at}：unlock 要是劇情旗標的名字`);
 }
 
-if (errors.length) {
-  console.log(`資料檔有 ${errors.length} 個問題：`);
-  for (const e of errors) console.log("  ✗ " + e);
-  process.exit(1);
-}
 // 訓練家
 for (const [id, t] of Object.entries(trainers)) {
   const at = `trainers.json 的 ${id}`;
@@ -185,6 +180,28 @@ for (const [id, it] of Object.entries(items)) {
   if (!isInt(it.price) || it.price < 0) err(`${at}：price 要是 0 以上的整數`);
   if (!isInt(it.sort)) err(`${at}：sort（背包裡的順序）要是整數`);
   else if (sorts[it.sort]) err(`${at}：sort ${it.sort} 和 ${sorts[it.sort]} 重複`); else sorts[it.sort] = id;
+}
+
+// 聲音（W77）：程式裡 snd("名字")、play_music("名字") 和 MUSIC_OF_MAP 用到的名字，audio/sfx.json 裡都要有
+const sound = JSON.parse(fs.readFileSync("audio/sfx.json", "utf8"));
+for (const f of fs.readdirSync("src").filter((f) => f.endsWith(".lua"))) {
+  const code = fs.readFileSync(`src/${f}`, "utf8");
+  for (const m of code.matchAll(/\bsnd\("([A-Za-z_0-9]+)"\)/g))
+    if (!(m[1] in sound.sfx)) err(`src/${f}：音效「${m[1]}」不在 audio/sfx.json`);
+  // 招式的聲音是 "move_" .. 屬性
+  if (code.includes('snd("move_" ..'))
+    for (const ty of Object.keys(types.names)) if (!(`move_${ty}` in sound.sfx)) err(`audio/sfx.json：少了屬性「${ty}」的招式音效 move_${ty}`);
+  for (const m of code.matchAll(/\bplay_music\("([A-Za-z_0-9]+)"/g))
+    if (!(m[1] in sound.music)) err(`src/${f}：音樂「${m[1]}」不在 audio/sfx.json`);
+  const table = code.match(/MUSIC_OF_MAP = \{([^}]*)\}/);
+  if (table) for (const m of table[1].matchAll(/= "([A-Za-z_0-9]+)"/g))
+    if (!(m[1] in sound.music)) err(`src/${f}：MUSIC_OF_MAP 的音樂「${m[1]}」不在 audio/sfx.json`);
+}
+
+if (errors.length) {
+  console.log(`資料檔有 ${errors.length} 個問題：`);
+  for (const e of errors) console.log("  ✗ " + e);
+  process.exit(1);
 }
 
 console.log(`✓ 資料檔：${Object.keys(species).length} 種野伴、${Object.keys(moves).length} 招、${Object.keys(encounters).length} 張遭遇表、${Object.keys(trainers).length} 位訓練家、${Object.keys(items).length} 種道具、${Object.keys(facilities).length} 種設施、${Object.keys(recipes).length} 個配方，彼此都對得上`);

@@ -3,6 +3,7 @@
   "id": "hardliver/wildkin",
   "sources": [
     "src/util.lua",
+    "src/sound.lua",
     "src/dialog.lua",
     "src/menu.lua",
     "src/screens.lua",
@@ -81,6 +82,7 @@
     "ridge": "maps/ridge.json",
     "summit": "maps/summit.json"
   },
+  "sfx": "audio/sfx.json",
   "data": {
     "types": "data/types.json",
     "moves": "data/moves.json",

@@ -225,6 +225,7 @@ local function evolve_scene(k, to)
   end
   -- 白光一閃，變成新的樣子
   S.evo.flash = true
+  snd("evolve")
   wait(12)
   S.evo.flash, S.evo.show_new, S.evo.glow = false, true, 0
   local events = kin_evolve(k, to)
@@ -247,16 +248,20 @@ local function show(e)
   local text = battle_event_text(S.b, e)
   if K == "use" then
     msg(text)                                -- 先說「○○使用了○○！」，再演招式
+    snd("move_" .. DATA.moves[e.move].type)  -- 招式的聲音照屬性（sound.lua）
     fx_move(ctx, e.move, e.side, 3 - e.side)
     return
   elseif K == "damage" then
+    snd(e.mult >= 4 and "hit_super" or e.mult <= 1 and "hit_weak" or "hit")
     fx_hit(ctx, e.side, e.mult)
     slide_hp(e.side, e.hp)
   elseif K == "burn_damage" then
     fx_status(ctx, e.side, "burn")
+    snd("hit")
     fx_hit(ctx, e.side, 2)
     slide_hp(e.side, e.hp)
   elseif K == "stat" then
+    snd(e.amount > 0 and "stat_up" or "stat_down")
     fx_stat(ctx, e.side, e.amount > 0)
   elseif K == "status" or K == "asleep" or K == "paralyzed" then
     fx_status(ctx, e.side, K == "asleep" and "sleep" or K == "paralyzed" and "paralyze" or e.status)
@@ -264,13 +269,17 @@ local function show(e)
     msg(text)
     local t2 = sleep_throw_text()   -- 落枕、好睏：丟球前抱怨一下（sleep.lua）
     if t2 then msg(t2) end
+    snd("throw")
     fx_ball_throw(ctx, set_ball)
     return
   elseif K == "shake" then
+    snd("shake")
     fx_ball_shake(ctx, set_ball)
   elseif K == "broke" then
+    snd("break")
     fx_ball_break(ctx, set_ball)
   elseif K == "caught" then
+    snd("caught")
     fx_ball_caught(ctx)
     msg(text)
     -- 加入隊伍（滿 6 隻送到營地的牧場，W44 之後在基地看得到）
@@ -293,10 +302,15 @@ local function show(e)
     end
     return
   elseif K == "item_heal" then
+    snd("heal")
     if e.index == S.b.sides[e.side].active then slide_hp(e.side, e.hp) end
   elseif K == "heal" then
+    snd("heal")
     slide_hp(e.side, e.hp)
+  elseif K == "run" then
+    if e.ok then snd("run") end
   elseif K == "faint" then
+    snd("faint")
     sink(e.side)
   elseif K == "exp" then
     msg(text)
@@ -309,6 +323,7 @@ local function show(e)
     local old = view_max_hp(v)
     v.level = e.level
     v.hp = v.hp + view_max_hp(v) - old       -- 和 kin_gain_exp 一樣：上限加多少，目前 HP 也加多少
+    snd("levelup")
     fx_levelup(ctx, e.side)
     msg(text)
     -- 能力提升的表：先顯示「+多少」，按 A 再顯示提升後的數值（和 GB 一樣）
@@ -365,6 +380,7 @@ local function finish()
   transition_start(function()
     local over, on_end = S.b.over, S.on_end
     S = nil
+    map_music()        -- 回到地圖的音樂（sound.lua）
     if on_end then on_end(over) end
   end)
 end
@@ -378,6 +394,8 @@ local function do_turn(choice)
       msg(PLAYER_NAME .. "眼前一片漆黑……")
     end
     if S.b.over then
+      if S.b.over == "win" or S.b.over == "caught" then play_music("victory") end
+      if S.b.over == "lose" then play_music(nil) end
       if S.b.over ~= "lose" then
         for _, k in ipairs(party) do
           local to = kin_can_evolve(k)
@@ -468,6 +486,10 @@ end
 
 -- 進場：轉場到全黑時換成戰鬥畫面
 function battle_scene_start(foe_party, opts, on_end)
+  -- 戰鬥的音樂：野生和訓練家不一樣；野生的先「唰」一聲（sound.lua）
+  local wild = opts and opts.wild
+  if wild then snd("encounter") end
+  play_music(wild and "battle" or "trainer")
   transition_start(function() begin(foe_party, opts, on_end) end, opts and opts.flash)
 end
 

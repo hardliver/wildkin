@@ -217,6 +217,7 @@ end
 function give(item, n)
   n = n or 1
   bag_add(item, n)
+  snd("item")
   say(PLAYER_NAME .. "得到了" .. DATA.items[item].name .. " ×" .. n .. "！")
 end
 

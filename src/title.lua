@@ -96,6 +96,7 @@ end
 
 function title_open()
   title = { t = 0 }
+  play_music("title")
   ui_clear()
   main_menu()
 end
