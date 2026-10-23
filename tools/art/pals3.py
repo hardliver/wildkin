@@ -235,8 +235,133 @@ class StoveOx(Pal):
             x2, y2 = project(info, H + (-3, -1.5, -5.2))
             eye_round(im, x2, y2, 1, 2, (250, 170, 60), big_hi=1)
 
-ALL3 = [FanBat(), StoneArmadillo(), MistJelly(), StoveOx()]
-NAMES3 = ["11 搧火蝠", "12 礫殼犰狳", "13 霧傘水母", "14 爐背牛"]
+# ============================================================
+# 15 雷角羚（W66b）：細長的羚羊，四隻細腳，身體往前傾（隨時要跳）；兩根長角往後再往前彎，
+# 角尖之間跳一道電弧（畫在 paint_front）。淺黃的毛、白肚子，背上一條深色的線（像電線）
+# 和燈蛾（電屬性的蛾）完全不同的骨架
+# ============================================================
+class ThunderAntelope(Pal):
+    FUR = Mat([(170, 132, 70), (210, 172, 96), (236, 206, 130), (250, 232, 170)], line=(160, 120, 64))
+    BELLY = Mat([(206, 196, 176), (232, 226, 210), (248, 246, 236)], line=(190, 180, 160))
+    WIRE = Mat([(44, 40, 52), (72, 66, 80)])
+    HORN = Mat([(56, 50, 60), (96, 88, 96), (150, 140, 140), (210, 200, 190)], line=(48, 42, 52))
+    HOOF = Mat([(44, 34, 36), (76, 58, 56)])
+    NOSE = Mat([(60, 40, 44), (100, 70, 72)], gloss=0.05)
+    HEAD = V(-15, -14, 0)
+    scale_f, off_f = 1.1, (34, 36)
+
+    def horn_pts(self, s):
+        H = self.HEAD
+        return [H + (1.5, -3, 1.6 * s), H + (4.0, -8, 3.6 * s), H + (2.5, -13, 5.6 * s), H + (-2.5, -16, 6.4 * s)]
+
+    def model(self):
+        m = Model(); H = self.HEAD
+        m.ell((2, -2, 0), (10, 5.5, 5.2), self.FUR, tag="body")                 # 細長的身體，前面比較高
+        m.ell((-5, -4, 0), (5.5, 5.2, 5), self.FUR, tag="chest")
+        m.ell((1, 1.5, 0), (8.5, 3.2, 4.2), self.BELLY, tag="belly")
+        for i in range(6):                                                       # 背上的深色線
+            m.sph((-6 + i * 3.2, -7.2 + abs(i - 2) * 0.3, 0), 1.0, self.WIRE, tag=f"wire{i}")
+        m.tube([(-7, -6, 0), (-11, -10, 0), H + (1, 1, 0)], [3.2, 2.6, 2.3], self.FUR, tag="neck")
+        m.ell(H, (3.6, 3.0, 3.0), self.FUR, tag="head")
+        m.tube([H + (-1.5, 0.5, 0), H + (-6, 2.2, 0)], [2.2, 1.4], self.FUR, tag="snout")
+        m.ell(H + (-6.3, 2.3, 0), (0.9, 0.8, 1.0), self.NOSE, tag="nose")
+        for s in (1, -1):
+            m.ell(H + (2.5, -2.5, 2.8 * s), (2.6, 1.0, 1.0), self.FUR, rot_x(deg(-20 * s)) @ rot_z(deg(30)), tag=f"ear{s}")
+            m.tube(self.horn_pts(s), [1.3, 1.1, 0.8, 0.5], self.HORN, tag=f"horn{s}")
+        # 腳：細長，前腳往前伸、後腳蹬地（往前傾的站姿）
+        for (top, foot) in (((-5, 0, 3), (-9, 14, 3)), ((-5, 0, -3), (-7.5, 14, -3)),
+                            ((8, 0, 3), (11, 14, 3)), ((8, 0, -3), (9.5, 14, -3))):
+            z = top[2]
+            mid = ((top[0] + foot[0]) / 2 + 1.2, 7, z)
+            m.tube([top, mid, foot], [1.8, 1.0, 0.8], self.FUR, tag=f"leg{top[0]}{z}")
+            m.ell((foot[0] - 0.4, foot[1] + 0.6, z), (1.2, 0.8, 1.0), self.HOOF, tag=f"leg{top[0]}{z}")
+        m.tuft((11.5, -4, 0), (3, -2.5, 0), 1.4, self.BELLY, tag="tail")       # 白色的短尾巴翹起來
+        return m
+
+    def paint_front(self, im, info):
+        H = self.HEAD
+        x, y = project(info, H + (-1.6, -0.8, 2.8))
+        eye_round(im, x, y, 1, 2, (60, 130, 200), big_hi=1)
+        # 電弧：兩根角尖之間，折來折去的一條線（亮黃＋白芯）
+        a = project(info, self.horn_pts(1)[-1]); b = project(info, self.horn_pts(-1)[-1])
+        pts = [a]
+        for i in range(1, 4):
+            t = i / 4
+            pts.append((round(a[0] + (b[0] - a[0]) * t) + (2 if i % 2 else -2), round(a[1] + (b[1] - a[1]) * t) - 3 + (i % 2) * 2))
+        pts.append(b)
+        line(im, pts, (255, 220, 80))
+        line(im, [(px, py + 1) for (px, py) in pts], (255, 220, 80))    # 兩像素粗，縮小也看得到
+        for (px, py) in pts[1:-1]:
+            put(im, px, py, (255, 250, 220))
+
+# ============================================================
+# 16 雲根（W66b，2026-10-23 Neil 確認）：榕樹氣根的鹿。
+# 沒有往上長的角：頭上垂下一束束「氣根」，根尖有小葉片或泥土色（讀起來像根，不像頭髮）；
+# 身體是一根根盤起來的樹根，背上長青苔；四隻腳也像樹根，蹄子踩在一團雲裡。穩穩地站著、抬頭
+# （避開哲爾尼亞斯：沒有大的樹枝角、沒有藍黑色的身體）
+# ============================================================
+class CloudRoot(Pal):
+    BARK = Mat([(84, 58, 46), (118, 86, 64), (152, 116, 84), (186, 150, 110)], line=(72, 50, 40))
+    ROOT = Mat([(98, 70, 52), (136, 102, 74), (172, 138, 100)], line=(80, 56, 44))
+    AROOT = Mat([(128, 112, 90), (164, 148, 120), (198, 184, 152), (222, 212, 184)], line=(110, 96, 78))   # 氣根：比身體淺的灰褐色，才不會看起來像毛
+    MOSS = Mat([(48, 96, 52), (72, 134, 64), (110, 170, 84), (160, 206, 120)], line=(46, 92, 50))
+    LEAF = Mat([(40, 112, 58), (70, 156, 66), (118, 198, 84)])
+    SOIL = Mat([(92, 64, 48), (124, 90, 64)])
+    CLOUD = Mat([(170, 184, 200), (206, 216, 228), (232, 238, 246), (250, 252, 255)], line=(170, 184, 200))
+    NOSE = Mat([(60, 40, 44), (100, 70, 72)], gloss=0.05)
+    HEAD = V(-15, -15, 0)
+    scale_f, off_f = 1.0, (34, 36)
+
+    def model(self):
+        m = Model(); H = self.HEAD
+        m.ell((2, -1, 0), (12, 7.5, 7.5), self.BARK, tag="body")
+        m.ell((-7, -3, 0), (6.5, 7.5, 6.5), self.BARK, tag="chest")
+        # 身體上一圈圈盤著的樹根
+        for i in range(3):
+            x = -6 + i * 7
+            pts = [V(x, -8 + (i % 2), 6.8), V(x + 1.5, -1, 8.0), V(x + 3, 5, 6.5)]
+            m.tube(pts, [1.3, 1.2, 1.0], self.ROOT, tag=f"wrap{i}")
+        for i, d in enumerate(fib(18)):                                          # 背上的青苔
+            if d[1] > -0.35: continue
+            m.sph(V(1, -6.5, 0) + d * V(10, 2.5, 5.5), 2.2, self.MOSS, tag=f"moss{i}")
+        m.tube([(-9, -7, 0), (-12, -11, 0), H + (1, 2, 0)], [4.2, 3.6, 3.2], self.BARK, tag="neck")
+        m.ell(H, (4.5, 3.8, 3.8), self.BARK, tag="head")
+        m.tube([H + (-2, 1, 0), H + (-5.5, 2.6, 0)], [2.6, 1.8], self.BARK, tag="snout")     # 吻部短（鹿，不是馬）
+        m.ell(H + (-5.9, 2.7, 0), (1.1, 1.0, 1.2), self.NOSE, tag="nose")
+        m.ell(H + (1.0, -3.4, 0), (4.6, 1.8, 5.4), self.MOSS, tag="crown")        # 頭頂一片青苔，像小小的樹冠（沒有角）
+        for s in (1, -1):
+            m.ell(H + (2.5, -3.0, 3.8 * s), (3.6, 1.4, 1.6), self.BARK, rot_x(deg(-35 * s)) @ rot_z(deg(30)), tag=f"ear{s}")
+        # 氣根：從頭頂和後腦垂下來，一束一束，越往下越細；根尖有葉片或泥土
+        # 從頭的兩側、後腦垂下來（往外張開一點，正面看得到），長短不一，垂到胸前
+        roots = ((-1.0, 4.4, 13), (1.5, 5.2, 20), (4.0, 4.4, 16))
+        for i, (dx, dz, L) in enumerate(roots):
+            for s in (1, -1):
+                top = H + (dx, -2.6, dz * s)
+                # 彎彎曲曲往下（根不是直的，頭髮才是），中途分岔一條細根
+                w = 0.9 if i % 2 else -0.9
+                pts = [top, top + (w, L * 0.35, 1.0 * s), top + (-w, L * 0.7, 1.4 * s), top + (1.0, L, 1.6 * s)]
+                m.tube(pts, [0.9, 0.75, 0.6, 0.45], self.AROOT, tag=f"aroot{i}{s}")
+                fork = top + (w, L * 0.35, 1.0 * s)
+                m.tube([fork, fork + (1.6 + w, L * 0.3, 0.8 * s)], [0.45, 0.3], self.AROOT, tag=f"afork{i}{s}")
+                tip = top + (1.0, L + 1.0, 1.6 * s)
+                if i % 2 == 0: m.ell(tip, (1.8, 1.0, 1.3), self.LEAF, tag=f"atip{i}{s}")   # 根尖的小葉片
+                else: m.sph(tip, 1.1, self.SOIL, tag=f"atip{i}{s}")                       # 根尖沾著泥土
+        # 腳：像樹根，下面分岔；蹄子踩在雲裡
+        for (x, z) in ((-8, 4.5), (-8, -4.5), (9, 4.5), (9, -4.5)):
+            m.tube([(x, 4, z), (x - 0.5, 10, z), (x, 15, z)], [2.8, 2.2, 1.9], self.ROOT, tag=f"leg{x}{z}")
+            m.tube([(x, 13, z), (x - 2.6, 16, z + 0.8)], [1.0, 0.6], self.ROOT, tag=f"legr{x}{z}")
+            for j, (cx, cy, cz, r) in enumerate(((0, 16, 0, 2.6), (-2.5, 16.5, 1.2, 2.0), (2.4, 16.6, -0.8, 2.1))):
+                m.sph((x + cx, cy, z + cz), r, self.CLOUD, tag=f"cloud{x}{z}{j}")
+        m.tube([(13, -3, 0), (16, 0, 0), (17, 4, 0)], [1.4, 1.0, 0.6], self.ROOT, tag="tail")
+        return m
+
+    def paint_front(self, im, info):
+        H = self.HEAD
+        x, y = project(info, H + (-1.8, -0.6, 3.6))
+        eye_round(im, x, y, 1, 2, (120, 190, 110), big_hi=1)     # 安靜的綠眼睛（圓眼、不瞇）
+
+ALL3 = [FanBat(), StoneArmadillo(), MistJelly(), StoveOx(), ThunderAntelope(), CloudRoot()]
+NAMES3 = ["11 搧火蝠", "12 礫殼犰狳", "13 霧傘水母", "14 爐背牛", "15 雷角羚", "16 雲根"]
 
 if __name__ == "__main__":
     fs = [p.front() for p in ALL3]; bs = [p.back() for p in ALL3]

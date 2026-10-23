@@ -24,6 +24,7 @@ EYES = {
     "Hamster": V(-5, -2.5, 5.2), "Bird": V(-2, -1.2, 4.6), "ForestRam": V(-3, -1.5, 5),
     "StoveTanuki": V(-5.5, -2, 5.6), "RiverLord": V(-5, -3.5, 6.5), "MushroomCrab": None, "LampMoth": None,
     "FanBat": V(-3, -1, 4), "StoneArmadillo": V(-2.4, -0.6, 3.8), "MistJelly": None, "StoveOx": V(-3, -1.5, 5.2),
+    "ThunderAntelope": V(-1.6, -0.8, 2.8), "CloudRoot": V(-1.8, -0.6, 3.6),
 }
 
 def kind(tag):

@@ -113,5 +113,20 @@
     "work": { "fire": 2, "carry": 2 },
     "learn": [ [1, "tackle"], [1, "ember"], [10, "bite"], [18, "firefang"], [26, "stoveblast"] ],
     "desc": "背上的煙囪一直冒著熱氣。冬天大家都靠過來取暖，跟發福的中年人一樣，自帶暖氣。"
+  },
+  "15": {
+    "name": "雷角羚", "type": "electric", "sprite": 14,
+    "base": { "hp": 60, "atk": 80, "def": 50, "spd": 95 },
+    "catch": 45, "exp": 160,
+    "work": { "power": 2 },
+    "learn": [ [1, "quick"], [1, "spark"], [12, "leer"], [22, "bite"], [30, "thunder"] ],
+    "desc": "住在山脊的岩壁上，跳一下就不見了。角之間的電光，打雷的晚上特別亮。爬山爬到喘的人看到牠，都會覺得自己的膝蓋很不中用。"
+  },
+  "16": {
+    "name": "雲根", "type": "normal", "sprite": 15,
+    "base": { "hp": 100, "atk": 100, "def": 100, "spd": 100 },
+    "catch": 3, "exp": 250,
+    "learn": [ [1, "tackle"], [1, "mist"], [20, "absorb"], [40, "rootpulse"] ],
+    "desc": "山頂老榕樹的根，和雲纏在一起，變成了牠。島上的人說，牠是這座島的根。比老苔還老，但從來不喊腰痠。"
   }
 }

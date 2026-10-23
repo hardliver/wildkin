@@ -20,5 +20,7 @@
   "shell":     { "name": "縮殼",     "type": "normal",   "power": 0,  "accuracy": 0,   "pp": 30, "desc": "縮進殼裡，讓自己的防禦上升。", "effect": { "kind": "stat", "target": "self", "stat": "def", "stages": 1 } },
   "rockthrow": { "name": "擲石",     "type": "rock",     "power": 50, "accuracy": 90,  "pp": 20, "desc": "撿起石頭丟向對方。" },
   "harden":    { "name": "硬殼",     "type": "rock",     "power": 0,  "accuracy": 0,   "pp": 20, "desc": "把殼上的石頭擠緊，讓自己的防禦上升。", "effect": { "kind": "stat", "target": "self", "stat": "def", "stages": 1 } },
-  "rockslide": { "name": "崩岩",     "type": "rock",     "power": 85, "accuracy": 85,  "pp": 10, "desc": "讓大石頭從上面崩下來。" }
+  "rockslide": { "name": "崩岩",     "type": "rock",     "power": 85, "accuracy": 85,  "pp": 10, "desc": "讓大石頭從上面崩下來。" },
+  "thunder":   { "name": "落雷",     "type": "electric", "power": 90, "accuracy": 80,  "pp": 10, "desc": "從天上劈下一道雷。有時會讓對方麻痺。", "effect": { "kind": "status", "status": "paralyze", "chance": 20 } },
+  "rootpulse": { "name": "根脈",     "type": "normal",   "power": 100, "accuracy": 100, "pp": 5, "desc": "島的樹根從地底湧上來。雲根才會的招。" }
 }

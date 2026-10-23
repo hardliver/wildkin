@@ -519,6 +519,39 @@ MOVE_ANIM.rockslide = function(ctx, u, t)
 end
 MOVE_ANIM.harden = function(ctx, u, t) MOVE_ANIM.shell(ctx, u, t) end
 
+-- 落雷（W66b，雷角羚）：使用者的角一閃，一道大閃電從畫面上方劈到對方身上，打中的瞬間畫面晃
+MOVE_ANIM.thunder = function(ctx, u, t)
+  local ux, uy = ctx.pos(u)
+  local tx, ty = ctx.pos(t)
+  play(ctx, 12, function(i) if i % 4 < 2 then burst(ux, uy - 22, 6 + i // 2, 10, 7) end end)   -- 蓄電
+  play(ctx, 20, function(i)
+    if i <= 14 and (i // 2) % 2 == 0 then
+      bolt(tx + 6, 0, tx, ty, i // 2, 10)            -- 黃色的外層
+      bolt(tx + 6, 0, tx, ty, i // 2 + 9, 7)         -- 白色的芯
+    end
+    if i >= 4 then burst(tx, ty, 8 + i % 6 * 3, 10, 7) end
+    if i % 4 == 0 then ctx.shake((i // 4) % 2 == 0 and 3 or -3, 0) end
+  end)
+  ctx.shake(0, 0)
+end
+
+-- 根脈（W66b，雲根專屬）：使用者低頭；地面裂開，一根根樹根從對方腳下竄上來纏住，再一圈圈綠光散開
+MOVE_ANIM.rootpulse = function(ctx, u, t)
+  local tx, ty = ctx.pos(t)
+  wiggle(ctx, u, 10, 1)
+  play(ctx, 36, function(i)
+    for k = 0, 4 do
+      local x = tx - 24 + k * 12 + (hash(k, 21) % 5 - 2)
+      local h = math.min(i * 3, 18 + hash(k, 22) % 14)                    -- 每根長到不同的高度
+      local base = ty + 22
+      thick_line(x, base, x + (k % 2 == 0 and 3 or -3), base - h, 3, 4)   -- 樹根（褐色）
+      pset(x + (k % 2 == 0 and 3 or -3), base - h, 11)                     -- 根尖一點綠
+    end
+    if i > 16 then fx_ring(tx, ty, (i - 16) * 2, (i % 4 < 2) and 11 or 3) end
+  end)
+  ctx.shake(2, 0); ctx.wait(2); ctx.shake(-2, 0); ctx.wait(2); ctx.shake(0, 0)
+end
+
 local TYPE_ANIM = {
   normal = MOVE_ANIM.tackle, grass = MOVE_ANIM.leaf, fire = MOVE_ANIM.ember,
   water = MOVE_ANIM.splash, electric = MOVE_ANIM.spark, rock = MOVE_ANIM.rockthrow,
