@@ -1,5 +1,12 @@
 -- util.lua：到處都會用到的小工具
 
+-- 凍結自動產生的資料（comet.json 的 data、maps 的物件、sfx）：載入後只讀不寫。
+-- 主機上它們會放在 Flash，不占 RAM（Pico 只有 520 KB）；凍結後寫入會出錯。
+-- 這幾行要在所有用到它們的程式之前（util.lua 是第一個原始碼檔，資料段在它前面）
+DATA = freeze(DATA)
+MAPOBJ = freeze(MAPOBJ)
+SFX = freeze(SFX)
+
 -- 按鍵編號（Comet 的 btn）
 LEFT, RIGHT, UP, DOWN = 0, 1, 2, 3
 A, B, START, SELECT = 4, 5, 6, 7
