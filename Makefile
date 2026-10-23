@@ -2,6 +2,7 @@
 #   make         產生遊戲檔 build/wildkin.lua
 #   make serve   編譯引擎 + 遊戲，瀏覽器開 http://localhost:8421
 #   make check   自動測試：資料檔彼此對得上、遊戲邏輯（tests/*.lua）
+#   make curve   全遊戲等級曲線試算（W78，tools/balance/curve.lua；約 1 分鐘）
 #   make demo    展示版：只有遊玩頁（沒有編輯器）＋試玩回饋表，放在 build/demo/（見 docs/playtest.md）
 #   make clean   清除編譯結果
 #
@@ -12,7 +13,7 @@ PORT ?= 8421
 
 # 合併 comet.json 列出的原始碼（用引擎附的工具，和 Comet Studio 的合併結果相同）
 # 地圖、圖片、Comet 的合併工具改了，都要重新合併
-build/wildkin.lua: comet.json $(wildcard src/*.lua maps/*.json data/*.json assets/*/*.png assets/*/*/*.png) $(ENGINE)/platform/web/cart.js $(ENGINE)/tools/cart.mjs
+build/wildkin.lua: comet.json $(wildcard src/*.lua maps/*.json data/*.json audio/*.json assets/*/*.png assets/*/*/*.png) $(ENGINE)/platform/web/cart.js $(ENGINE)/tools/cart.mjs
 	node $(ENGINE)/tools/cart.mjs .
 
 # 1. 用引擎自己的 Makefile 編譯網頁版（引擎有改過才會重新編譯）
@@ -35,6 +36,12 @@ check: build/wildkin.lua
 	cat build/wildkin.lua tests/*.lua > build/test.lua
 	$(ENGINE)/build/mac build/test.lua build/test.ppm
 
+# 全遊戲等級曲線（W78）：接在遊戲檔後面跑，不放進遊戲本體
+curve: build/wildkin.lua
+	$(MAKE) -C $(ENGINE) build/mac
+	cat build/wildkin.lua tools/balance/curve.lua > build/curve.lua
+	$(ENGINE)/build/mac build/curve.lua build/curve.ppm
+
 # 展示版：引擎編好網頁版之後，tools/demo.mjs 複製遊玩頁需要的檔案、改標題、加回饋表
 demo: build/wildkin.lua
 	$(MAKE) -C $(ENGINE) web
@@ -43,4 +50,4 @@ demo: build/wildkin.lua
 clean:
 	rm -rf build
 
-.PHONY: serve check demo clean
+.PHONY: serve check curve demo clean

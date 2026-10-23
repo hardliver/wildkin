@@ -9,7 +9,7 @@
 
 TALK = TALK or {}
 
-CLOUDROOT_LEVEL = 38   -- 雲根的等級（W74 試算：Lv40 時選火的隊伍 Lv35 只有約 60%；Lv38 約 78–97%）
+CLOUDROOT_LEVEL = 32   -- 雲根的等級（W78 等級曲線：不刻意練等的玩家到這裡約 Lv29–31，勝率約 60–80%；原本 Lv38 選草的要多練約 25 場）
 
 local function P() return PLAYER_NAME end
 

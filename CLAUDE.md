@@ -20,6 +20,7 @@
 | `docs/content.md` | 內容企劃（野伴、地圖、訓練家、道具） |
 | `docs/story.md` | 劇本 |
 | `docs/playtest.md` | 試玩版與回饋表 |
+| `docs/balance.md` | 平衡：等級曲線、遊戲時間（`make curve`） |
 | `../comet/docs/AI_GUIDE.md` | 引擎 API 說明（寫 Lua 前必讀） |
 
 ## 資料夾與建置
@@ -31,7 +32,7 @@ data/        遊戲資料 JSON（只能有整數、文字、true/false；不能�
 maps/        地圖 JSON
 assets/      kenney/（CC0 素材）、art/（原創美術）
 audio/       sfx.json（音效和音樂，tools/audio/make_sfx.py 產生；Studio 的音效編輯器也能改）
-tools/       check_data.mjs（資料一致性檢查）、art/、maps/、audio/（產生圖、地圖、聲音的 Python）
+tools/       check_data.mjs（資料一致性檢查）、art/、maps/、audio/（產生圖、地圖、聲音的 Python）、balance/（等級曲線）
 tests/       遊戲邏輯測試（接在遊戲檔後面，用引擎的 Mac 版無頭跑）
 ```
 

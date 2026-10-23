@@ -88,12 +88,13 @@ local CH_FLAGS = {
   [4] = { "ch3", "coast_hut", "saw_ship", "scene_c3_ship", "trainer_coast1", "trainer_coast2", "trainer_coast3", "volcano",
           "trainer_exec2", "scene_c3_exec", "badge_fire", "ch3_done", "fire:coast", "fire:volcano" },
 }
+-- 等級照 W78 的等級曲線（make curve）：每章開始時一般玩家大約幾級；其他野伴只拿一半經驗，低 3 級
 local CH_PARTY = {      -- 第一隻是初始野伴（等級到了會用進化後的樣子）
   [1] = { 9, { "07", 7 } },
-  [2] = { 15, { "11", 13 }, { "07", 13 } },
-  [3] = { 21, { "11", 19 }, { "12", 19 }, { "13", 19 } },
-  [4] = { 29, { "13", 27 }, { "12", 27 }, { "10", 27 }, { "14", 27 } },   -- 燈蛾：社長室的電梯要發電
-  [5] = { 34, { "13", 32 }, { "12", 32 }, { "10", 32 }, { "14", 32 } },
+  [2] = { 14, { "11", 11 }, { "07", 11 } },
+  [3] = { 19, { "11", 16 }, { "12", 16 }, { "13", 16 } },
+  [4] = { 25, { "13", 22 }, { "12", 22 }, { "10", 22 }, { "14", 22 } },   -- 燈蛾：社長室的電梯要發電
+  [5] = { 28, { "13", 25 }, { "12", 25 }, { "10", 25 }, { "14", 25 } },
 }
 local CH_START = { [1] = { "village", 19, 3 }, [2] = { "village", 2, 14 }, [3] = { "harbor", 9, 19 }, [4] = { "volcano", 16, 13 }, [5] = { "office", 16, 2 } }
 
@@ -159,7 +160,8 @@ local function species_options()
   return opts
 end
 
--- 第 1 章的平衡表：每一行是一個情況，跑 300 場
+-- 第 1 章～終章的平衡表：每一行是一個情況，跑 300 場。
+-- 我方的等級照 W78 的等級曲線（make curve）：一般玩家到那一場時大約幾級（不刻意練等），再加一兩級看練一下的差別
 local function chapter1_table()
   local N = 300
   local rows = {
@@ -205,11 +207,11 @@ local function chapter1_table()
     local keeper2 = {}
     for i, p in ipairs(DATA.trainers.rock_keeper.party) do keeper2[i] = { p.species, p.level } end
     local third = (st == "03") and "09" or "13"
-    rows[#rows + 1] = { "礁嬤：" .. DATA.species[EVO[st]].name .. " Lv20＋" .. DATA.species[mate2[st]].name .. "、" .. DATA.species[third].name .. " Lv18",
-                        { { EVO[st], 20 }, { mate2[st], 18 }, { third, 18 } }, keeper2, false }
+    rows[#rows + 1] = { "礁嬤：" .. DATA.species[EVO[st]].name .. " Lv18＋" .. DATA.species[mate2[st]].name .. "、" .. DATA.species[third].name .. " Lv16",
+                        { { EVO[st], 18 }, { mate2[st], 16 }, { third, 16 } }, keeper2, false }
   end
   -- 第 3 章：范經理、炭爺（W70）。隊伍：進化後的初始＋霧傘水母、礫殼犰狳、搧火蝠（低 2 級）
-  for _, t in ipairs({ { "exec2", "范經理", 24 }, { "fire_keeper", "炭爺", 27 } }) do
+  for _, t in ipairs({ { "exec2", "范經理", 23 }, { "fire_keeper", "炭爺", 25 } }) do
     local foe3 = {}
     for i, p in ipairs(DATA.trainers[t[1]].party) do foe3[i] = { p.species, p.level } end
     for _, st in ipairs({ "01", "03", "05" }) do
@@ -219,8 +221,8 @@ local function chapter1_table()
     end
   end
   -- 終章：工廠的工人、社長（W73）。隊伍：進化後的初始＋霧傘水母、礫殼犰狳、燈蛾（低 2 級；燈蛾是電梯要的）
-  for _, t in ipairs({ { "factory_wood", "阿德", 28 }, { "factory_ore", "品管小姐", 28 }, { "factory_light", "保全大哥", 28 },
-                       { "boss", "社長", 30 }, { "boss", "社長", 32 } }) do
+  for _, t in ipairs({ { "factory_wood", "阿德", 26 }, { "factory_ore", "品管小姐", 26 }, { "factory_light", "保全大哥", 26 },
+                       { "boss", "社長", 27 }, { "boss", "社長", 29 } }) do
     local foe4 = {}
     for i, p in ipairs(DATA.trainers[t[1]].party) do foe4[i] = { p.species, p.level } end
     for _, st in ipairs({ "01", "03", "05" }) do
@@ -240,7 +242,7 @@ local function chapter1_table()
       if ev and p.level >= ev.level then no = ev.to end
       foe5[i] = { no, p.level }
     end
-    for _, lv in ipairs({ 34, 36 }) do
+    for _, lv in ipairs({ 28, 30 }) do
       local me = { { EVO[st], lv }, { mate, lv - 2 }, { "12", lv - 2 }, { "10", lv - 2 } }
       rows[#rows + 1] = { "阿穗第 4 戰：" .. DATA.species[EVO[st]].name .. " Lv" .. lv .. "＋" .. DATA.species[mate].name .. "、礫殼犰狳、燈蛾 Lv" .. (lv - 2), me, foe5, false }
       rows[#rows + 1] = { "雲根 Lv" .. CLOUDROOT_LEVEL .. "（野生）：同上", me, { { "16", CLOUDROOT_LEVEL } }, true }

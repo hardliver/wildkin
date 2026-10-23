@@ -26,7 +26,7 @@
   },
   "forest_keeper": {
     "name": "柏伯", "notice": 0, "sight": 0, "leave": false, "money": 1000,
-    "party": [ { "species": "10", "level": 11 }, { "species": "09", "level": 12 }, { "species": "02", "level": 12 } ],
+    "party": [ { "species": "10", "level": 10 }, { "species": "09", "level": 11 }, { "species": "02", "level": 11 } ],
     "intro": "讓我看看你和野伴的默契！",
     "win": "……好。你的野伴很信任你。",
     "after": "回去跟小苔說，下次換他來找我下棋。"
@@ -43,7 +43,7 @@
   },
   "rock_keeper": {
     "name": "礁嬤", "notice": 0, "sight": 0, "leave": false, "money": 2000,
-    "party": [ { "species": "07", "level": 18 }, { "species": "12", "level": 18 }, { "species": "12", "level": 19 } ],
+    "party": [ { "species": "07", "level": 17 }, { "species": "12", "level": 17 }, { "species": "12", "level": 18 } ],
     "intro": "讓我看看，你是不是急性子！",
     "win": "……穩。你跟你的野伴，都很穩。",
     "after": "回去跟小苔說，飯還是要請。"
@@ -113,49 +113,49 @@
   },
   "fire_keeper": {
     "name": "炭爺", "notice": 0, "sight": 0, "leave": false, "money": 3000,
-    "party": [ { "species": "14", "level": 26 }, { "species": "11", "level": 25 }, { "species": "14", "level": 28 } ],
+    "party": [ { "species": "14", "level": 24 }, { "species": "11", "level": 24 }, { "species": "14", "level": 26 } ],
     "intro": "讓我看看，你燒得夠不夠久！",
     "win": "……燒得好。",
     "after": "回去跟那傢伙說，那顆棋子，我還留著。"
   },
   "exec1": {
     "name": "高處長", "notice": 0, "sight": 0, "leave": true, "money": 1500,
-    "party": [ { "species": "12", "level": 15 }, { "species": "10", "level": 15 }, { "species": "07", "level": 16 } ],
+    "party": [ { "species": "12", "level": 14 }, { "species": "10", "level": 15 }, { "species": "07", "level": 15 } ],
     "intro": "既然你擋路，就照公司的規矩來吧。",
     "win": "……你還是一樣，做事不看 KPI。",
     "after": "……"
   },
   "factory_wood": {
     "name": "夜班工人阿德", "notice": 2, "sight": 4, "leave": false, "money": 600,
-    "party": [ { "species": "07", "level": 27 }, { "species": "11", "level": 27 } ],
+    "party": [ { "species": "07", "level": 26 }, { "species": "11", "level": 26 } ],
     "intro": "大叔，你也是來應徵夜班的？\f（……我看起來像嗎？）",
     "win": "我連續上了 12 天班。\n輸了剛好，可以休息。",
     "after": "控制台的紅色按鈕……\n按下去，我就可以下班了吧。"
   },
   "factory_ore": {
     "name": "品管小姐", "notice": 2, "sight": 4, "leave": false, "money": 650,
-    "party": [ { "species": "12", "level": 28 }, { "species": "13", "level": 28 } ],
+    "party": [ { "species": "12", "level": 26 }, { "species": "13", "level": 26 } ],
     "intro": "不良品要退回。\n……你是哪一批的？",
     "win": "我們做品管的，\n其實最知道哪裡出問題。",
     "after": "這些野伴沒有一隻是不良品。\n……我一直都知道。"
   },
   "factory_light": {
     "name": "保全大哥", "notice": 2, "sight": 4, "leave": false, "money": 700,
-    "party": [ { "species": "14", "level": 29 }, { "species": "10", "level": 29 } ],
+    "party": [ { "species": "14", "level": 27 }, { "species": "10", "level": 27 } ],
     "intro": "這裡是管制區！\n……我也是被派來的啦。",
     "win": "我女兒也很喜歡燈蛾。\n我不敢跟她說我在這裡上班。",
     "after": "今天回家，跟女兒說實話好了。"
   },
   "boss": {
     "name": "社長", "notice": 0, "sight": 0, "leave": false, "money": 3000,
-    "party": [ { "species": "12", "level": 30 }, { "species": "11", "level": 30 }, { "species": "14", "level": 31 }, { "species": "10", "level": 32 } ],
+    "party": [ { "species": "12", "level": 27 }, { "species": "11", "level": 28 }, { "species": "14", "level": 29 }, { "species": "10", "level": 30 } ],
     "intro": "那就讓我看看，你這個「不良品」有多少用處。",
     "win": "……",
     "after": "……"
   },
   "rival4": {
     "name": "阿穗", "notice": 0, "sight": 0, "leave": false, "money": 3000,
-    "party": [ { "species": "rival", "level": 32 }, { "species": "08", "level": 29 }, { "species": "15", "level": 30 } ],
+    "party": [ { "species": "rival", "level": 28 }, { "species": "08", "level": 26 }, { "species": "15", "level": 26 } ],
     "intro": "來吧。最後一場，用全力。",
     "win": "……輸了。輸得很乾脆。",
     "after": "下次換你帶家人來，好嗎？"
