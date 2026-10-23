@@ -225,6 +225,7 @@ function factory_enter(map)
     if not FLAGS.factory_done then
       for i, w in ipairs(WORKERS) do prop_add("w" .. i, w[1], w[2], w[3], i > 3) end
     end
+    if FLAGS.credits then prop_add("aden", "15", 21, 15, false) end   -- 破關後：收容所的所長阿電（W75）
   elseif map == "office" then
     local n = npc_named("president")
     if n and FLAGS.boss then npc_remove(n) end

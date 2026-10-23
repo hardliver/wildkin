@@ -136,6 +136,8 @@ factory_objects = [
     {"type": "event", "x": 20, "y": 23, "scene": "e1_clock"}, {"type": "event", "x": 21, "y": 23, "scene": "e1_clock"},
     {"type": "sign", "x": 20, "y": 12, "text": "社長的大海報：\\n「野伴就是生產力」"},
     {"type": "sign", "x": 22, "y": 22, "text": "鐵輪公司　雲根工廠\\n「野伴打卡上工　全年無休」"},
+    # 破關後（W75）：工廠改成野伴收容所，社長在大廳（ending.lua 的 NPC_HOURS：片尾之後才在）
+    {"type": "npc", "x": 20, "y": 15, "name": "president_shelter", "tile": 233, "talk": "president_shelter", "look": "down"},
     # 高處長：坐在往二樓的缺口前面（E-3）
     {"type": "npc", "x": 26, "y": 12, "name": "exec1", "tile": D(97), "talk": "exec1_factory", "look": "down"},
     # 三條生產線的工人（訓練家）、控制台

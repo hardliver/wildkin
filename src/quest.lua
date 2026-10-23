@@ -65,6 +65,10 @@ QUESTS = {
     hint = "社長室的後門開了。推薦等級 Lv34～36。\n觀景台好像有人在野餐。" },
   { chapter = "終章", title = "到山頂聖所", done = function() return FLAGS.ch4_done end,
     hint = "山脊最北邊。雲根 Lv38：想抓的話多帶精製球，\n先把牠打弱一點、讓牠睡著或麻痺。\n（打倒也可以過關。）" },
+  { chapter = "終章", title = "回家", done = function() return FLAGS.credits end,
+    hint = "社長下山了。走出聖所吧。" },
+  { chapter = "破關後", title = "手冊收集 16/16", done = function() return FLAGS.got_cert end,
+    hint = "還沒抓到的野伴，看手冊的說明找找看。\n全部抓到之後跟老苔說話。\n（守護者每天都可以再比一場，Lv39～43：\n柏伯帶火、礁嬤帶水和草、炭爺帶水和岩。）" },
 
 }
 

@@ -13,6 +13,8 @@
                   "desc": "HP 回復 60。\n成分和大志每天吃的保肝錠差不多。" },
   "photo":    { "name": "家族合照", "sort": 6, "kind": "key", "price": 0, "battle": false, "field": true,
                 "desc": "阿穗一家，和一個表情僵硬的大叔。\n……其實拍得不錯。" },
+  "cert":     { "name": "拓荒者證書", "sort": 7, "kind": "key", "price": 0, "battle": false, "field": true,
+                "desc": "雲根島拓荒計畫　結業。\n年齡欄：40。\f……承辦人員看了很久。" },
   "bento":    { "name": "阿穗老婆的便當", "sort": 5, "kind": "heal", "amount": 20, "price": 0, "battle": true, "field": true,
                 "desc": "阿穗老婆做的便當。HP 回復 20。\n很好吃，有點想哭。" },
   "wood":     { "name": "木材", "sort": 101, "kind": "material", "price": 10, "battle": false, "field": false, "desc": "做球、蓋設施都用得到。\n聞起來像搬家時的紙箱。" },

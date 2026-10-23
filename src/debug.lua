@@ -246,6 +246,18 @@ local function chapter1_table()
       rows[#rows + 1] = { "雲根 Lv" .. CLOUDROOT_LEVEL .. "（野生）：同上", me, { { "16", CLOUDROOT_LEVEL } }, true }
     end
   end
+  -- 破關後：守護者再戰（W75）。帶對屬性的隊伍：柏伯→火（爐背牛、搧火蝠）、礁嬤→水草（霧傘水母、菇菇蟹）、炭爺→水岩
+  local prep = { forest_keeper2 = { "14", "11", "12" }, rock_keeper2 = { "13", "09", "15" }, fire_keeper2 = { "13", "12", "15" } }
+  for _, key in ipairs({ "forest_keeper2", "rock_keeper2", "fire_keeper2" }) do
+    local foe6 = {}
+    for i, p in ipairs(DATA.trainers[key].party) do foe6[i] = { p.species, p.level } end
+    local m = prep[key]
+    for _, st in ipairs({ "01", "03", "05" }) do
+      local me = { { EVO[st], 44 }, { m[1], 42 }, { m[2], 42 }, { m[3], 42 } }
+      rows[#rows + 1] = { DATA.trainers[key].name .. "再戰：" .. DATA.species[EVO[st]].name .. " Lv44＋" .. DATA.species[m[1]].name .. "、" ..
+                          DATA.species[m[2]].name .. "、" .. DATA.species[m[3]].name .. " Lv42", me, foe6, false }
+    end
+  end
   local out = {}
   for _, r in ipairs(rows) do
     out[#out + 1] = r[1]

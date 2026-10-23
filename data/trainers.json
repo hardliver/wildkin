@@ -159,5 +159,26 @@
     "intro": "來吧。最後一場，用全力。",
     "win": "……輸了。輸得很乾脆。",
     "after": "下次換你帶家人來，好嗎？"
+  },
+  "forest_keeper2": {
+    "name": "柏伯", "notice": 0, "sight": 0, "leave": false, "money": 4000,
+    "party": [ { "species": "10", "level": 39 }, { "species": "09", "level": 40 }, { "species": "15", "level": 40 }, { "species": "02", "level": 42 } ],
+    "intro": "再來一盤？……我是說，再比一場？",
+    "win": "小苔下棋輸了三盤。\n輸的人洗碗，他洗了三天。",
+    "after": "今天打過了。明天再來。"
+  },
+  "rock_keeper2": {
+    "name": "礁嬤", "notice": 0, "sight": 0, "leave": false, "money": 4000,
+    "party": [ { "species": "07", "level": 39 }, { "species": "13", "level": 40 }, { "species": "12", "level": 41 }, { "species": "12", "level": 42 } ],
+    "intro": "石頭要一塊一塊疊。\n讓我看看你疊得多高了。",
+    "win": "那頓飯……其實很好吃。\n不要跟他說。",
+    "after": "今天打過了。回去喝杯茶，明天再來。"
+  },
+  "fire_keeper2": {
+    "name": "炭爺", "notice": 0, "sight": 0, "leave": false, "money": 4000,
+    "party": [ { "species": "11", "level": 40 }, { "species": "14", "level": 41 }, { "species": "04", "level": 41 }, { "species": "14", "level": 43 } ],
+    "intro": "火候夠不夠，再燒一次就知道。",
+    "win": "重下的那盤，我輸了。\n……不是故意的。",
+    "after": "今天打過了。先去泡個湯。"
   }
 }

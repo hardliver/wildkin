@@ -5,6 +5,12 @@
   "objects": [
     {"type":"sign","x":16,"y":9,"text":"老苔的小屋"},
     {"type":"npc","x":19,"y":11,"name":"elder","tile":217,"talk":"elder"},
+    {"type":"npc","x":16,"y":13,"name":"guest_bo","tile":219,"talk":"guest_bo","look":"right"},
+    {"type":"npc","x":21,"y":12,"name":"guest_reef","tile":233,"talk":"guest_reef","look":"left"},
+    {"type":"npc","x":17,"y":12,"name":"guest_coal","tile":244,"talk":"guest_coal","look":"right"},
+    {"type":"npc","x":23,"y":13,"name":"guest_asui","tile":221,"talk":"guest_asui","look":"left"},
+    {"type":"npc","x":23,"y":14,"name":"guest_kid1","tile":218,"talk":"guest_kid1","look":"left"},
+    {"type":"npc","x":22,"y":15,"name":"guest_kid2","tile":245,"talk":"guest_kid2","look":"left"},
     {"type":"workbench","x":11,"y":13},
     {"type":"bed","x":13,"y":7},
     {"type":"sign","x":27,"y":14,"text":"設施空地\n面對空地按 A，用材料蓋設施"},

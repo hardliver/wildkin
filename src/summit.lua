@@ -23,12 +23,14 @@ end
 -- 進地圖（scenes.lua 的 scene_on_enter 呼叫）
 function summit_enter(map)
   if map == "ridge" then
+    if ending_check(map) then return end   -- 社長下山之後第一次走出聖所：結局（ending.lua）
     if not FLAGS.ridge then cutscene_start(SCENE.e8_ridge) end
   elseif map == "summit" then
     if FLAGS.ch4_done then
       -- 劇情結束：社長帶著阿電下山了；雲根沒被抓到的話回到樹根裡（W75 再挑戰）
       local n = npc_named("president")
       if n then npc_remove(n) end
+      if cloudroot_again_visible() then prop_add("root", "16", 9, 4, false) end   -- 破關後再挑戰（ending.lua）
     elseif FLAGS.summit then
       -- 輸了、逃走了再回來：雲根和阿電還在
       prop_add("root", "16", 9, 4, false)

@@ -40,6 +40,7 @@
     "src/volcano.lua",
     "src/factory.lua",
     "src/summit.lua",
+    "src/ending.lua",
     "src/kin.lua",
     "src/shiny.lua",
     "src/battle.lua",

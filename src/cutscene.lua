@@ -254,6 +254,19 @@ function narrate(text)
   overlay = { kind = "black" }
 end
 
+-- 片尾（W75）：黑畫面上，一行一行字從下往上捲。lines 裡的 "" 是空一行
+-- 每 2 幀往上 1 像素；全部捲出畫面就結束（按住 A 捲快 4 倍，和戰鬥加速一樣）
+local CREDIT_LINE = 18
+function credits_roll(lines)
+  overlay = { kind = "credits", lines = lines, y = SCREEN_H * 2 }   -- y：第一行的位置 × 2（放大 2 倍才能每 2 幀動 1 像素）
+  local finish = -(#lines * CREDIT_LINE) * 2
+  while overlay.y > finish do
+    overlay.y = overlay.y - (btn(0, A) and 4 or 1)
+    coroutine.yield()
+  end
+  overlay = { kind = "black" }
+end
+
 -- 黑畫面（先拉百葉窗變黑）／回到地圖
 function blackout(on)
   if on then fade(function() overlay = { kind = "black" } end)
@@ -323,6 +336,12 @@ function cutscene_overlay_draw()
     for _, l in ipairs(lines) do
       text(l, (SCREEN_W - textw(l)) // 2, y, 7)
       y = y + 18
+    end
+  elseif overlay.kind == "credits" then
+    local y = overlay.y // 2
+    for i, l in ipairs(overlay.lines) do
+      local ly = y + (i - 1) * CREDIT_LINE
+      if ly > -16 and ly < SCREEN_H then text(l, (SCREEN_W - textw(l)) // 2, ly, (i == 1) and 10 or 7) end   -- 只畫看得到的行
     end
   elseif overlay.kind == "chapter" then
     sspr(IMG.chapters, 0, (overlay.n - 1) * CHAPTER_H, CHAPTER_W, CHAPTER_H,

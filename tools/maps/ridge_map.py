@@ -172,5 +172,8 @@ summit_objects = [
     {"type": "event", "x": 7, "y": 9, "scene": "e11_summit"}, {"type": "event", "x": 8, "y": 9, "scene": "e11_summit"},
     {"type": "event", "x": 9, "y": 9, "scene": "e11_summit"}, {"type": "event", "x": 10, "y": 9, "scene": "e11_summit"},
     {"type": "event", "x": 11, "y": 9, "scene": "e11_summit"}, {"type": "event", "x": 12, "y": 9, "scene": "e11_summit"},
+    # 破關後：打倒、沒抓到的雲根回到樹根下，可以再挑戰（W75，ending.lua）
+    {"type": "event", "x": 8, "y": 6, "scene": "cloudroot_again"}, {"type": "event", "x": 9, "y": 6, "scene": "cloudroot_again"},
+    {"type": "event", "x": 10, "y": 6, "scene": "cloudroot_again"},
 ]
 write("summit", W, H, ground, deco, solid, glayer, summit_objects)
