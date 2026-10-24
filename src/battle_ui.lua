@@ -648,6 +648,8 @@ end
 --   收回、放出：粉紅色的光（米色背景上白色看不清楚；W65b）
 WHITE_MAP, HIT_MAP, GLOW_MAP = {}, {}, {}
 for i = 1, 255 do WHITE_MAP[i] = 7; HIT_MAP[i] = 1; GLOW_MAP[i] = 14 end
+-- 填好就不會再改：放進唯讀區（主機省 RAM，每張約 4 KB）
+WHITE_MAP, HIT_MAP, GLOW_MAP = freeze(WHITE_MAP), freeze(HIT_MAP), freeze(GLOW_MAP)
 
 local function draw_foe()
   local v, fx = S.view[2], S.fx[2]

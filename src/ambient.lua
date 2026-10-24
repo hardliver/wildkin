@@ -70,8 +70,14 @@ end
 local TALL_TOP = { [4] = true, [5] = true }   -- 地圖編號（town 第 3、4 格）
 local GRASS = { [2] = true, [3] = true }      -- 會翻動的地面（town 第 1、2 格：草叢、小花）
 
-local plant_rows = {}   -- plant_rows[cy] = { cx, 圖, 第幾格, hash, 兩格高嗎, … }（攤平，每 5 個一組，少建表格）
-local flip_rows = {}    -- 會翻動的草：flip_rows[cy] = { cx1, v1, h1, … }
+-- 記憶體（2026-10-24，Nova 主機實測）：本來每棵植物存 5 個數字、每格草存 3 個數字，
+-- Lua 的表格每個數字佔 16 bytes，一張大地圖光這兩個快取就要 40 多 KB，主機的記憶體會不夠。
+-- 改成每棵植物、每格草「一個整數」，用位元運算把幾個小數字裝在一起（打包）：
+--   植物：hash（16 位元）| 第幾格 << 16（10 位元）| 圖 << 26（8 位元）| cx << 34（12 位元）| 兩格高 << 46
+--   草：  hash（16 位元）| 地面編號 << 16（8 位元）| cx << 24（12 位元）
+-- 讀的時候用 >> 和 & 拆回來，結果和以前完全一樣
+local plant_rows = {}   -- plant_rows[cy] = { 打包的植物, … }
+local flip_rows = {}    -- flip_rows[cy] = { 打包的草, … }
 
 function ambient_enter()
   plant_rows, flip_rows = {}, {}
@@ -83,13 +89,12 @@ function ambient_enter()
       local v = world.has_plants and mget(m, "plants", cx, cy) or 0
       if v ~= 0 then
         local img, n = world_tile_image(v)   -- 先算好是哪張圖的第幾格，畫的時候直接 spr
-        pr[#pr + 1] = cx; pr[#pr + 1] = img; pr[#pr + 1] = n
-        pr[#pr + 1] = hash(cx, TALL_TOP[v] and cy + 1 or cy, 1)   -- 兩格高的樹用下面那格的 hash
-        pr[#pr + 1] = TALL_TOP[v] or false
+        local hh = hash(cx, TALL_TOP[v] and cy + 1 or cy, 1)   -- 兩格高的樹用下面那格的 hash
+        pr[#pr + 1] = hh | n << 16 | img << 26 | cx << 34 | (TALL_TOP[v] and 1 or 0) << 46
       end
       local g = mget(m, "ground", cx, cy)
       if GRASS[g] then
-        fr[#fr + 1] = cx; fr[#fr + 1] = g; fr[#fr + 1] = hash(cx, cy, 2)
+        fr[#fr + 1] = hash(cx, cy, 2) | g << 16 | cx << 24
       end
     end
     plant_rows[cy], flip_rows[cy] = pr, fr
@@ -103,12 +108,13 @@ function plants_draw()
     local row = plant_rows[cy]
     if row then
       local y = cy * TILE
-      for i = 1, #row, 5 do
-        local cx = row[i]
+      for i = 1, #row do
+        local p = row[i]
+        local cx = p >> 34 & 0xfff
         if cx >= cx0 and cx <= cx1 then
-          local img, n, x = row[i + 1], row[i + 2], cx * TILE
-          local s = sways_h(row[i + 3])
-          if row[i + 4] then
+          local img, n, x = p >> 26 & 0xff, p >> 16 & 0x3ff, cx * TILE
+          local s = sways_h(p & 0xffff)
+          if p >> 46 & 1 == 1 then
             spr(img, n, x + s, y)
           elseif s == 0 then
             spr(img, n, x, y)
@@ -133,11 +139,12 @@ function grass_draw()
   for cy = cy0, cy0 + SCREEN_H // TILE do
     local row = flip_rows[cy]
     if row then
-      for i = 1, #row, 3 do
-        local cx, h = row[i], row[i + 2]
+      for i = 1, #row do
+        local p = row[i]
+        local cx, h = p >> 24 & 0xfff, p & 0xffff
         -- 比樹難吹動（門檻 3～10），每 60～109 幀翻一次
         if cx >= cx0 and cx <= cx1 and h % 8 + 3 <= wind and (f + h) % (60 + h % 50) < 8 then
-          world_spr(row[i + 1], cx * TILE, cy * TILE, true)
+          world_spr(p >> 16 & 0xff, cx * TILE, cy * TILE, true)
         end
       end
     end

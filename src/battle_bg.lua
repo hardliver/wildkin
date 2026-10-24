@@ -28,6 +28,7 @@ local COLORS = {
   factory = { {90,96,110}, {120,126,140}, {150,156,168}, {110,116,130}, {230,190,60}, {50,50,55},
               {170,170,165}, {158,158,154}, {130,130,128}, {185,185,180}, {140,140,136} },
 }
+COLORS = freeze(COLORS)   -- 固定的表：放進唯讀區（主機省 RAM）
 local INDOOR_BG = { cave = true, volcano = true, factory = true }
 
 BG_OF_MAP = {
