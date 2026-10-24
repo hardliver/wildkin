@@ -380,6 +380,8 @@ local function finish()
   transition_start(function()
     local over, on_end = S.b.over, S.on_end
     S = nil
+    battle_bg_end()    -- 背景的長方形清單不要了（battle_bg.lua）
+    ambient_enter()    -- 重建地圖的植物、草快取（開戰時放掉了，ambient.lua）
     map_music()        -- 回到地圖的音樂（sound.lua）
     if on_end then on_end(over) end
   end)
@@ -445,6 +447,7 @@ local function begin(foe_party, opts, on_end)
   if o.catch_pct == nil then o.catch_pct = sleep_catch_pct() end   -- 大志的手感（sleep.lua）
   opts = o
   local b = battle_new(party, foe_party, opts)
+  ambient_suspend()   -- 地圖的植物、草快取先放掉，省記憶體（ambient.lua）
   battle_bg_begin()   -- 背景：地點、時間、天氣（battle_bg.lua）
   S = {
     b = b, view = {}, on_end = on_end,

@@ -101,6 +101,12 @@ function ambient_enter()
   end
 end
 
+-- 戰鬥中不畫地圖，這兩個快取先放掉（大地圖約 13 KB），戰鬥結束再用 ambient_enter 重建。
+-- （2026-10-24 Nova 主機：戰鬥時記憶體不夠。重建只在轉場全黑時做一次）
+function ambient_suspend()
+  plant_rows, flip_rows = {}, {}
+end
+
 function plants_draw()
   local cx0, cy0 = world.cam_x // TILE, world.cam_y // TILE
   local cx1 = cx0 + SCREEN_W // TILE
